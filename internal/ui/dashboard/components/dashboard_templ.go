@@ -8,9 +8,7 @@ package components
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-import (
-	"fmt"
-)
+import "fmt"
 
 func Sidebar() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
@@ -33,7 +31,7 @@ func Sidebar() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<aside class=\"w-64 bg-base-100 border-r h-screen p-4\"><h2 class=\"font-bold text-xl mb-4\">Daisy Corp2</h2><ul class=\"menu\"><li><a class=\"active\">Dashboard</a></li><li><a href=\"/patients\">Patients</a></li><li><a href=\"/prescriptions\">Prescriptions</a></li><li><a>Logs</a></li><li><a>Messages <div class=\"badge badge-info\">12</div></a></li></ul></aside>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<aside class=\"w-64 bg-base-100 border-r h-screen p-4\"><h2 class=\"font-bold text-xl mb-4\">Daisy Corp</h2><ul class=\"menu\"><li><a class=\"active\">Dashboard</a></li><li><a href=\"/patients\">Patients</a></li><li><a href=\"/prescriptions\">Prescriptions</a></li><li><a>Logs</a></li><li><a>Messages <div class=\"badge badge-info\">12</div></a></li></ul></aside>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -69,7 +67,7 @@ func Header(title string) templ.Component {
 		var templ_7745c5c3_Var3 string
 		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/common/components/layout.templ`, Line: 22, Col: 45}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/dashboard/components/dashboard.templ`, Line: 20, Col: 45}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 		if templ_7745c5c3_Err != nil {
@@ -111,7 +109,7 @@ func StatCard(label string, value string, sub string) templ.Component {
 		var templ_7745c5c3_Var5 string
 		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(label)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/common/components/layout.templ`, Line: 29, Col: 43}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/dashboard/components/dashboard.templ`, Line: 27, Col: 42}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 		if templ_7745c5c3_Err != nil {
@@ -124,7 +122,7 @@ func StatCard(label string, value string, sub string) templ.Component {
 		var templ_7745c5c3_Var6 string
 		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(value)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/common/components/layout.templ`, Line: 30, Col: 43}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/dashboard/components/dashboard.templ`, Line: 28, Col: 42}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 		if templ_7745c5c3_Err != nil {
@@ -137,7 +135,7 @@ func StatCard(label string, value string, sub string) templ.Component {
 		var templ_7745c5c3_Var7 string
 		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(sub)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/common/components/layout.templ`, Line: 31, Col: 41}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/dashboard/components/dashboard.templ`, Line: 29, Col: 40}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 		if templ_7745c5c3_Err != nil {

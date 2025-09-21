@@ -10,21 +10,22 @@ import (
 	"github.com/pharmacy-modernization-project-model/internal/platform/httpx"
 	"github.com/pharmacy-modernization-project-model/internal/platform/logging"
 
-	patientapi "github.com/pharmacy-modernization-project-model/internal/domain/patient/handlers"
 	patientroutes "github.com/pharmacy-modernization-project-model/internal/domain/patient"
+	patientapi "github.com/pharmacy-modernization-project-model/internal/domain/patient/handlers"
 	patientrepo "github.com/pharmacy-modernization-project-model/internal/domain/patient/repository"
 	patientservice "github.com/pharmacy-modernization-project-model/internal/domain/patient/service"
 
-	prescapi "github.com/pharmacy-modernization-project-model/internal/domain/prescription/handlers"
 	prescroutes "github.com/pharmacy-modernization-project-model/internal/domain/prescription"
+	prescapi "github.com/pharmacy-modernization-project-model/internal/domain/prescription/handlers"
 	prescrepo "github.com/pharmacy-modernization-project-model/internal/domain/prescription/repository"
 	prescservice "github.com/pharmacy-modernization-project-model/internal/domain/prescription/service"
 
-	uipatient "github.com/pharmacy-modernization-project-model/internal/ui/patient/handlers"
+	uidashboardroutes "github.com/pharmacy-modernization-project-model/internal/ui/dashboard"
+	uidashboard "github.com/pharmacy-modernization-project-model/internal/ui/dashboard/handlers"
 	uipatientroutes "github.com/pharmacy-modernization-project-model/internal/ui/patient"
-	uipres "github.com/pharmacy-modernization-project-model/internal/ui/prescription/handlers"
+	uipatient "github.com/pharmacy-modernization-project-model/internal/ui/patient/handlers"
 	uipresroutes "github.com/pharmacy-modernization-project-model/internal/ui/prescription"
-	uicommon "github.com/pharmacy-modernization-project-model/internal/ui/common/components"
+	uipres "github.com/pharmacy-modernization-project-model/internal/ui/prescription/handlers"
 )
 
 func (a *App) wire() error {
@@ -62,9 +63,7 @@ func (a *App) wire() error {
 	// UI
 	uipatientroutes.MountUI(r, uipatient.New(patSvc, logger.Base))
 	uipresroutes.MountUI(r, uipres.New(preSvc, logger.Base))
-
-	// Root dashboard
-	r.Get("/", uicommon.DashboardHandler(patSvc, preSvc))
+	uidashboardroutes.MountUI(r, uidashboard.New(patSvc, preSvc))
 
 	a.Router = r
 	return nil
