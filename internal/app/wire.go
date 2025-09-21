@@ -20,8 +20,7 @@ import (
 	prescrepo "github.com/pharmacy-modernization-project-model/internal/domain/prescription/repository"
 	prescservice "github.com/pharmacy-modernization-project-model/internal/domain/prescription/service"
 
-	uidashboardroutes "github.com/pharmacy-modernization-project-model/internal/ui/dashboard"
-	uidashboard "github.com/pharmacy-modernization-project-model/internal/ui/dashboard/handlers"
+	uidashboard "github.com/pharmacy-modernization-project-model/internal/ui/dashboard"
 	uipatientroutes "github.com/pharmacy-modernization-project-model/internal/ui/patient"
 	uipatient "github.com/pharmacy-modernization-project-model/internal/ui/patient/handlers"
 	uipresroutes "github.com/pharmacy-modernization-project-model/internal/ui/prescription"
@@ -63,7 +62,7 @@ func (a *App) wire() error {
 	// UI
 	uipatientroutes.MountUI(r, uipatient.New(patSvc, logger.Base))
 	uipresroutes.MountUI(r, uipres.New(preSvc, logger.Base))
-	uidashboardroutes.MountUI(r, uidashboard.NewDashboardPage(patSvc, preSvc))
+	uidashboard.MountUI(r, uidashboard.NewDashboardPage(patSvc, preSvc))
 
 	a.Router = r
 	return nil

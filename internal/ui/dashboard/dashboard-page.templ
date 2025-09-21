@@ -1,0 +1,32 @@
+package dashboard
+
+import (
+	"fmt"
+	commonComponents "github.com/pharmacy-modernization-project-model/internal/ui/common/components"
+	layouts "github.com/pharmacy-modernization-project-model/internal/ui/common/layouts"
+)
+
+type DashboardPageParam struct {
+	NumberOfPatients    int
+	ActivePrescriptions int
+}
+
+templ DashboardPage(pageParam DashboardPageParam) {
+	@layouts.BaseLayout("Dashboard", dashboard(pageParam))
+}
+
+templ dashboard(pageParam DashboardPageParam) {
+	<div class="flex">
+		@layouts.Sidebar()
+		<main class="flex-1">
+			@commonComponents.PageHeader("Dashboard")
+			<section class="p-4 grid gap-4 md:grid-cols-2">
+				@commonComponents.StatisticsCard("Total Patients", fmt.Sprintf("%d", pageParam.NumberOfPatients), "since last month")
+				@commonComponents.StatisticsCard("Active Prescriptions", fmt.Sprintf("%d", pageParam.ActivePrescriptions), "since last month")
+			</section>
+			<section class="p-4">
+				Dashboard content goes here...
+			</section>
+		</main>
+	</div>
+}

@@ -2,9 +2,8 @@ package dashboard
 
 import (
 	"github.com/go-chi/chi/v5"
-	handlers "github.com/pharmacy-modernization-project-model/internal/ui/dashboard/handlers"
 )
 
-func MountUI(r chi.Router, ui *handlers.DashboardPageDI) {
-	r.Get("/", ui.DashboardPage)
+func MountUI(r chi.Router, ui *DashboardPageDI) {
+	r.Get("/", ui.DashboardPageHandler)
 }
