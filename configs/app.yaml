@@ -1,0 +1,12 @@
+app:
+  name: rxintake
+  env: dev
+  port: 8080
+logging:
+  level: debug
+  format: console
+external:
+  pharmacy:
+    base_url: "https://api.examplepharmacy.com"
+    api_key: ""
+    timeout: "10s"

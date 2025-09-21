@@ -1,0 +1,58 @@
+package components
+
+import (
+  "fmt"
+)
+
+templ Sidebar() {
+<aside class="w-64 bg-base-100 border-r h-screen p-4">
+  <h2 class="font-bold text-xl mb-4">Daisy Corp</h2>
+  <ul class="menu">
+    <li><a class="active">Dashboard</a></li>
+    <li><a href="/patients">Patients</a></li>
+    <li><a href="/prescriptions">Prescriptions</a></li>
+    <li><a>Logs</a></li>
+    <li><a>Messages <div class="badge badge-info">12</div></a></li>
+  </ul>
+</aside>
+}
+
+templ Header(title string) {
+<header class="p-4 bg-base-100 border-b">
+  <div class="text-2xl font-semibold">{ title }</div>
+</header>
+}
+
+templ StatCard(label string, value string, sub string) {
+<div class="card bg-base-100 shadow">
+  <div class="card-body">
+    <div class="text-sm opacity-60">{ label }</div>
+    <div class="text-4xl font-bold">{ value }</div>
+    <div class="text-xs opacity-60">{ sub }</div>
+  </div>
+</div>
+}
+
+templ TableHeader() {
+<div class="card bg-base-100 shadow">
+  <div class="card-body">
+    <div class="text-lg font-semibold">Transactions</div>
+  </div>
+</div>
+}
+
+templ Dashboard(pats int, actives int) {
+<div class="flex">
+  { Sidebar() }
+  <main class="flex-1">
+    { Header("Dashboard") }
+    <section class="p-4 grid gap-4 md:grid-cols-2">
+      { StatCard("Total Patients", fmt.Sprintf("%d", pats), "since last month") }
+      { StatCard("Active Prescriptions", fmt.Sprintf("%d", actives), "since last month") }
+    </section>
+    <section class="p-4">
+      { TableHeader() }
+    </section>
+  </main>
+</div>
+}
