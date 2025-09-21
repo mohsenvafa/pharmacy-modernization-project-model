@@ -9,8 +9,22 @@ import (
 
 func DashboardHandler(ps patSvc.Service, rs preSvc.Service) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		pats, _ := ps.List(r.Context(), "", 1000, 0)
-		pres, _ := rs.List(r.Context(), "Active", 1000, 0)
-		_ = Dashboard(len(pats), len(pres)).Render(r.Context(), w)
+		pats, err := ps.List(r.Context(), "", 1000, 0)
+		if err != nil {
+			http.Error(w, "failed to load patients", http.StatusInternalServerError)
+			return
+		}
+
+		pres, err := rs.List(r.Context(), "Active", 1000, 0)
+		if err != nil {
+			http.Error(w, "failed to load prescriptions", http.StatusInternalServerError)
+			return
+		}
+
+		page := BaseLayout("Dashboard", Dashboard(len(pats), len(pres)))
+		if err := page.Render(r.Context(), w); err != nil {
+			http.Error(w, "failed to render dashboard", http.StatusInternalServerError)
+			return
+		}
 	}
 }

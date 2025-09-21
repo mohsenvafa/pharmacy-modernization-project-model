@@ -6,7 +6,7 @@ import (
 
 templ Sidebar() {
 <aside class="w-64 bg-base-100 border-r h-screen p-4">
-  <h2 class="font-bold text-xl mb-4">Daisy Corp</h2>
+  <h2 class="font-bold text-xl mb-4">Daisy Corp2</h2>
   <ul class="menu">
     <li><a class="active">Dashboard</a></li>
     <li><a href="/patients">Patients</a></li>
@@ -43,15 +43,15 @@ templ TableHeader() {
 
 templ Dashboard(pats int, actives int) {
 <div class="flex">
-  { Sidebar() }
+  @Sidebar()
   <main class="flex-1">
-    { Header("Dashboard") }
+    @Header("Dashboard")
     <section class="p-4 grid gap-4 md:grid-cols-2">
-      { StatCard("Total Patients", fmt.Sprintf("%d", pats), "since last month") }
-      { StatCard("Active Prescriptions", fmt.Sprintf("%d", actives), "since last month") }
+      @StatCard("Total Patients", fmt.Sprintf("%d", pats), "since last month")
+      @StatCard("Active Prescriptions", fmt.Sprintf("%d", actives), "since last month")
     </section>
     <section class="p-4">
-      { TableHeader() }
+      @TableHeader()
     </section>
   </main>
 </div>
