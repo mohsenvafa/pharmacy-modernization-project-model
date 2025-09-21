@@ -63,7 +63,7 @@ func (a *App) wire() error {
 	// UI
 	uipatientroutes.MountUI(r, uipatient.New(patSvc, logger.Base))
 	uipresroutes.MountUI(r, uipres.New(preSvc, logger.Base))
-	uidashboardroutes.MountUI(r, uidashboard.New(patSvc, preSvc))
+	uidashboardroutes.MountUI(r, uidashboard.NewDashboardPage(patSvc, preSvc))
 
 	a.Router = r
 	return nil

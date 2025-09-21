@@ -6,7 +6,11 @@ import (
 	layouts "github.com/pharmacy-modernization-project-model/internal/ui/common/layouts"
 )
 
-templ Dashboard(pats int, actives int) {
+templ DashboardPage(pats int, actives int) {
+	@layouts.BaseLayout("Dashboard", dashboard(pats, actives))
+}
+
+templ dashboard(pats int, actives int) {
 	<div class="flex">
 		@layouts.Sidebar()
 		<main class="flex-1">
