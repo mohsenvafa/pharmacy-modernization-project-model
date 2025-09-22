@@ -1,2 +1,3 @@
 .gocache
 *_templ.go
+.npm-cache
