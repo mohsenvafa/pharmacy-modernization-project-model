@@ -1335,6 +1335,10 @@ video {
   margin-bottom: 1rem;
 }
 
+.mt-4 {
+  margin-top: 1rem;
+}
+
 .flex {
   display: flex;
 }
