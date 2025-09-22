@@ -26,28 +26,24 @@ templ patientList(pageParam PatientListPageParam) {
 						</h2>
 					</div>
 				</div>
-				<div class="overflow-x-auto">
-					<table class="table-zebra table">
-						<tbody>
-							<tr>
-								<td class="w-0"><input type="checkbox" class="checkbox"/></td>
-								<td>
-									<div class="flex items-center gap-4">
-										<div>
-											<div class="text-sm font-bold">Hart Hagerty</div>
-											<div class="text-xs opacity-50">United States</div>
-										</div>
-									</div>
-								</td>
-								<td>Feb 2nd</td>
-								<td>
-									5 Prescriptions
-								</td>
-							</tr>
-						</tbody>
-					</table>
-				</div>
+				@commonComponents.DataTable(patientTableColumns, patientTableRows())
 			</section>
 		</main>
 	</div>
+}
+
+templ patientTableRows() {
+	<tr>
+		<td class="w-0"><input type="checkbox" class="checkbox"/></td>
+		<td>
+			<div class="flex items-center gap-4">
+				<div>
+					<div class="text-sm font-bold">Hart Hagerty</div>
+					<div class="text-xs opacity-50">United States</div>
+				</div>
+			</div>
+		</td>
+		<td>Feb 2nd</td>
+		<td>5 Prescriptions</td>
+	</tr>
 }

@@ -1,0 +1,23 @@
+package components
+
+type DataTableColumn struct {
+	Title string
+	Class string
+}
+
+templ DataTable(columns []DataTableColumn, body templ.Component) {
+	<div class="overflow-x-auto">
+		<table class="table table-zebra">
+			<thead class="bg-base-200 text-xs uppercase text-base-content/60">
+				<tr>
+					for _, col := range columns {
+						<th class={templ.Classes("font-semibold tracking-wide", col.Class)}>{ col.Title }</th>
+					}
+				</tr>
+			</thead>
+			<tbody>
+				@body
+			</tbody>
+		</table>
+	</div>
+}
