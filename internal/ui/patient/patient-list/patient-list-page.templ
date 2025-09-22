@@ -18,8 +18,35 @@ templ patientList(pageParam PatientListPageParam) {
 		@layouts.Sidebar()
 		<main class="flex-1">
 			@commonComponents.PageHeader("Patients")
-			<section class="p-4">
-				Patient content goes here...
+			<section class="card bg-base-100 col-span-12 overflow-hidden shadow-xs xl:col-span-7">
+				<div class="card-body grow-0">
+					<div class="flex justify-between gap-2">
+						<h2 class="card-title grow">
+							<a class="link-hover link">Recent Patients</a>
+						</h2>
+					</div>
+				</div>
+				<div class="overflow-x-auto">
+					<table class="table-zebra table">
+						<tbody>
+							<tr>
+								<td class="w-0"><input type="checkbox" class="checkbox"/></td>
+								<td>
+									<div class="flex items-center gap-4">
+										<div>
+											<div class="text-sm font-bold">Hart Hagerty</div>
+											<div class="text-xs opacity-50">United States</div>
+										</div>
+									</div>
+								</td>
+								<td>Feb 2nd</td>
+								<td>
+									5 Prescriptions
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
 			</section>
 		</main>
 	</div>
