@@ -3,8 +3,8 @@ package patient
 import (
 	"github.com/go-chi/chi/v5"
 	patSvc "github.com/pharmacy-modernization-project-model/internal/domain/patient/service"
-	patientdetail "github.com/pharmacy-modernization-project-model/internal/ui/patient/patient-detail"
-	pateitnList "github.com/pharmacy-modernization-project-model/internal/ui/patient/patient-list"
+	patientdetail "github.com/pharmacy-modernization-project-model/internal/ui/patient/patient_detail"
+	pateitnList "github.com/pharmacy-modernization-project-model/internal/ui/patient/patient_list"
 	"go.uber.org/zap"
 )
 
