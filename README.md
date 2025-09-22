@@ -1,7 +1,7 @@
 # rxintake (Patient & Prescription Management - scaffold)
 
 ## Dev
-- Install: Go 1.24, Node (tailwindcss), `templ`
+- Install: Go 1.24, `templ`
 - Run: `make dev`
 - Open: http://localhost:8080
 

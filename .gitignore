@@ -16,15 +16,10 @@ dist/
 .tmp/
 .gocache
 vendor/
+node_modules/
 
 # Generated templ files
 *_templ.go
 
-# Node tooling
-node_modules/
-.npm-cache/
-
 # OS junk
 .DS_Store
-.npm-cache
-package-lock.json
