@@ -9,7 +9,7 @@ import (
 )
 
 type PatientDpendencies struct {
-	PatientSvc patSvc.Service
+	PatientSvc patSvc.PatientService
 	Log        *zap.Logger
 }
 

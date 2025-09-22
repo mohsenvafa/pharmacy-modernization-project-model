@@ -8,7 +8,7 @@ import (
 	"go.uber.org/zap"
 )
 
-type Service interface {
+type PatientService interface {
 	List(ctx context.Context, q string, limit, offset int) ([]m.Patient, error)
 	GetByID(ctx context.Context, id string) (m.Patient, error)
 }
@@ -18,7 +18,7 @@ type svc struct {
 	log  *zap.Logger
 }
 
-func New(r repo.PatientRepository, l *zap.Logger) Service { return &svc{repo: r, log: l} }
+func New(r repo.PatientRepository, l *zap.Logger) PatientService { return &svc{repo: r, log: l} }
 
 func (s *svc) List(ctx context.Context, q string, limit, offset int) ([]m.Patient, error) {
 	return s.repo.List(ctx, q, limit, offset)

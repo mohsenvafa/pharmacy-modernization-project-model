@@ -7,7 +7,7 @@ import (
 )
 
 type DashboardDpendencies struct {
-	PatientSvc      patSvc.Service
+	PatientSvc      patSvc.PatientService
 	PrescriptionSvc preSvc.Service
 }
 

@@ -10,11 +10,11 @@ import (
 )
 
 type PatientDetailHandler struct {
-	patientsService patSvc.Service
+	patientsService patSvc.PatientService
 	log             *zap.Logger
 }
 
-func NewPatientDetailHandler(patients patSvc.Service, log *zap.Logger) *PatientDetailHandler {
+func NewPatientDetailHandler(patients patSvc.PatientService, log *zap.Logger) *PatientDetailHandler {
 	return &PatientDetailHandler{patientsService: patients, log: log}
 }
 
