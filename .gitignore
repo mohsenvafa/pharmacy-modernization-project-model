@@ -1,3 +1,29 @@
+# Go binaries and build output
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+coverage*.html
+*.coverprofile
+*.cover.out
+
+# Build directories and caches
+bin/
+dist/
+.tmp/
 .gocache
+vendor/
+
+# Generated templ files
 *_templ.go
+
+# Node tooling
+node_modules/
+.npm-cache/
+
+# OS junk
+.DS_Store
 .npm-cache
