@@ -22,12 +22,8 @@ import (
 
 	uidashboardMdoule "github.com/pharmacy-modernization-project-model/internal/ui/dashboard"
 	uipatientMdoule "github.com/pharmacy-modernization-project-model/internal/ui/patient"
-
-	// uipatientroutes "github.com/pharmacy-modernization-project-model/internal/ui/patient"
-	// uipatient "github.com/pharmacy-modernization-project-model/internal/ui/patient/handlers"
-
-	uipresroutes "github.com/pharmacy-modernization-project-model/internal/ui/prescription"
-	uipres "github.com/pharmacy-modernization-project-model/internal/ui/prescription/handlers"
+	// uipresroutes "github.com/pharmacy-modernization-project-model/internal/ui/prescription"
+	// uipres "github.com/pharmacy-modernization-project-model/internal/ui/prescription/handlers"
 )
 
 func (a *App) wire() error {
@@ -63,8 +59,7 @@ func (a *App) wire() error {
 	prescroutes.Mount(r, prescapi.New(preSvc, logger.Base))
 
 	// UI
-	// uipatientroutes.MountUI(r, uipatient.New(patSvc, logger.Base))
-	uipresroutes.MountUI(r, uipres.New(preSvc, logger.Base))
+	// uipresroutes.MountUI(r, uipres.New(preSvc, logger.Base))
 
 	uidashboardMdoule.MountUI(r, &uidashboardMdoule.DashboardDpendencies{PatientSvc: patSvc, PrescriptionSvc: preSvc})
 	uipatientMdoule.MountUI(r, &uipatientMdoule.PatientDpendencies{PatientSvc: patSvc, Log: logger.Base})
