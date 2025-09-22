@@ -7,10 +7,10 @@ import (
 	m "github.com/pharmacy-modernization-project-model/internal/domain/patient/model"
 )
 
-type memRepo struct{ items map[string]m.Patient }
+type PatientMemoryRepository struct{ items map[string]m.Patient }
 
-func NewMemRepo() PatientRepository {
-	r := &memRepo{items: map[string]m.Patient{}}
+func NewPatientMemoryRepository() PatientRepository {
+	r := &PatientMemoryRepository{items: map[string]m.Patient{}}
 	sample := []struct {
 		id    string
 		name  string
@@ -44,7 +44,7 @@ func NewMemRepo() PatientRepository {
 	return r
 }
 
-func (r *memRepo) List(ctx context.Context, query string, limit, offset int) ([]m.Patient, error) {
+func (r *PatientMemoryRepository) List(ctx context.Context, query string, limit, offset int) ([]m.Patient, error) {
 	res := []m.Patient{}
 	for _, v := range r.items {
 		res = append(res, v)
@@ -58,12 +58,14 @@ func (r *memRepo) List(ctx context.Context, query string, limit, offset int) ([]
 	}
 	return res[offset:end], nil
 }
-func (r *memRepo) GetByID(ctx context.Context, id string) (m.Patient, error) { return r.items[id], nil }
-func (r *memRepo) Create(ctx context.Context, p m.Patient) (m.Patient, error) {
+func (r *PatientMemoryRepository) GetByID(ctx context.Context, id string) (m.Patient, error) {
+	return r.items[id], nil
+}
+func (r *PatientMemoryRepository) Create(ctx context.Context, p m.Patient) (m.Patient, error) {
 	r.items[p.ID] = p
 	return p, nil
 }
-func (r *memRepo) Update(ctx context.Context, id string, p m.Patient) (m.Patient, error) {
+func (r *PatientMemoryRepository) Update(ctx context.Context, id string, p m.Patient) (m.Patient, error) {
 	r.items[id] = p
 	return p, nil
 }

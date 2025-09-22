@@ -34,7 +34,7 @@ func (a *App) wire() error {
 	_ = httpx.NewClient(a.Cfg)
 
 	// In-memory repos
-	patRepo := patientrepo.NewMemRepo()
+	patRepo := patientrepo.NewPatientMemoryRepository()
 	preRepo := prescrepo.NewMemRepo()
 
 	// Services
