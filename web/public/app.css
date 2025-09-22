@@ -1727,6 +1727,28 @@ video {
   isolation: isolate;
 }
 
+.btn-ghost:not(.btn-active, :hover, :active:focus, :focus-visible) {
+  --btn-shadow: "";
+  --btn-bg: #0000;
+  --btn-border: #0000;
+  --btn-noise: none;
+}
+
+.btn-ghost:not(.btn-active, :hover, :active:focus, :focus-visible):not(:disabled, [disabled], .btn-disabled) {
+  outline-color: currentColor;
+  --btn-fg: currentColor;
+}
+
+@media (hover: none) {
+  .btn-ghost:hover:not(.btn-active, :active, :focus-visible, :disabled, [disabled], .btn-disabled) {
+    --btn-shadow: "";
+    --btn-bg: #0000;
+    --btn-border: #0000;
+    --btn-noise: none;
+    --btn-fg: currentColor;
+  }
+}
+
 .btn-link:is(.btn-active, :hover, :active:focus, :focus-visible) {
   text-decoration-line: underline;
   --btn-border: #0000;
@@ -1819,6 +1841,14 @@ video {
 
 .m-4 {
   margin: 1rem;
+}
+
+.m-1 {
+  margin: 0.25rem;
+}
+
+.m-2 {
+  margin: 0.5rem;
 }
 
 .mb-4 {

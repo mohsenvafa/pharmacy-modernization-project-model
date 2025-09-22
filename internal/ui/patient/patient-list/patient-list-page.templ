@@ -1,13 +1,13 @@
 package patient_list
 
 import (
+	patientsmodel "github.com/pharmacy-modernization-project-model/internal/domain/patient/model"
 	commonComponents "github.com/pharmacy-modernization-project-model/internal/ui/common/components"
 	layouts "github.com/pharmacy-modernization-project-model/internal/ui/common/layouts"
-	patientsmodel "github.com/pharmacy-modernization-project-model/internal/domain/patient/model"
 )
 
 type PatientListPageParam struct {
-	Patients []patientsmodel.Patient
+	Patients    []patientsmodel.Patient
 	CurrentPage int
 	TotalPages  int
 }
@@ -29,15 +29,15 @@ templ patientList(pageParam PatientListPageParam) {
 						</h2>
 					</div>
 				</div>
-					@commonComponents.DataTable(patientTableColumns, patientTableRows(pageParam.Patients))
+				@commonComponents.DataTable(patientTableColumns, patientTableRows(pageParam.Patients))
 				@commonComponents.Pagination(commonComponents.PaginationParams{
 					CurrentPage: pageParam.CurrentPage,
 					TotalPages:  pageParam.TotalPages,
 					BasePath:    "/patients",
 				})
 			</section>
-			</main>
-		</div>
+		</main>
+	</div>
 }
 
 templ patientTableRows(pats []patientsmodel.Patient) {
@@ -46,16 +46,16 @@ templ patientTableRows(pats []patientsmodel.Patient) {
 			<td class="w-0"><input type="checkbox" class="checkbox"/></td>
 			<td>
 				<div class="flex items-center gap-4">
-						<div>
-							<div class="text-sm font-bold">
-								<a class="link link-hover" href={"/patients/" + pat.ID}>{ pat.Name }</a>
-							</div>
-							<div class="text-xs opacity-50">{ pat.Phone }</div>
+					<div>
+						<div class="text-sm font-bold">
+							<a class="link link-hover" href={ "/patients/" + pat.ID }>{ pat.Name }</a>
 						</div>
+						<div class="text-xs opacity-50">{ pat.Phone }</div>
 					</div>
-				</td>
-				<td>{ pat.DOB.Format("Jan 2, 2006") }</td>
-				<td>{ pat.State }</td>
-			</tr>
-		}
+				</div>
+			</td>
+			<td>{ pat.DOB.Format("Jan 2, 2006") }</td>
+			<td>{ pat.State }</td>
+		</tr>
+	}
 }
