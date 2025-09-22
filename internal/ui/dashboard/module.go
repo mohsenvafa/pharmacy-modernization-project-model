@@ -8,7 +8,7 @@ import (
 
 type DashboardDpendencies struct {
 	PatientSvc      patSvc.PatientService
-	PrescriptionSvc preSvc.Service
+	PrescriptionSvc preSvc.PrescriptionService
 }
 
 func MountUI(r chi.Router, dashboardDpendencies *DashboardDpendencies) {

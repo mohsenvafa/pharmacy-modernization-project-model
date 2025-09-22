@@ -8,7 +8,7 @@ import (
 )
 
 type PrescriptionDependencies struct {
-	PrescriptionSvc presSvc.Service
+	PrescriptionSvc presSvc.PrescriptionService
 	Log             *zap.Logger
 }
 

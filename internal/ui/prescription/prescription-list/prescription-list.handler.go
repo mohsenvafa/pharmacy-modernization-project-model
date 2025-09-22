@@ -8,11 +8,11 @@ import (
 )
 
 type PrescriptionListHandler struct {
-	prescriptionsService presSvc.Service
+	prescriptionsService presSvc.PrescriptionService
 	log                  *zap.Logger
 }
 
-func NewPrescriptionListHandler(prescriptions presSvc.Service, log *zap.Logger) *PrescriptionListHandler {
+func NewPrescriptionListHandler(prescriptions presSvc.PrescriptionService, log *zap.Logger) *PrescriptionListHandler {
 	return &PrescriptionListHandler{prescriptionsService: prescriptions, log: log}
 }
 

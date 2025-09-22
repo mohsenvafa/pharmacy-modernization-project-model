@@ -35,7 +35,7 @@ func (a *App) wire() error {
 
 	// In-memory repos
 	patRepo := patientrepo.NewPatientMemoryRepository()
-	preRepo := prescrepo.NewMemRepo()
+	preRepo := prescrepo.NewPrescriptionMemoryRepository()
 
 	// Services
 	patSvc := patientservice.New(patRepo, logger.Base)

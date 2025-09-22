@@ -9,10 +9,10 @@ import (
 
 type DashboardPageHandler struct {
 	patientsService      patSvc.PatientService
-	prescriptionsService preSvc.Service
+	prescriptionsService preSvc.PrescriptionService
 }
 
-func NewDashboardPageHandler(patients patSvc.PatientService, prescriptions preSvc.Service) *DashboardPageHandler {
+func NewDashboardPageHandler(patients patSvc.PatientService, prescriptions preSvc.PrescriptionService) *DashboardPageHandler {
 	return &DashboardPageHandler{patientsService: patients, prescriptionsService: prescriptions}
 }
 

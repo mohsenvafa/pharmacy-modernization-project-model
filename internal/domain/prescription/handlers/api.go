@@ -10,15 +10,20 @@ import (
 	"go.uber.org/zap"
 )
 
-type API struct { svc service.Service; log *zap.Logger }
+type API struct {
+	svc service.PrescriptionService
+	log *zap.Logger
+}
 
-func New(s service.Service, l *zap.Logger) *API { return &API{svc:s, log:l} }
+func New(s service.PrescriptionService, l *zap.Logger) *API { return &API{svc: s, log: l} }
 
 func (a *API) List(w http.ResponseWriter, r *http.Request) {
 	status := r.URL.Query().Get("status")
-	limit,_ := strconv.Atoi(r.URL.Query().Get("limit"))
-	offset,_ := strconv.Atoi(r.URL.Query().Get("offset"))
-	if limit==0 {limit=20}
+	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
+	offset, _ := strconv.Atoi(r.URL.Query().Get("offset"))
+	if limit == 0 {
+		limit = 20
+	}
 	items, _ := a.svc.List(r.Context(), status, limit, offset)
 	_ = json.NewEncoder(w).Encode(items)
 }
