@@ -7,23 +7,23 @@ import (
 	preSvc "github.com/pharmacy-modernization-project-model/internal/domain/prescription/service"
 )
 
-type DashboardPageDI struct {
-	patients      patSvc.Service
-	prescriptions preSvc.Service
+type DashboardPageHandler struct {
+	patientsService      patSvc.Service
+	prescriptionsService preSvc.Service
 }
 
-func NewDashboardPage(patients patSvc.Service, prescriptions preSvc.Service) *DashboardPageDI {
-	return &DashboardPageDI{patients: patients, prescriptions: prescriptions}
+func NewDashboardPageHandler(patients patSvc.Service, prescriptions preSvc.Service) *DashboardPageHandler {
+	return &DashboardPageHandler{patientsService: patients, prescriptionsService: prescriptions}
 }
 
-func (u *DashboardPageDI) DashboardPageHandler(w http.ResponseWriter, r *http.Request) {
-	pats, err := u.patients.List(r.Context(), "", 1000, 0)
+func (u *DashboardPageHandler) Handler(w http.ResponseWriter, r *http.Request) {
+	pats, err := u.patientsService.List(r.Context(), "", 1000, 0)
 	if err != nil {
 		http.Error(w, "failed to load patients", http.StatusInternalServerError)
 		return
 	}
 
-	pres, err := u.prescriptions.List(r.Context(), "Active", 1000, 0)
+	pres, err := u.prescriptionsService.List(r.Context(), "Active", 1000, 0)
 	if err != nil {
 		http.Error(w, "failed to load prescriptions", http.StatusInternalServerError)
 		return

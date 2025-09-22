@@ -12,7 +12,7 @@ type DashboardDpendencies struct {
 }
 
 func MountUI(r chi.Router, dashboardDpendencies *DashboardDpendencies) {
-	dashboardPage := NewDashboardPage(dashboardDpendencies.PatientSvc, dashboardDpendencies.PrescriptionSvc)
+	dashboardPage := NewDashboardPageHandler(dashboardDpendencies.PatientSvc, dashboardDpendencies.PrescriptionSvc)
 
-	r.Get("/", dashboardPage.DashboardPageHandler)
+	r.Get("/", dashboardPage.Handler)
 }

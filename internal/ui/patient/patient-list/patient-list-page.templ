@@ -1,0 +1,30 @@
+package patient_list
+
+import (
+	"fmt"
+	commonComponents "github.com/pharmacy-modernization-project-model/internal/ui/common/components"
+	layouts "github.com/pharmacy-modernization-project-model/internal/ui/common/layouts"
+)
+
+type PatientListPageParam struct {
+	NumberOfPatients int
+}
+
+templ PatientListPage(pageParam PatientListPageParam) {
+	@layouts.BaseLayout("Patient List", patientList(pageParam))
+}
+
+templ patientList(pageParam PatientListPageParam) {
+	<div class="flex">
+		@layouts.Sidebar()
+		<main class="flex-1">
+			@commonComponents.PageHeader("Patients")
+			<section class="p-4 grid gap-4 md:grid-cols-2">
+				@commonComponents.StatisticsCard("Total Patients", fmt.Sprintf("%d", pageParam.NumberOfPatients), "since last month")
+			</section>
+			<section class="p-4">
+				Patient content goes here...
+			</section>
+		</main>
+	</div>
+}
