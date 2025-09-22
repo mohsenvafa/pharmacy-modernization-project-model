@@ -39,10 +39,12 @@ templ patientTableRows(pats []patientsmodel.Patient) {
 			<td class="w-0"><input type="checkbox" class="checkbox"/></td>
 			<td>
 				<div class="flex items-center gap-4">
-					<div>
-						<div class="text-sm font-bold">{ pat.Name }</div>
-						<div class="text-xs opacity-50">{ pat.Phone }</div>
-					</div>
+						<div>
+							<div class="text-sm font-bold">
+								<a class="link link-hover" href={"/patients/" + pat.ID}>{ pat.Name }</a>
+							</div>
+							<div class="text-xs opacity-50">{ pat.Phone }</div>
+						</div>
 				</div>
 			</td>
 			<td>{ pat.DOB.Format("Jan 2, 2006") }</td>
