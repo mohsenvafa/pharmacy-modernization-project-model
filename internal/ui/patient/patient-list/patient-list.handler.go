@@ -2,6 +2,7 @@ package patient_list
 
 import (
 	"net/http"
+	"strconv"
 
 	patientmodel "github.com/pharmacy-modernization-project-model/internal/domain/patient/model"
 	patSvc "github.com/pharmacy-modernization-project-model/internal/domain/patient/service"
@@ -17,11 +18,28 @@ func NewPatientListHandler(patients patSvc.PatientService, log *zap.Logger) *Pat
 	return &PatientListHandler{patientsService: patients, log: log}
 }
 
-func firstNPatients(pats []patientmodel.Patient, n int) []patientmodel.Patient {
-	if len(pats) <= n {
-		return pats
+const pageSize = 5
+
+func paginatePatients(pats []patientmodel.Patient, page int) ([]patientmodel.Patient, int, int) {
+	if page < 1 {
+		page = 1
 	}
-	return pats[:n]
+	if len(pats) == 0 {
+		return []patientmodel.Patient{}, 1, 1
+	}
+	totalPages := (len(pats) + pageSize - 1) / pageSize
+	if page > totalPages {
+		page = totalPages
+	}
+	start := (page - 1) * pageSize
+	if start >= len(pats) {
+		return []patientmodel.Patient{}, totalPages, page
+	}
+	end := start + pageSize
+	if end > len(pats) {
+		end = len(pats)
+	}
+	return pats[start:end], totalPages, page
 }
 
 func (u *PatientListHandler) Handler(w http.ResponseWriter, r *http.Request) {
@@ -31,8 +49,17 @@ func (u *PatientListHandler) Handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	pageParam := r.URL.Query().Get("page")
+	pageNum, err := strconv.Atoi(pageParam)
+	if err != nil {
+		pageNum = 1
+	}
+	currentPage := pageNum
+	patientsPage, totalPages, currentPage := paginatePatients(patients, currentPage)
 	page := PatientListPage(PatientListPageParam{
-		Patients: firstNPatients(patients, 5),
+		Patients:    patientsPage,
+		CurrentPage: currentPage,
+		TotalPages:  totalPages,
 	})
 	if err := page.Render(r.Context(), w); err != nil {
 		http.Error(w, "failed to render patient list", http.StatusInternalServerError)

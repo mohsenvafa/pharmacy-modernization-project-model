@@ -8,6 +8,8 @@ import (
 
 type PatientListPageParam struct {
 	Patients []patientsmodel.Patient
+	CurrentPage int
+	TotalPages  int
 }
 
 templ PatientListPage(pageParam PatientListPageParam) {
@@ -27,10 +29,15 @@ templ patientList(pageParam PatientListPageParam) {
 						</h2>
 					</div>
 				</div>
-				@commonComponents.DataTable(patientTableColumns, patientTableRows(pageParam.Patients))
+					@commonComponents.DataTable(patientTableColumns, patientTableRows(pageParam.Patients))
+				@commonComponents.Pagination(commonComponents.PaginationParams{
+					CurrentPage: pageParam.CurrentPage,
+					TotalPages:  pageParam.TotalPages,
+					BasePath:    "/patients",
+				})
 			</section>
-		</main>
-	</div>
+			</main>
+		</div>
 }
 
 templ patientTableRows(pats []patientsmodel.Patient) {
