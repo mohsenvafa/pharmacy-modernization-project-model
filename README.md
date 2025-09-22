@@ -9,3 +9,4 @@
 - Feature-based modules under `internal/domain/*` and UI under `internal/ui/*`.
 - Viper YAML config in `configs/` with env overrides (RX_*).
 - Zap logging with request/correlation IDs.
+- `web/public/app.css` is precompiled Tailwind output checked into the repo so Node tooling is no longer required.
