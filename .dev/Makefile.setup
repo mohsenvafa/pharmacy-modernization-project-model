@@ -1,0 +1,73 @@
+UNAME_S := $(shell uname -s 2>/dev/null)
+ARCH := $(shell uname -m 2>/dev/null)
+
+ifeq ($(ARCH),x86_64)
+  ARCH_ALIAS := x64
+else ifeq ($(ARCH),arm64)
+  ARCH_ALIAS := arm64
+else ifeq ($(ARCH),aarch64)
+  ARCH_ALIAS := arm64
+else
+  $(error unsupported architecture $(ARCH))
+endif
+
+ifeq ($(OS),Windows_NT)
+  PLATFORM_PREFIX := windows
+else ifneq (,$(findstring MINGW,$(UNAME_S)))
+  PLATFORM_PREFIX := windows
+else ifneq (,$(findstring MSYS,$(UNAME_S)))
+  PLATFORM_PREFIX := windows
+else ifneq (,$(findstring CYGWIN,$(UNAME_S)))
+  PLATFORM_PREFIX := windows
+else ifeq ($(UNAME_S),Darwin)
+  PLATFORM_PREFIX := macos
+else ifeq ($(UNAME_S),Linux)
+  PLATFORM_PREFIX := linux
+else
+  $(error unsupported OS $(UNAME_S))
+endif
+
+ifneq ($(PLATFORM_PREFIX),windows)
+  TAILWIND_BIN ?= ./bin/tailwindcss
+  TAILWIND_SUFFIX :=
+else
+  TAILWIND_BIN ?= ./bin/tailwindcss.exe
+  TAILWIND_SUFFIX := .exe
+endif
+
+TAILWIND_VERSION ?= v3.4.17
+TAILWIND_PLATFORM ?= $(PLATFORM_PREFIX)-$(ARCH_ALIAS)
+TAILWIND_FILENAME := tailwindcss-$(TAILWIND_PLATFORM)$(TAILWIND_SUFFIX)
+TAILWIND_URL := https://github.com/tailwindlabs/tailwindcss/releases/download/$(TAILWIND_VERSION)/$(TAILWIND_FILENAME)
+NODE_MODULES_DIR := web/node_modules
+
+.PHONY: setup tailwind install clean check-tools
+
+setup: tailwind install
+
+# Fetch the Tailwind standalone binary if it's missing.
+tailwind:
+	@if [ ! -x "$(TAILWIND_BIN)" ]; then \
+		echo "Downloading Tailwind CLI $(TAILWIND_VERSION) ($(TAILWIND_PLATFORM))"; \
+		mkdir -p "$(dir $(TAILWIND_BIN))"; \
+		curl -sSL "$(TAILWIND_URL)" -o "$(TAILWIND_BIN)"; \
+		chmod +x "$(TAILWIND_BIN)"; \
+	else \
+		echo "Tailwind CLI already present at $(TAILWIND_BIN)"; \
+	fi
+
+install: web/package.json
+	@npm --prefix web install
+
+clean:
+	rm -rf web/node_modules
+
+check-tools:
+	@if [ ! -x "$(TAILWIND_BIN)" ]; then \
+		echo "Tailwind CLI missing at $(TAILWIND_BIN). Run 'make setup' first." >&2; \
+		exit 1; \
+	fi
+	@if [ ! -d "$(NODE_MODULES_DIR)" ]; then \
+		echo "Node modules missing. Run 'make setup' first." >&2; \
+		exit 1; \
+	fi

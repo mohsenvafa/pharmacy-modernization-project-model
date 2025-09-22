@@ -1,0 +1,8 @@
+{
+  "name": "pharmacy-modernization-web",
+  "private": true,
+  "devDependencies": {
+    "tailwindcss": "^3.4.17",
+    "daisyui": "^4.12.14"
+  }
+}
