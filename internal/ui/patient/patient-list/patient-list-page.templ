@@ -45,10 +45,10 @@ templ patientTableRows(pats []patientsmodel.Patient) {
 							</div>
 							<div class="text-xs opacity-50">{ pat.Phone }</div>
 						</div>
-				</div>
-			</td>
-			<td>{ pat.DOB.Format("Jan 2, 2006") }</td>
-			<td>—</td>
-		</tr>
-	}
+					</div>
+				</td>
+				<td>{ pat.DOB.Format("Jan 2, 2006") }</td>
+				<td>{ pat.State }</td>
+			</tr>
+		}
 }

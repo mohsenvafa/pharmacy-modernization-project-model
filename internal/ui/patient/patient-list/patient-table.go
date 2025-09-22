@@ -6,5 +6,5 @@ var patientTableColumns = []commonComponents.DataTableColumn{
 	{Title: "", Class: "w-0"},
 	{Title: "Patient"},
 	{Title: "Birthdate"},
-	{Title: "Prescriptions"},
+	{Title: "State"},
 }

@@ -24,7 +24,7 @@ templ patientDetail(pageParam PatientDetailPageParam) {
       @commonComponents.PageHeader(pageParam.Patient.Name)
       <section class="grid gap-4 md:grid-cols-3">
         @commonComponents.StatisticsCard("Age", fmt.Sprintf("%d", pageParam.Age), "years old")
-        @commonComponents.StatisticsCard("Patient ID", pageParam.Patient.ID, "Internal identifier")
+        @commonComponents.StatisticsCard("State", pageParam.Patient.State, "Primary residence")
         @commonComponents.StatisticsCard("Phone", pageParam.Patient.Phone, "Primary contact")
       </section>
       <section class="card bg-base-100 shadow">
@@ -45,6 +45,10 @@ templ patientDetail(pageParam PatientDetailPageParam) {
             <div>
               <div class="text-xs uppercase opacity-60">Phone</div>
               <div class="text-base font-semibold">{ pageParam.Patient.Phone }</div>
+            </div>
+            <div>
+              <div class="text-xs uppercase opacity-60">State</div>
+              <div class="text-base font-semibold">{ pageParam.Patient.State }</div>
             </div>
             <div>
               <div class="text-xs uppercase opacity-60">Patient ID</div>
