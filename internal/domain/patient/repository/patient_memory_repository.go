@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"sort"
 	"time"
 
 	m "github.com/pharmacy-modernization-project-model/internal/domain/patient/model"
@@ -45,8 +46,15 @@ func NewPatientMemoryRepository() PatientRepository {
 }
 
 func (r *PatientMemoryRepository) List(ctx context.Context, query string, limit, offset int) ([]m.Patient, error) {
-	res := []m.Patient{}
-	for _, v := range r.items {
+	keys := make([]string, 0, len(r.items))
+	for k := range r.items {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+
+	res := make([]m.Patient, 0, len(keys))
+	for _, k := range keys {
+		v := r.items[k]
 		res = append(res, v)
 	}
 	if offset >= len(res) {
