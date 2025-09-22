@@ -3,6 +3,7 @@ package patient_list
 import (
 	"net/http"
 
+	patientmodel "github.com/pharmacy-modernization-project-model/internal/domain/patient/model"
 	patSvc "github.com/pharmacy-modernization-project-model/internal/domain/patient/service"
 	"go.uber.org/zap"
 )
@@ -16,15 +17,22 @@ func NewPatientListHandler(patients patSvc.Service, log *zap.Logger) *PatientLis
 	return &PatientListHandler{patientsService: patients, log: log}
 }
 
+func firstNPatients(pats []patientmodel.Patient, n int) []patientmodel.Patient {
+	if len(pats) <= n {
+		return pats
+	}
+	return pats[:n]
+}
+
 func (u *PatientListHandler) Handler(w http.ResponseWriter, r *http.Request) {
-	pats, err := u.patientsService.List(r.Context(), "", 1000, 0)
+	patients, err := u.patientsService.List(r.Context(), "", 1000, 0)
 	if err != nil {
 		http.Error(w, "failed to load patients", http.StatusInternalServerError)
 		return
 	}
 
 	page := PatientListPage(PatientListPageParam{
-		NumberOfPatients: len(pats),
+		Patients: firstNPatients(patients, 5),
 	})
 	if err := page.Render(r.Context(), w); err != nil {
 		http.Error(w, "failed to render patient list", http.StatusInternalServerError)

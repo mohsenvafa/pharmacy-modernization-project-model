@@ -3,10 +3,11 @@ package patient_list
 import (
 	commonComponents "github.com/pharmacy-modernization-project-model/internal/ui/common/components"
 	layouts "github.com/pharmacy-modernization-project-model/internal/ui/common/layouts"
+	patientsmodel "github.com/pharmacy-modernization-project-model/internal/domain/patient/model"
 )
 
 type PatientListPageParam struct {
-	NumberOfPatients int
+	Patients []patientsmodel.Patient
 }
 
 templ PatientListPage(pageParam PatientListPageParam) {
@@ -26,24 +27,26 @@ templ patientList(pageParam PatientListPageParam) {
 						</h2>
 					</div>
 				</div>
-				@commonComponents.DataTable(patientTableColumns, patientTableRows())
+				@commonComponents.DataTable(patientTableColumns, patientTableRows(pageParam.Patients))
 			</section>
 		</main>
 	</div>
 }
 
-templ patientTableRows() {
-	<tr>
-		<td class="w-0"><input type="checkbox" class="checkbox"/></td>
-		<td>
-			<div class="flex items-center gap-4">
-				<div>
-					<div class="text-sm font-bold">Hart Hagerty</div>
-					<div class="text-xs opacity-50">United States</div>
+templ patientTableRows(pats []patientsmodel.Patient) {
+	for _, pat := range pats {
+		<tr>
+			<td class="w-0"><input type="checkbox" class="checkbox"/></td>
+			<td>
+				<div class="flex items-center gap-4">
+					<div>
+						<div class="text-sm font-bold">{ pat.Name }</div>
+						<div class="text-xs opacity-50">{ pat.Phone }</div>
+					</div>
 				</div>
-			</div>
-		</td>
-		<td>Feb 2nd</td>
-		<td>5 Prescriptions</td>
-	</tr>
+			</td>
+			<td>{ pat.DOB.Format("Jan 2, 2006") }</td>
+			<td>—</td>
+		</tr>
+	}
 }
