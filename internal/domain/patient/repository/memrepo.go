@@ -9,7 +9,7 @@ import (
 
 type memRepo struct{ items map[string]m.Patient }
 
-func NewMemRepo() Repository {
+func NewMemRepo() PatientRepository {
 	r := &memRepo{items: map[string]m.Patient{}}
 	sample := []struct {
 		id    string

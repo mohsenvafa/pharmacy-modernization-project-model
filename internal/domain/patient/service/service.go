@@ -2,8 +2,9 @@ package service
 
 import (
 	"context"
-	repo "github.com/pharmacy-modernization-project-model/internal/domain/patient/repository"
+
 	m "github.com/pharmacy-modernization-project-model/internal/domain/patient/model"
+	repo "github.com/pharmacy-modernization-project-model/internal/domain/patient/repository"
 	"go.uber.org/zap"
 )
 
@@ -12,13 +13,16 @@ type Service interface {
 	GetByID(ctx context.Context, id string) (m.Patient, error)
 }
 
-type svc struct { repo repo.Repository; log *zap.Logger }
+type svc struct {
+	repo repo.PatientRepository
+	log  *zap.Logger
+}
 
-func New(r repo.Repository, l *zap.Logger) Service { return &svc{repo:r, log:l} }
+func New(r repo.PatientRepository, l *zap.Logger) Service { return &svc{repo: r, log: l} }
 
 func (s *svc) List(ctx context.Context, q string, limit, offset int) ([]m.Patient, error) {
-	return s.repo.List(ctx,q,limit,offset)
+	return s.repo.List(ctx, q, limit, offset)
 }
 func (s *svc) GetByID(ctx context.Context, id string) (m.Patient, error) {
-	return s.repo.GetByID(ctx,id)
+	return s.repo.GetByID(ctx, id)
 }
