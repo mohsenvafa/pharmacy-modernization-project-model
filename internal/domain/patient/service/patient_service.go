@@ -11,6 +11,7 @@ import (
 type PatientService interface {
 	List(ctx context.Context, q string, limit, offset int) ([]m.Patient, error)
 	GetByID(ctx context.Context, id string) (m.Patient, error)
+	Count(ctx context.Context, q string) (int, error)
 }
 
 type svc struct {
@@ -25,4 +26,8 @@ func (s *svc) List(ctx context.Context, q string, limit, offset int) ([]m.Patien
 }
 func (s *svc) GetByID(ctx context.Context, id string) (m.Patient, error) {
 	return s.repo.GetByID(ctx, id)
+}
+
+func (s *svc) Count(ctx context.Context, q string) (int, error) {
+	return s.repo.Count(ctx, q)
 }

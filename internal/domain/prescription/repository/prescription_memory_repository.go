@@ -46,3 +46,16 @@ func (r *PrescriptionMemoryRepository) Update(ctx context.Context, id string, p 
 	r.items[id] = p
 	return p, nil
 }
+
+func (r *PrescriptionMemoryRepository) CountByStatus(ctx context.Context, status string) (int, error) {
+	if status == "" {
+		return len(r.items), nil
+	}
+	count := 0
+	for _, v := range r.items {
+		if string(v.Status) == status {
+			count++
+		}
+	}
+	return count, nil
+}

@@ -77,3 +77,7 @@ func (r *PatientMemoryRepository) Update(ctx context.Context, id string, p m.Pat
 	r.items[id] = p
 	return p, nil
 }
+
+func (r *PatientMemoryRepository) Count(ctx context.Context, query string) (int, error) {
+	return len(r.items), nil
+}

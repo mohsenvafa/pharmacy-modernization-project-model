@@ -2,22 +2,18 @@ package dashboard
 
 import (
 	"github.com/go-chi/chi/v5"
-	"go.uber.org/zap"
 
+	dashboardproviders "github.com/pharmacy-modernization-project-model/internal/domain/dashboard/providers"
+	dashboardservice "github.com/pharmacy-modernization-project-model/internal/domain/dashboard/service"
 	dashboardsvc "github.com/pharmacy-modernization-project-model/internal/domain/dashboard/ui"
-	patSvc "github.com/pharmacy-modernization-project-model/internal/domain/patient/service"
-	presSvc "github.com/pharmacy-modernization-project-model/internal/domain/prescription/service"
 )
 
 type ModuleDependencies struct {
-	Logger          *zap.Logger
-	PatientSvc      patSvc.PatientService
-	PrescriptionSvc presSvc.PrescriptionService
+	PatientStats      dashboardproviders.PatientStatsProvider
+	PrescriptionStats dashboardproviders.PrescriptionStatsProvider
 }
 
 func Module(r chi.Router, deps *ModuleDependencies) {
-	dashboardsvc.MountUI(r, &dashboardsvc.DashboardDpendencies{
-		PatientSvc:      deps.PatientSvc,
-		PrescriptionSvc: deps.PrescriptionSvc,
-	})
+	service := dashboardservice.New(deps.PatientStats, deps.PrescriptionStats)
+	dashboardsvc.MountUI(r, &dashboardsvc.DashboardDependencies{Service: service})
 }

@@ -10,6 +10,7 @@ import (
 type PrescriptionService interface {
 	List(ctx context.Context, status string, limit, offset int) ([]m.Prescription, error)
 	GetByID(ctx context.Context, id string) (m.Prescription, error)
+	CountByStatus(ctx context.Context, status string) (int, error)
 }
 
 type svc struct {
@@ -26,4 +27,8 @@ func (s *svc) List(ctx context.Context, status string, limit, offset int) ([]m.P
 }
 func (s *svc) GetByID(ctx context.Context, id string) (m.Prescription, error) {
 	return s.repo.GetByID(ctx, id)
+}
+
+func (s *svc) CountByStatus(ctx context.Context, status string) (int, error) {
+	return s.repo.CountByStatus(ctx, status)
 }

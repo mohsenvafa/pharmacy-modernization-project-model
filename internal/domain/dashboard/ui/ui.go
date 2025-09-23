@@ -2,18 +2,16 @@ package dashboard
 
 import (
 	"github.com/go-chi/chi/v5"
+
+	dashboardservice "github.com/pharmacy-modernization-project-model/internal/domain/dashboard/service"
 	dashboardPage "github.com/pharmacy-modernization-project-model/internal/domain/dashboard/ui/dashboard_page"
-	patSvc "github.com/pharmacy-modernization-project-model/internal/domain/patient/service"
-	preSvc "github.com/pharmacy-modernization-project-model/internal/domain/prescription/service"
 )
 
-type DashboardDpendencies struct {
-	PatientSvc      patSvc.PatientService
-	PrescriptionSvc preSvc.PrescriptionService
+type DashboardDependencies struct {
+	Service dashboardservice.Service
 }
 
-func MountUI(r chi.Router, dashboardDpendencies *DashboardDpendencies) {
-	dashboardPage := dashboardPage.NewDashboardPageHandler(dashboardDpendencies.PatientSvc, dashboardDpendencies.PrescriptionSvc)
-
-	r.Get("/", dashboardPage.Handler)
+func MountUI(r chi.Router, deps *DashboardDependencies) {
+	handler := dashboardPage.NewDashboardPageHandler(deps.Service)
+	r.Get("/", handler.Handler)
 }

@@ -38,9 +38,8 @@ func (a *App) wire() error {
 	patSvc := patientModule.Module(r, &patientModule.ModuleDependencies{Logger: logger.Base})
 	preSvc := prescriptionModule.Module(r, &prescriptionModule.ModuleDependencies{Logger: logger.Base})
 	dashboardModule.Module(r, &dashboardModule.ModuleDependencies{
-		Logger:          logger.Base,
-		PatientSvc:      patSvc,
-		PrescriptionSvc: preSvc,
+		PatientStats:      patSvc,
+		PrescriptionStats: preSvc,
 	})
 	a.Router = r
 	return nil
