@@ -15,5 +15,5 @@ type ModuleDependencies struct {
 
 func Module(r chi.Router, deps *ModuleDependencies) {
 	service := dashboardservice.New(deps.PatientStats, deps.PrescriptionStats)
-	dashboardsvc.MountUI(r, &dashboardsvc.DashboardDependencies{Service: service})
+	dashboardsvc.MountUI(r, &dashboardsvc.DashboardUiDependencies{Service: service})
 }

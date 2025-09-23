@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
-	patientmodel "github.com/pharmacy-modernization-project-model/internal/domain/patient/model"
+	patientmodel "github.com/pharmacy-modernization-project-model/internal/domain/patient/contracts/model"
 	patSvc "github.com/pharmacy-modernization-project-model/internal/domain/patient/service"
 	"go.uber.org/zap"
 )

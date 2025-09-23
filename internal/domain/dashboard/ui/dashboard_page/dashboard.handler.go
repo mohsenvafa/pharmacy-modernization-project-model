@@ -7,10 +7,10 @@ import (
 )
 
 type DashboardPageHandler struct {
-	service dashboardservice.Service
+	service dashboardservice.IDashboardService
 }
 
-func NewDashboardPageHandler(service dashboardservice.Service) *DashboardPageHandler {
+func NewDashboardPageHandler(service dashboardservice.IDashboardService) *DashboardPageHandler {
 	return &DashboardPageHandler{service: service}
 }
 
