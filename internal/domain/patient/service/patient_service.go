@@ -14,20 +14,20 @@ type PatientService interface {
 	Count(ctx context.Context, q string) (int, error)
 }
 
-type svc struct {
+type patientSvc struct {
 	repo repo.PatientRepository
 	log  *zap.Logger
 }
 
-func New(r repo.PatientRepository, l *zap.Logger) PatientService { return &svc{repo: r, log: l} }
+func New(r repo.PatientRepository, l *zap.Logger) PatientService { return &patientSvc{repo: r, log: l} }
 
-func (s *svc) List(ctx context.Context, q string, limit, offset int) ([]m.Patient, error) {
+func (s *patientSvc) List(ctx context.Context, q string, limit, offset int) ([]m.Patient, error) {
 	return s.repo.List(ctx, q, limit, offset)
 }
-func (s *svc) GetByID(ctx context.Context, id string) (m.Patient, error) {
+func (s *patientSvc) GetByID(ctx context.Context, id string) (m.Patient, error) {
 	return s.repo.GetByID(ctx, id)
 }
 
-func (s *svc) Count(ctx context.Context, q string) (int, error) {
+func (s *patientSvc) Count(ctx context.Context, q string) (int, error) {
 	return s.repo.Count(ctx, q)
 }
