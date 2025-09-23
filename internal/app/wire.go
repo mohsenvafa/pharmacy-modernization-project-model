@@ -20,9 +20,9 @@ import (
 	prescrepo "github.com/pharmacy-modernization-project-model/internal/domain/prescription/repository"
 	prescservice "github.com/pharmacy-modernization-project-model/internal/domain/prescription/service"
 
-	uidashboardMdoule "github.com/pharmacy-modernization-project-model/internal/ui/dashboard"
-	uipatientMdoule "github.com/pharmacy-modernization-project-model/internal/ui/patient"
-	uiprescriptionModule "github.com/pharmacy-modernization-project-model/internal/ui/prescription"
+	uidashboardMdoule "github.com/pharmacy-modernization-project-model/internal/domain/dashboard/ui"
+	uipatientMdoule "github.com/pharmacy-modernization-project-model/internal/domain/patient/ui"
+	uiprescriptionModule "github.com/pharmacy-modernization-project-model/internal/domain/prescription/ui"
 )
 
 func (a *App) wire() error {
