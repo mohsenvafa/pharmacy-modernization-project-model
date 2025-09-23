@@ -18,7 +18,7 @@ func Module(r chi.Router, deps *ModuleDependencies) prescriptionservice.Prescrip
 	repo := prescriptionrepo.NewPrescriptionMemoryRepository()
 	svc := prescriptionservice.New(repo, deps.Logger)
 
-	prescriptionapi.Mount(r, prescriptionapi.New(svc, deps.Logger))
+	prescriptionapi.MountApi(r, prescriptionapi.New(svc, deps.Logger))
 	uiprescription.MountUI(r, &uiprescription.PrescriptionDependencies{PrescriptionSvc: svc, Log: deps.Logger})
 
 	return svc
