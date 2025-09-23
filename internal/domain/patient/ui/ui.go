@@ -8,12 +8,12 @@ import (
 	"go.uber.org/zap"
 )
 
-type PatientUiDpendencies struct {
+type UiDpendencies struct {
 	PatientSvc patSvc.PatientService
 	Log        *zap.Logger
 }
 
-func MountUI(r chi.Router, patientDpendencies *PatientUiDpendencies) {
+func MountUI(r chi.Router, patientDpendencies *UiDpendencies) {
 	patientListPage := pateitnList.NewPatientListHandler(patientDpendencies.PatientSvc, patientDpendencies.Log)
 	patientDetailPage := patientdetail.NewPatientDetailHandler(patientDpendencies.PatientSvc, patientDpendencies.Log)
 	r.Route("/patients", func(r chi.Router) {
