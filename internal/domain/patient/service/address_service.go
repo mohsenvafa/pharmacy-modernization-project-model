@@ -8,8 +8,9 @@ import (
 )
 
 type AddressService interface {
-	GetByPatientID(ctx context.Context, patientID string) (addressModel.Address, error)
-	Update(ctx context.Context, patientID string, address addressModel.Address) (addressModel.Address, error)
+	GetByPatientID(ctx context.Context, patientID string) ([]addressModel.Address, error)
+	GetByID(ctx context.Context, patientID, addressID string) (addressModel.Address, error)
+	Upsert(ctx context.Context, patientID string, address addressModel.Address) (addressModel.Address, error)
 }
 
 type addressSvc struct {
@@ -20,10 +21,14 @@ func NewAddressService(r addressrepo.AddressRepository) AddressService {
 	return &addressSvc{repo: r}
 }
 
-func (s *addressSvc) GetByPatientID(ctx context.Context, patientID string) (addressModel.Address, error) {
-	return s.repo.GetByPatientID(ctx, patientID)
+func (s *addressSvc) GetByPatientID(ctx context.Context, patientID string) ([]addressModel.Address, error) {
+	return s.repo.ListByPatientID(ctx, patientID)
 }
 
-func (s *addressSvc) Update(ctx context.Context, patientID string, address addressModel.Address) (addressModel.Address, error) {
-	return s.repo.Update(ctx, patientID, address)
+func (s *addressSvc) GetByID(ctx context.Context, patientID, addressID string) (addressModel.Address, error) {
+	return s.repo.GetByID(ctx, patientID, addressID)
+}
+
+func (s *addressSvc) Upsert(ctx context.Context, patientID string, address addressModel.Address) (addressModel.Address, error) {
+	return s.repo.Upsert(ctx, patientID, address)
 }

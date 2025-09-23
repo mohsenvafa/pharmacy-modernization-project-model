@@ -1,36 +1,27 @@
 package api
 
 import (
-	"encoding/json"
-	"net/http"
-	"strconv"
-
 	"github.com/go-chi/chi/v5"
 	"go.uber.org/zap"
 
-	service "github.com/pharmacy-modernization-project-model/internal/domain/patient/service"
+	controllers "github.com/pharmacy-modernization-project-model/internal/domain/patient/api/controllers"
+	"github.com/pharmacy-modernization-project-model/internal/domain/patient/service"
 )
 
-type API struct {
-	svc service.PatientService
-	log *zap.Logger
+type Dependencies struct {
+	PatientService service.PatientService
+	AddressService service.AddressService
+	Logger         *zap.Logger
 }
 
-func New(s service.PatientService, l *zap.Logger) *API { return &API{svc: s, log: l} }
+func MountAPI(r chi.Router, deps *Dependencies) {
+	patientController := controllers.NewPatientController(deps.PatientService, deps.Logger)
+	addressController := controllers.NewAddressController(deps.AddressService, deps.Logger)
 
-func (a *API) List(w http.ResponseWriter, r *http.Request) {
-	q := r.URL.Query().Get("q")
-	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
-	offset, _ := strconv.Atoi(r.URL.Query().Get("offset"))
-	if limit == 0 {
-		limit = 20
-	}
-	items, _ := a.svc.List(r.Context(), q, limit, offset)
-	_ = json.NewEncoder(w).Encode(items)
-}
-
-func (a *API) Get(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
-	item, _ := a.svc.GetByID(r.Context(), id)
-	_ = json.NewEncoder(w).Encode(item)
+	r.Route("/api/v1/patients", func(router chi.Router) {
+		patientController.RegisterRoutes(router)
+		router.Route("/{patientID}/addresses", func(addressRouter chi.Router) {
+			addressController.RegisterRoutes(addressRouter)
+		})
+	})
 }
