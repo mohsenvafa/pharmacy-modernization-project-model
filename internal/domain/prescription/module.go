@@ -14,12 +14,16 @@ type ModuleDependencies struct {
 	Logger *zap.Logger
 }
 
-func Module(r chi.Router, deps *ModuleDependencies) prescriptionservice.PrescriptionService {
+type ModuleExport struct {
+	PrescriptionService prescriptionservice.PrescriptionService
+}
+
+func Module(r chi.Router, deps *ModuleDependencies) ModuleExport {
 	repo := prescriptionrepo.NewPrescriptionMemoryRepository()
 	svc := prescriptionservice.New(repo, deps.Logger)
 
 	prescriptionapi.MountApi(r, prescriptionapi.New(svc, deps.Logger))
 	uiprescription.MountUI(r, &uiprescription.PrescriptionDependencies{PrescriptionSvc: svc, Log: deps.Logger})
 
-	return svc
+	return ModuleExport{PrescriptionService: svc}
 }

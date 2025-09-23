@@ -14,12 +14,12 @@ type ModuleDependencies struct {
 	Logger *zap.Logger
 }
 
-type ModuleResult struct {
+type ModuleExport struct {
 	PatientService patientservice.PatientService
 	AddressService patientservice.AddressService
 }
 
-func Module(r chi.Router, deps *ModuleDependencies) ModuleResult {
+func Module(r chi.Router, deps *ModuleDependencies) ModuleExport {
 	patRepo := patientrepo.NewPatientMemoryRepository()
 	patSvc := patientservice.New(patRepo, deps.Logger)
 	addrRepo := patientrepo.NewAddressMemoryRepository()
@@ -33,5 +33,5 @@ func Module(r chi.Router, deps *ModuleDependencies) ModuleResult {
 
 	uipatient.MountUI(r, &uipatient.UiDpendencies{PatientSvc: patSvc, Log: deps.Logger})
 
-	return ModuleResult{PatientService: patSvc, AddressService: addrSvc}
+	return ModuleExport{PatientService: patSvc, AddressService: addrSvc}
 }

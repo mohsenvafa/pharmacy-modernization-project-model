@@ -36,11 +36,10 @@ func (a *App) wire() error {
 	r.Handle("/assets/*", http.StripPrefix("/assets/", http.FileServer(http.Dir("web/public"))))
 
 	patientMod := patientModule.Module(r, &patientModule.ModuleDependencies{Logger: logger.Base})
-	patSvc := patientMod.PatientService
-	preSvc := prescriptionModule.Module(r, &prescriptionModule.ModuleDependencies{Logger: logger.Base})
+	prescriptionMod := prescriptionModule.Module(r, &prescriptionModule.ModuleDependencies{Logger: logger.Base})
 	dashboardModule.Module(r, &dashboardModule.ModuleDependencies{
-		PatientStats:      patSvc,
-		PrescriptionStats: preSvc,
+		PatientStats:      patientMod.PatientService,
+		PrescriptionStats: prescriptionMod.PrescriptionService,
 	})
 	a.Router = r
 	return nil
