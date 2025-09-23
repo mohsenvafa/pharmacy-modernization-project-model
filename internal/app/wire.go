@@ -10,13 +10,9 @@ import (
 	"github.com/pharmacy-modernization-project-model/internal/platform/httpx"
 	"github.com/pharmacy-modernization-project-model/internal/platform/logging"
 
-	prescapi "github.com/pharmacy-modernization-project-model/internal/domain/prescription/api"
-	prescrepo "github.com/pharmacy-modernization-project-model/internal/domain/prescription/repository"
-	prescservice "github.com/pharmacy-modernization-project-model/internal/domain/prescription/service"
-
-	uiprescriptionModule "github.com/pharmacy-modernization-project-model/internal/domain/prescription/ui"
-
+	dashboardModule "github.com/pharmacy-modernization-project-model/internal/domain/dashboard"
 	patientModule "github.com/pharmacy-modernization-project-model/internal/domain/patient"
+	prescriptionModule "github.com/pharmacy-modernization-project-model/internal/domain/prescription"
 )
 
 func (a *App) wire() error {
@@ -26,12 +22,6 @@ func (a *App) wire() error {
 
 	// Shared HTTP client (for future external calls)
 	_ = httpx.NewClient(a.Cfg)
-
-	// In-memory repos
-	preRepo := prescrepo.NewPrescriptionMemoryRepository()
-
-	// Services
-	preSvc := prescservice.New(preRepo, logger.Base)
 
 	// Router & middleware
 	r := chi.NewRouter()
@@ -45,13 +35,13 @@ func (a *App) wire() error {
 	// Static assets
 	r.Handle("/assets/*", http.StripPrefix("/assets/", http.FileServer(http.Dir("web/public"))))
 
-	patientModule.Module(r, &patientModule.ModuleDependencies{Logger: logger.Base})
-	// API
-	prescapi.Mount(r, prescapi.New(preSvc, logger.Base))
-
-	// UI
-	//uidashboardMdoule.MountUI(r, &uidashboardMdoule.DashboardDpendencies{PatientSvc: patSvc, PrescriptionSvc: preSvc})
-	uiprescriptionModule.MountUI(r, &uiprescriptionModule.PrescriptionDependencies{PrescriptionSvc: preSvc, Log: logger.Base})
+	patSvc := patientModule.Module(r, &patientModule.ModuleDependencies{Logger: logger.Base})
+	preSvc := prescriptionModule.Module(r, &prescriptionModule.ModuleDependencies{Logger: logger.Base})
+	dashboardModule.Module(r, &dashboardModule.ModuleDependencies{
+		Logger:          logger.Base,
+		PatientSvc:      patSvc,
+		PrescriptionSvc: preSvc,
+	})
 	a.Router = r
 	return nil
 }

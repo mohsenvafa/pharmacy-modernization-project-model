@@ -13,14 +13,12 @@ type ModuleDependencies struct {
 	Logger *zap.Logger
 }
 
-func Module(r chi.Router, deps *ModuleDependencies) {
+func Module(r chi.Router, deps *ModuleDependencies) patientservice.PatientService {
 	patRepo := patientrepo.NewPatientMemoryRepository()
 	patSvc := patientservice.New(patRepo, deps.Logger)
 
-	// API
 	patientapi.MountApi(r, patientapi.New(patSvc, deps.Logger))
-
-	// UI
 	uipatient.MountUI(r, &uipatient.UiDpendencies{PatientSvc: patSvc, Log: deps.Logger})
 
+	return patSvc
 }
