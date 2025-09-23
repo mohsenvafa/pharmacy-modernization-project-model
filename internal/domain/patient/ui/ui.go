@@ -1,4 +1,4 @@
-package patient
+package ui
 
 import (
 	"github.com/go-chi/chi/v5"
@@ -8,12 +8,12 @@ import (
 	"go.uber.org/zap"
 )
 
-type PatientDpendencies struct {
+type PatientUiDpendencies struct {
 	PatientSvc patSvc.PatientService
 	Log        *zap.Logger
 }
 
-func MountUI(r chi.Router, patientDpendencies *PatientDpendencies) {
+func MountUI(r chi.Router, patientDpendencies *PatientUiDpendencies) {
 	patientListPage := pateitnList.NewPatientListHandler(patientDpendencies.PatientSvc, patientDpendencies.Log)
 	patientDetailPage := patientdetail.NewPatientDetailHandler(patientDpendencies.PatientSvc, patientDpendencies.Log)
 	r.Route("/patients", func(r chi.Router) {

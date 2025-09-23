@@ -1,4 +1,4 @@
-package dashboard
+package dashboard_page
 
 import (
 	"net/http"

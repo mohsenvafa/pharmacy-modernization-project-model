@@ -57,7 +57,7 @@ func (a *App) wire() error {
 
 	// UI
 	uidashboardMdoule.MountUI(r, &uidashboardMdoule.DashboardDpendencies{PatientSvc: patSvc, PrescriptionSvc: preSvc})
-	uipatientMdoule.MountUI(r, &uipatientMdoule.PatientDpendencies{PatientSvc: patSvc, Log: logger.Base})
+	uipatientMdoule.MountUI(r, &uipatientMdoule.PatientUiDpendencies{PatientSvc: patSvc, Log: logger.Base})
 	uiprescriptionModule.MountUI(r, &uiprescriptionModule.PrescriptionDependencies{PrescriptionSvc: preSvc, Log: logger.Base})
 	a.Router = r
 	return nil
