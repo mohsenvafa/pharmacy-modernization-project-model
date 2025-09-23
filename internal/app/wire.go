@@ -10,13 +10,11 @@ import (
 	"github.com/pharmacy-modernization-project-model/internal/platform/httpx"
 	"github.com/pharmacy-modernization-project-model/internal/platform/logging"
 
-	patientroutes "github.com/pharmacy-modernization-project-model/internal/domain/patient"
-	patientapi "github.com/pharmacy-modernization-project-model/internal/domain/patient/handlers"
+	patientapi "github.com/pharmacy-modernization-project-model/internal/domain/patient/api"
 	patientrepo "github.com/pharmacy-modernization-project-model/internal/domain/patient/repository"
 	patientservice "github.com/pharmacy-modernization-project-model/internal/domain/patient/service"
 
-	prescroutes "github.com/pharmacy-modernization-project-model/internal/domain/prescription"
-	prescapi "github.com/pharmacy-modernization-project-model/internal/domain/prescription/handlers"
+	prescapi "github.com/pharmacy-modernization-project-model/internal/domain/prescription/api"
 	prescrepo "github.com/pharmacy-modernization-project-model/internal/domain/prescription/repository"
 	prescservice "github.com/pharmacy-modernization-project-model/internal/domain/prescription/service"
 
@@ -54,8 +52,8 @@ func (a *App) wire() error {
 	r.Handle("/assets/*", http.StripPrefix("/assets/", http.FileServer(http.Dir("web/public"))))
 
 	// API
-	patientroutes.Mount(r, patientapi.New(patSvc, logger.Base))
-	prescroutes.Mount(r, prescapi.New(preSvc, logger.Base))
+	patientapi.Mount(r, patientapi.New(patSvc, logger.Base))
+	prescapi.Mount(r, prescapi.New(preSvc, logger.Base))
 
 	// UI
 	uidashboardMdoule.MountUI(r, &uidashboardMdoule.DashboardDpendencies{PatientSvc: patSvc, PrescriptionSvc: preSvc})
