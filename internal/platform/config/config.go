@@ -20,9 +20,17 @@ type Config struct {
 	External struct {
 		Pharmacy struct {
 			BaseURL string `mapstructure:"base_url"`
+			Path    string `mapstructure:"path"`
+			UseMock bool   `mapstructure:"use_mock"`
 			APIKey  string `mapstructure:"api_key"`
 			Timeout string `mapstructure:"timeout"`
 		} `mapstructure:"pharmacy"`
+		Billing struct {
+			BaseURL string `mapstructure:"base_url"`
+			Path    string `mapstructure:"path"`
+			UseMock bool   `mapstructure:"use_mock"`
+			Timeout string `mapstructure:"timeout"`
+		} `mapstructure:"billing"`
 	} `mapstructure:"external"`
 }
 

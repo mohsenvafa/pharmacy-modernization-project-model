@@ -4,3 +4,6 @@ dev:
 		-proxy="http://localhost:8080" \
 		-cmd="go run ./cmd/server" \
 		-open-browser=false
+
+mock-iris:
+	go run ./cmd/iris_mock

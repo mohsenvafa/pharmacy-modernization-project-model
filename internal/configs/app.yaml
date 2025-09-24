@@ -7,6 +7,13 @@ logging:
   format: console
 external:
   pharmacy:
-    base_url: "https://api.examplepharmacy.com"
+    base_url: "http://localhost:9090"
+    path: "api/pharmacy/prescriptions"
+    use_mock: true
     api_key: ""
+    timeout: "10s"
+  billing:
+    base_url: "http://localhost:9090"
+    path: "api/billing/invoices"
+    use_mock: true
     timeout: "10s"

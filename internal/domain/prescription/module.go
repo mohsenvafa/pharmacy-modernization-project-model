@@ -8,10 +8,14 @@ import (
 	prescriptionrepo "github.com/pharmacy-modernization-project-model/internal/domain/prescription/repository"
 	prescriptionservice "github.com/pharmacy-modernization-project-model/internal/domain/prescription/service"
 	uiprescription "github.com/pharmacy-modernization-project-model/internal/domain/prescription/ui"
+	irisbilling "github.com/pharmacy-modernization-project-model/internal/integrations/iris_billing"
+	irispharmacy "github.com/pharmacy-modernization-project-model/internal/integrations/iris_pharmacy"
 )
 
 type ModuleDependencies struct {
-	Logger *zap.Logger
+	Logger         *zap.Logger
+	PharmacyClient irispharmacy.Client
+	BillingClient  irisbilling.Client
 }
 
 type ModuleExport struct {
@@ -20,7 +24,16 @@ type ModuleExport struct {
 
 func Module(r chi.Router, deps *ModuleDependencies) ModuleExport {
 	repo := prescriptionrepo.NewPrescriptionMemoryRepository()
-	svc := prescriptionservice.New(repo, deps.Logger)
+	pharmacyClient := deps.PharmacyClient
+	if pharmacyClient == nil {
+		pharmacyClient = irispharmacy.NewMockClient(map[string]irispharmacy.GetPrescriptionResponse{}, deps.Logger)
+	}
+	billingClient := deps.BillingClient
+	if billingClient == nil {
+		billingClient = irisbilling.NewMockClient(map[string]irisbilling.GetInvoiceResponse{}, deps.Logger)
+	}
+
+	svc := prescriptionservice.New(repo, deps.Logger, pharmacyClient, billingClient)
 
 	prescriptionapi.MountApi(r, prescriptionapi.New(svc, deps.Logger))
 	uiprescription.MountUI(r, &uiprescription.PrescriptionDependencies{PrescriptionSvc: svc, Log: deps.Logger})

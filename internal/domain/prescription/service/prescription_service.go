@@ -2,8 +2,11 @@ package service
 
 import (
 	"context"
+
 	m "github.com/pharmacy-modernization-project-model/internal/domain/prescription/model"
 	repo "github.com/pharmacy-modernization-project-model/internal/domain/prescription/repository"
+	irisbilling "github.com/pharmacy-modernization-project-model/internal/integrations/iris_billing"
+	irispharmacy "github.com/pharmacy-modernization-project-model/internal/integrations/iris_pharmacy"
 	"go.uber.org/zap"
 )
 
@@ -14,12 +17,14 @@ type PrescriptionService interface {
 }
 
 type svc struct {
-	repo repo.PrescriptionRepository
-	log  *zap.Logger
+	repo       repo.PrescriptionRepository
+	log        *zap.Logger
+	pharmacy   irispharmacy.Client
+	billing    irisbilling.Client
 }
 
-func New(r repo.PrescriptionRepository, l *zap.Logger) PrescriptionService {
-	return &svc{repo: r, log: l}
+func New(r repo.PrescriptionRepository, l *zap.Logger, pharmacy irispharmacy.Client, billing irisbilling.Client) PrescriptionService {
+	return &svc{repo: r, log: l, pharmacy: pharmacy, billing: billing}
 }
 
 func (s *svc) List(ctx context.Context, status string, limit, offset int) ([]m.Prescription, error) {

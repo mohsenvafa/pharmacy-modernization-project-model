@@ -7,6 +7,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 
+	"github.com/pharmacy-modernization-project-model/internal/integrations"
 	"github.com/pharmacy-modernization-project-model/internal/platform/httpx"
 	"github.com/pharmacy-modernization-project-model/internal/platform/logging"
 
@@ -35,12 +36,28 @@ func (a *App) wire() error {
 	// Static assets
 	r.Handle("/assets/*", http.StripPrefix("/assets/", http.FileServer(http.Dir("web/public"))))
 
+	// Integrations
+	integration := integrations.New(integrations.Dependencies{
+		Config: a.Cfg,
+		Logger: logger.Base,
+	})
+
+	// Patient Module
 	patientMod := patientModule.Module(r, &patientModule.ModuleDependencies{Logger: logger.Base})
-	prescriptionMod := prescriptionModule.Module(r, &prescriptionModule.ModuleDependencies{Logger: logger.Base})
+
+	// Prescription Module
+	prescriptionMod := prescriptionModule.Module(r, &prescriptionModule.ModuleDependencies{
+		Logger:         logger.Base,
+		PharmacyClient: integration.Pharmacy,
+		BillingClient:  integration.Billing,
+	})
+
+	// Dashboard Module
 	dashboardModule.Module(r, &dashboardModule.ModuleDependencies{
 		PatientStats:      patientMod.PatientService,
 		PrescriptionStats: prescriptionMod.PrescriptionService,
 	})
+
 	a.Router = r
 	return nil
 }
