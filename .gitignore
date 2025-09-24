@@ -29,3 +29,4 @@ web/package-lock.json
 !web/public/vendor/
 web/public/vendor/*
 !web/public/vendor/theme-change.js
+!web/public/vendor/htmx.min.js
