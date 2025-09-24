@@ -1,14 +1,23 @@
 package layouts
 
+import components "github.com/pharmacy-modernization-project-model/web/components/elements"
+
 templ Sidebar() {
-	<aside class="w-64 bg-base-100 border-r h-screen p-4">
-		<h2 class="font-bold text-xl mb-4">Daisy Pharmacy</h2>
-		<ul class="menu">
-			<li><a href="/" class="active">Dashboard</a></li>
-			<li><a href="/patients">Patients</a></li>
-			<li><a href="/prescriptions">Prescriptions</a></li>
-			<li><a>Audits</a></li>
-			<li><a>Messages <div class="badge badge-info">12</div></a></li>
-		</ul>
+	<aside class="flex h-screen w-64 flex-col border-r bg-base-100 p-4">
+		<div>
+			<h2 class="text-xl font-bold">Daisy Pharmacy</h2>
+		</div>
+		<nav class="mt-6 flex-1">
+			<ul class="menu gap-1">
+				<li><a href="/" class="active">Dashboard</a></li>
+				<li><a href="/patients">Patients</a></li>
+				<li><a href="/prescriptions">Prescriptions</a></li>
+				<li><a>Audits</a></li>
+				<li><a>Messages <div class="badge badge-info">12</div></a></li>
+			</ul>
+		</nav>
+		<div class="mt-auto border-t border-base-300 pt-4">
+			@components.ThemeSelection()
+		</div>
 	</aside>
 }
