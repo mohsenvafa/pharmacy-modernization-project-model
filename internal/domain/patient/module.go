@@ -4,10 +4,10 @@ import (
 	"github.com/go-chi/chi/v5"
 	"go.uber.org/zap"
 
-	patientapi "github.com/pharmacy-modernization-project-model/internal/domain/patient/api"
-	patientrepo "github.com/pharmacy-modernization-project-model/internal/domain/patient/repository"
-	patientservice "github.com/pharmacy-modernization-project-model/internal/domain/patient/service"
-	uipatient "github.com/pharmacy-modernization-project-model/internal/domain/patient/ui"
+	patientapi "pharmacy-modernization-project-model/internal/domain/patient/api"
+	patientrepo "pharmacy-modernization-project-model/internal/domain/patient/repository"
+	patientservice "pharmacy-modernization-project-model/internal/domain/patient/service"
+	uipatient "pharmacy-modernization-project-model/internal/domain/patient/ui"
 )
 
 type ModuleDependencies struct {

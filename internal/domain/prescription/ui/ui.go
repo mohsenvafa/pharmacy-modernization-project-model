@@ -1,9 +1,10 @@
 package prescription
 
 import (
+	presSvc "pharmacy-modernization-project-model/internal/domain/prescription/service"
+	prescriptionList "pharmacy-modernization-project-model/internal/domain/prescription/ui/prescription_list"
+
 	"github.com/go-chi/chi/v5"
-	presSvc "github.com/pharmacy-modernization-project-model/internal/domain/prescription/service"
-	prescriptionList "github.com/pharmacy-modernization-project-model/internal/domain/prescription/ui/prescription_list"
 	"go.uber.org/zap"
 )
 

@@ -5,7 +5,7 @@ import (
 	"sort"
 	"time"
 
-	m "github.com/pharmacy-modernization-project-model/internal/domain/patient/contracts/model"
+	m "pharmacy-modernization-project-model/internal/domain/patient/contracts/model"
 )
 
 type PatientMemoryRepository struct{ items map[string]m.Patient }

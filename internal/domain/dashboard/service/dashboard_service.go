@@ -3,8 +3,8 @@ package service
 import (
 	"context"
 
-	model "github.com/pharmacy-modernization-project-model/internal/domain/dashboard/contracts/model"
-	"github.com/pharmacy-modernization-project-model/internal/domain/dashboard/providers"
+	model "pharmacy-modernization-project-model/internal/domain/dashboard/contracts/model"
+	"pharmacy-modernization-project-model/internal/domain/dashboard/providers"
 )
 
 type IDashboardService interface {

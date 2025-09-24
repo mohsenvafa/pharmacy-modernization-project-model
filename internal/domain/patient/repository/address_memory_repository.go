@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 
-	addressModel "github.com/pharmacy-modernization-project-model/internal/domain/patient/contracts/model"
+	addressModel "pharmacy-modernization-project-model/internal/domain/patient/contracts/model"
 )
 
 type addressMemoryRepository struct {

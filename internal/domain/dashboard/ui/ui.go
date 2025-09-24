@@ -3,8 +3,8 @@ package dashboard
 import (
 	"github.com/go-chi/chi/v5"
 
-	dashboardservice "github.com/pharmacy-modernization-project-model/internal/domain/dashboard/service"
-	dashboardPage "github.com/pharmacy-modernization-project-model/internal/domain/dashboard/ui/dashboard_page"
+	dashboardservice "pharmacy-modernization-project-model/internal/domain/dashboard/service"
+	dashboardPage "pharmacy-modernization-project-model/internal/domain/dashboard/ui/dashboard_page"
 )
 
 type DashboardUiDependencies struct {

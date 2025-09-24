@@ -1,10 +1,11 @@
 package ui
 
 import (
+	patSvc "pharmacy-modernization-project-model/internal/domain/patient/service"
+	patientdetail "pharmacy-modernization-project-model/internal/domain/patient/ui/patient_detail"
+	pateitnList "pharmacy-modernization-project-model/internal/domain/patient/ui/patient_list"
+
 	"github.com/go-chi/chi/v5"
-	patSvc "github.com/pharmacy-modernization-project-model/internal/domain/patient/service"
-	patientdetail "github.com/pharmacy-modernization-project-model/internal/domain/patient/ui/patient_detail"
-	pateitnList "github.com/pharmacy-modernization-project-model/internal/domain/patient/ui/patient_list"
 	"go.uber.org/zap"
 )
 

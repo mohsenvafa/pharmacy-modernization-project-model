@@ -4,8 +4,8 @@ import (
 	"github.com/go-chi/chi/v5"
 	"go.uber.org/zap"
 
-	controllers "github.com/pharmacy-modernization-project-model/internal/domain/patient/api/controllers"
-	"github.com/pharmacy-modernization-project-model/internal/domain/patient/service"
+	controllers "pharmacy-modernization-project-model/internal/domain/patient/api/controllers"
+	"pharmacy-modernization-project-model/internal/domain/patient/service"
 )
 
 type Dependencies struct {

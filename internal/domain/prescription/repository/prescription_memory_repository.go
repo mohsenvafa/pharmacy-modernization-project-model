@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 	"fmt"
-	m "github.com/pharmacy-modernization-project-model/internal/domain/prescription/model"
+	m "pharmacy-modernization-project-model/internal/domain/prescription/model"
 	"time"
 )
 

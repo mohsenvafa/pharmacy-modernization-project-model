@@ -7,8 +7,8 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
-	"github.com/pharmacy-modernization-project-model/internal/platform/config"
-	"github.com/pharmacy-modernization-project-model/internal/platform/logging"
+	"pharmacy-modernization-project-model/internal/platform/config"
+	"pharmacy-modernization-project-model/internal/platform/logging"
 )
 
 type App struct {

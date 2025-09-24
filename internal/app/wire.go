@@ -7,13 +7,13 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 
-	"github.com/pharmacy-modernization-project-model/internal/integrations"
-	"github.com/pharmacy-modernization-project-model/internal/platform/httpx"
-	"github.com/pharmacy-modernization-project-model/internal/platform/logging"
+	"pharmacy-modernization-project-model/internal/integrations"
+	"pharmacy-modernization-project-model/internal/platform/httpx"
+	"pharmacy-modernization-project-model/internal/platform/logging"
 
-	dashboardModule "github.com/pharmacy-modernization-project-model/internal/domain/dashboard"
-	patientModule "github.com/pharmacy-modernization-project-model/internal/domain/patient"
-	prescriptionModule "github.com/pharmacy-modernization-project-model/internal/domain/prescription"
+	dashboardModule "pharmacy-modernization-project-model/internal/domain/dashboard"
+	patientModule "pharmacy-modernization-project-model/internal/domain/patient"
+	prescriptionModule "pharmacy-modernization-project-model/internal/domain/prescription"
 )
 
 func (a *App) wire() error {

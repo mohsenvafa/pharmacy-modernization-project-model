@@ -3,7 +3,8 @@ package prescription_list
 import (
 	"net/http"
 
-	presSvc "github.com/pharmacy-modernization-project-model/internal/domain/prescription/service"
+	presSvc "pharmacy-modernization-project-model/internal/domain/prescription/service"
+
 	"go.uber.org/zap"
 )
 

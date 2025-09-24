@@ -5,8 +5,9 @@ import (
 	"net/http"
 	"strconv"
 
+	service "pharmacy-modernization-project-model/internal/domain/prescription/service"
+
 	"github.com/go-chi/chi/v5"
-	service "github.com/pharmacy-modernization-project-model/internal/domain/prescription/service"
 	"go.uber.org/zap"
 )
 

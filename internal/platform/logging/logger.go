@@ -4,7 +4,7 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
-	"github.com/pharmacy-modernization-project-model/internal/platform/config"
+	"pharmacy-modernization-project-model/internal/platform/config"
 )
 
 type LoggerBundle struct {

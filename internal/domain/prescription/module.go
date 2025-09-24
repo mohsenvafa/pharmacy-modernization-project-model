@@ -4,12 +4,12 @@ import (
 	"github.com/go-chi/chi/v5"
 	"go.uber.org/zap"
 
-	prescriptionapi "github.com/pharmacy-modernization-project-model/internal/domain/prescription/api"
-	prescriptionrepo "github.com/pharmacy-modernization-project-model/internal/domain/prescription/repository"
-	prescriptionservice "github.com/pharmacy-modernization-project-model/internal/domain/prescription/service"
-	uiprescription "github.com/pharmacy-modernization-project-model/internal/domain/prescription/ui"
-	irisbilling "github.com/pharmacy-modernization-project-model/internal/integrations/iris_billing"
-	irispharmacy "github.com/pharmacy-modernization-project-model/internal/integrations/iris_pharmacy"
+	prescriptionapi "pharmacy-modernization-project-model/internal/domain/prescription/api"
+	prescriptionrepo "pharmacy-modernization-project-model/internal/domain/prescription/repository"
+	prescriptionservice "pharmacy-modernization-project-model/internal/domain/prescription/service"
+	uiprescription "pharmacy-modernization-project-model/internal/domain/prescription/ui"
+	irisbilling "pharmacy-modernization-project-model/internal/integrations/iris_billing"
+	irispharmacy "pharmacy-modernization-project-model/internal/integrations/iris_pharmacy"
 )
 
 type ModuleDependencies struct {

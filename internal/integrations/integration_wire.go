@@ -5,9 +5,9 @@ import (
 
 	"go.uber.org/zap"
 
-	irisbilling "github.com/pharmacy-modernization-project-model/internal/integrations/iris_billing"
-	irispharmacy "github.com/pharmacy-modernization-project-model/internal/integrations/iris_pharmacy"
-	"github.com/pharmacy-modernization-project-model/internal/platform/config"
+	irisbilling "pharmacy-modernization-project-model/internal/integrations/iris_billing"
+	irispharmacy "pharmacy-modernization-project-model/internal/integrations/iris_pharmacy"
+	"pharmacy-modernization-project-model/internal/platform/config"
 )
 
 type Dependencies struct {

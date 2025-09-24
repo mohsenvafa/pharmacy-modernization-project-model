@@ -1,4 +1,4 @@
-module github.com/pharmacy-modernization-project-model
+module pharmacy-modernization-project-model
 
 go 1.24.0
 

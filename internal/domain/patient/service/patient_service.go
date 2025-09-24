@@ -3,8 +3,9 @@ package service
 import (
 	"context"
 
-	m "github.com/pharmacy-modernization-project-model/internal/domain/patient/contracts/model"
-	repo "github.com/pharmacy-modernization-project-model/internal/domain/patient/repository"
+	m "pharmacy-modernization-project-model/internal/domain/patient/contracts/model"
+	repo "pharmacy-modernization-project-model/internal/domain/patient/repository"
+
 	"go.uber.org/zap"
 )
 

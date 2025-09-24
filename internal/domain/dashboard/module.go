@@ -3,9 +3,9 @@ package dashboard
 import (
 	"github.com/go-chi/chi/v5"
 
-	dashboardproviders "github.com/pharmacy-modernization-project-model/internal/domain/dashboard/providers"
-	dashboardservice "github.com/pharmacy-modernization-project-model/internal/domain/dashboard/service"
-	dashboardsvc "github.com/pharmacy-modernization-project-model/internal/domain/dashboard/ui"
+	dashboardproviders "pharmacy-modernization-project-model/internal/domain/dashboard/providers"
+	dashboardservice "pharmacy-modernization-project-model/internal/domain/dashboard/service"
+	dashboardsvc "pharmacy-modernization-project-model/internal/domain/dashboard/ui"
 )
 
 type ModuleDependencies struct {

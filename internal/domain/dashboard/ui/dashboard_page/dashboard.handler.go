@@ -3,7 +3,7 @@ package dashboard_page
 import (
 	"net/http"
 
-	dashboardservice "github.com/pharmacy-modernization-project-model/internal/domain/dashboard/service"
+	dashboardservice "pharmacy-modernization-project-model/internal/domain/dashboard/service"
 )
 
 type DashboardPageHandler struct {

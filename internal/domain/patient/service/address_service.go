@@ -3,8 +3,8 @@ package service
 import (
 	"context"
 
-	addressModel "github.com/pharmacy-modernization-project-model/internal/domain/patient/contracts/model"
-	addressrepo "github.com/pharmacy-modernization-project-model/internal/domain/patient/repository"
+	addressModel "pharmacy-modernization-project-model/internal/domain/patient/contracts/model"
+	addressrepo "pharmacy-modernization-project-model/internal/domain/patient/repository"
 )
 
 type AddressService interface {

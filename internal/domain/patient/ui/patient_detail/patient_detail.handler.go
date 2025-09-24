@@ -4,8 +4,9 @@ import (
 	"net/http"
 	"time"
 
+	patSvc "pharmacy-modernization-project-model/internal/domain/patient/service"
+
 	"github.com/go-chi/chi/v5"
-	patSvc "github.com/pharmacy-modernization-project-model/internal/domain/patient/service"
 	"go.uber.org/zap"
 )
 

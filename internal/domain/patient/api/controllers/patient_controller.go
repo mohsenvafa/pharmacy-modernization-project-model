@@ -8,7 +8,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"go.uber.org/zap"
 
-	service "github.com/pharmacy-modernization-project-model/internal/domain/patient/service"
+	service "pharmacy-modernization-project-model/internal/domain/patient/service"
 )
 
 type PatientController struct {
