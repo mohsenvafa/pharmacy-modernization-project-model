@@ -24,3 +24,8 @@ node_modules/
 # OS junk
 .DS_Store
 web/package-lock.json
+
+# Allow committed web vendor assets
+!web/public/vendor/
+web/public/vendor/*
+!web/public/vendor/theme-change.js

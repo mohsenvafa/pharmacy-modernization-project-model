@@ -9,10 +9,6 @@ const files = [
     src: path.join(root, 'node_modules', 'htmx.org', 'dist', 'htmx.min.js'),
     dest: path.join(vendorDir, 'htmx.min.js'),
   },
-  {
-    src: path.join(root, 'node_modules', 'theme-change', 'index.js'),
-    dest: path.join(vendorDir, 'theme-change.js'),
-  },
 ];
 
 fs.mkdirSync(vendorDir, { recursive: true });
