@@ -1591,6 +1591,154 @@ video {
   }
 }
 
+.toggle {
+  border: var(--border) solid currentColor;
+  color: var(--input-color);
+  position: relative;
+  display: inline-grid;
+  flex-shrink: 0;
+  cursor: pointer;
+  -webkit-appearance: none;
+     -moz-appearance: none;
+          appearance: none;
+  place-content: center;
+  vertical-align: middle;
+  webkit-user-select: none;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+          user-select: none;
+  grid-template-columns: 0fr 1fr 1fr;
+  --radius-selector-max: calc(
+    var(--radius-selector) + var(--radius-selector) + var(--radius-selector)
+  );
+  border-radius: calc( var(--radius-selector) + min(var(--toggle-p), var(--radius-selector-max)) + min(var(--border), var(--radius-selector-max)) );
+  padding: var(--toggle-p);
+  box-shadow: 0 1px color-mix(in oklab, currentColor calc(var(--depth) * 10%), #0000) inset;
+  transition: color 0.3s, grid-template-columns 0.2s;
+  --input-color: color-mix(in oklab, var(--color-base-content) 50%, #0000);
+  --toggle-p: calc(var(--size) * 0.125);
+  --size: calc(var(--size-selector, 0.25rem) * 6);
+  width: calc((var(--size) * 2) - (var(--border) + var(--toggle-p)) * 2);
+  height: var(--size);
+}
+
+.toggle > * {
+  z-index: 1;
+  grid-column: span 1 / span 1;
+  grid-column-start: 2;
+  grid-row-start: 1;
+  height: 100%;
+  cursor: pointer;
+  -webkit-appearance: none;
+     -moz-appearance: none;
+          appearance: none;
+  background-color: transparent;
+  padding: calc(0.25rem * 0.5);
+  transition: opacity 0.2s, rotate 0.4s;
+  border: none;
+}
+
+.toggle > *:focus {
+  --tw-outline-style: none;
+  outline-style: none;
+}
+
+@media (forced-colors: active) {
+  .toggle > *:focus {
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+  }
+}
+
+.toggle > *:nth-child(2) {
+  color: var(--color-base-100);
+  rotate: 0deg;
+}
+
+.toggle > *:nth-child(3) {
+  color: var(--color-base-100);
+  opacity: 0%;
+  rotate: -15deg;
+}
+
+.toggle:has(:checked) > :nth-child(2) {
+  opacity: 0%;
+  rotate: 15deg;
+}
+
+.toggle:has(:checked) > :nth-child(3) {
+  opacity: 100%;
+  rotate: 0deg;
+}
+
+.toggle:before {
+  position: relative;
+  inset-inline-start: calc(0.25rem * 0);
+  grid-column-start: 2;
+  grid-row-start: 1;
+  aspect-ratio: 1 / 1;
+  height: 100%;
+  border-radius: var(--radius-selector);
+  background-color: currentColor;
+  translate: 0;
+  --tw-content: "";
+  content: var(--tw-content);
+  transition: background-color 0.1s, translate 0.2s, inset-inline-start 0.2s;
+  box-shadow: 0 -1px oklch(0% 0 0 / calc(var(--depth) * 0.1)) inset, 0 8px 0 -4px oklch(100% 0 0 / calc(var(--depth) * 0.1)) inset, 0 1px color-mix(in oklab, currentColor calc(var(--depth) * 10%), #0000);
+  background-size: auto, calc(var(--noise) * 100%);
+  background-image: none, var(--fx-noise);
+}
+
+@media (forced-colors: active) {
+  .toggle:before {
+    outline-style: var(--tw-outline-style);
+    outline-width: 1px;
+    outline-offset: calc(1px * -1);
+  }
+}
+
+@media print {
+  .toggle:before {
+    outline: 0.25rem solid;
+    outline-offset: -1rem;
+  }
+}
+
+.toggle:focus-visible, .toggle:has(:focus-visible) {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+.toggle:checked, .toggle[aria-checked="true"], .toggle:has(> input:checked) {
+  grid-template-columns: 1fr 1fr 0fr;
+  background-color: var(--color-base-100);
+  --input-color: var(--color-base-content);
+}
+
+.toggle:checked:before, .toggle[aria-checked="true"]:before, .toggle:has(> input:checked):before {
+  background-color: currentColor;
+}
+
+@starting-style {
+  .toggle:checked:before, .toggle[aria-checked="true"]:before, .toggle:has(> input:checked):before {
+    opacity: 0;
+  }
+}
+
+.toggle:indeterminate {
+  grid-template-columns: 0.5fr 1fr 0.5fr;
+}
+
+.toggle:disabled {
+  cursor: not-allowed;
+  opacity: 30%;
+}
+
+.toggle:disabled:before {
+  background-color: transparent;
+  border: var(--border) solid currentColor;
+}
+
 @keyframes skeleton {
   0% {
     background-position: 150%;
@@ -1915,6 +2063,23 @@ video {
   }
 }
 
+.loading {
+  pointer-events: none;
+  display: inline-block;
+  aspect-ratio: 1 / 1;
+  background-color: currentColor;
+  vertical-align: middle;
+  width: calc(var(--size-selector, 0.25rem) * 6);
+  -webkit-mask-size: 100%;
+          mask-size: 100%;
+  -webkit-mask-repeat: no-repeat;
+          mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+          mask-position: center;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg width='24' height='24' stroke='black' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cg transform-origin='center'%3E%3Ccircle cx='12' cy='12' r='9.5' fill='none' stroke-width='3' stroke-linecap='round'%3E%3CanimateTransform attributeName='transform' type='rotate' from='0 12 12' to='360 12 12' dur='2s' repeatCount='indefinite'/%3E%3Canimate attributeName='stroke-dasharray' values='0,150;42,150;42,150' keyTimes='0;0.475;1' dur='1.5s' repeatCount='indefinite'/%3E%3Canimate attributeName='stroke-dashoffset' values='0;-16;-59' keyTimes='0;0.475;1' dur='1.5s' repeatCount='indefinite'/%3E%3C/circle%3E%3C/g%3E%3C/svg%3E");
+          mask-image: url("data:image/svg+xml,%3Csvg width='24' height='24' stroke='black' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cg transform-origin='center'%3E%3Ccircle cx='12' cy='12' r='9.5' fill='none' stroke-width='3' stroke-linecap='round'%3E%3CanimateTransform attributeName='transform' type='rotate' from='0 12 12' to='360 12 12' dur='2s' repeatCount='indefinite'/%3E%3Canimate attributeName='stroke-dasharray' values='0,150;42,150;42,150' keyTimes='0;0.475;1' dur='1.5s' repeatCount='indefinite'/%3E%3Canimate attributeName='stroke-dashoffset' values='0;-16;-59' keyTimes='0;0.475;1' dur='1.5s' repeatCount='indefinite'/%3E%3C/circle%3E%3C/g%3E%3C/svg%3E");
+}
+
 .col-span-12 {
   grid-column: span 12 / span 12;
 }
@@ -1925,6 +2090,11 @@ video {
 
 .m-4 {
   margin: 1rem;
+}
+
+.mx-4 {
+  margin-left: 1rem;
+  margin-right: 1rem;
 }
 
 .mt-4 {
@@ -2035,6 +2205,10 @@ video {
   overflow-x: auto;
 }
 
+.overflow-y-auto {
+  overflow-y: auto;
+}
+
 .rounded-lg {
   border-radius: 0.5rem;
 }
@@ -2079,6 +2253,11 @@ video {
 .py-2 {
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
+}
+
+.px-4 {
+  padding-left: 1rem;
+  padding-right: 1rem;
 }
 
 .pt-4 {

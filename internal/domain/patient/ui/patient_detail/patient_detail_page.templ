@@ -18,61 +18,58 @@ templ PatientDetailPage(pageParam PatientDetailPageParam) {
 }
 
 templ patientDetail(pageParam PatientDetailPageParam) {
-	<div class="flex">
-		@layouts.Sidebar()
-		<main class="flex-1 space-y-6">
-			@commonComponents.PageHeader(pageParam.Patient.Name)
-			<div class="flex m-2 items-center gap-4">
-				<a class="btn btn-ghost" href="/patients">
-					← Back to Patients
-				</a>
+	<div class="flex flex-col space-y-6">
+		@commonComponents.PageHeader(pageParam.Patient.Name)
+		<div class="flex items-center gap-4 px-4">
+			<a class="btn btn-ghost" href="/patients">
+				← Back to Patients
+			</a>
+		</div>
+		<section class="grid gap-4 px-4 md:grid-cols-3">
+			@commonComponents.StatisticsCard("Age", fmt.Sprintf("%d", pageParam.Age), "years old")
+			@commonComponents.StatisticsCard("State", pageParam.Patient.State, "Primary residence")
+			@commonComponents.StatisticsCard("Phone", pageParam.Patient.Phone, "Primary contact")
+		</section>
+		<section class="card mx-4 bg-base-100 shadow">
+			<div class="card-body space-y-4">
+				<div>
+					<h2 class="card-title">Patient Details</h2>
+					<p class="text-sm opacity-60">Key demographic information and contact details.</p>
+				</div>
+				<div class="grid gap-4 md:grid-cols-2">
+					<div>
+						<div class="text-xs uppercase opacity-60">Full Name</div>
+						<div class="text-base font-semibold">{ pageParam.Patient.Name }</div>
+					</div>
+					<div>
+						<div class="text-xs uppercase opacity-60">Date of Birth</div>
+						<div class="text-base font-semibold">{ pageParam.Patient.DOB.Format("January 2, 2006") }</div>
+					</div>
+					<div>
+						<div class="text-xs uppercase opacity-60">Phone</div>
+						<div class="text-base font-semibold">{ pageParam.Patient.Phone }</div>
+					</div>
+					<div>
+						<div class="text-xs uppercase opacity-60">State</div>
+						<div class="text-base font-semibold">{ pageParam.Patient.State }</div>
+					</div>
+					<div>
+						<div class="text-xs uppercase opacity-60">Patient ID</div>
+						<div class="text-base font-semibold">{ pageParam.Patient.ID }</div>
+					</div>
+				</div>
 			</div>
-			<section class="grid gap-4 m-4 md:grid-cols-3">
-				@commonComponents.StatisticsCard("Age", fmt.Sprintf("%d", pageParam.Age), "years old")
-				@commonComponents.StatisticsCard("State", pageParam.Patient.State, "Primary residence")
-				@commonComponents.StatisticsCard("Phone", pageParam.Patient.Phone, "Primary contact")
-			</section>
-			<section class="m-4 card bg-base-100 shadow">
-				<div class="card-body space-y-4">
-					<div>
-						<h2 class="card-title">Patient Details</h2>
-						<p class="text-sm opacity-60">Key demographic information and contact details.</p>
-					</div>
-					<div class="grid gap-4 md:grid-cols-2">
-						<div>
-							<div class="text-xs uppercase opacity-60">Full Name</div>
-							<div class="text-base font-semibold">{ pageParam.Patient.Name }</div>
-						</div>
-						<div>
-							<div class="text-xs uppercase opacity-60">Date of Birth</div>
-							<div class="text-base font-semibold">{ pageParam.Patient.DOB.Format("January 2, 2006") }</div>
-						</div>
-						<div>
-							<div class="text-xs uppercase opacity-60">Phone</div>
-							<div class="text-base font-semibold">{ pageParam.Patient.Phone }</div>
-						</div>
-						<div>
-							<div class="text-xs uppercase opacity-60">State</div>
-							<div class="text-base font-semibold">{ pageParam.Patient.State }</div>
-						</div>
-						<div>
-							<div class="text-xs uppercase opacity-60">Patient ID</div>
-							<div class="text-base font-semibold">{ pageParam.Patient.ID }</div>
-						</div>
-					</div>
+		</section>
+		<section class="card mx-4 bg-base-100 shadow">
+			<div class="card-body space-y-4">
+				<div>
+					<h2 class="card-title">Clinical Summary</h2>
+					<p class="text-sm opacity-60">This section can include prescription history, allergies, or upcoming appointments.</p>
 				</div>
-			</section>
-			<section class="m-4 card bg-base-100 shadow">
-				<div class="card-body space-y-4">
-					<div>
-						<h2 class="card-title">Clinical Summary</h2>
-						<p class="text-sm opacity-60">This section can include prescription history, allergies, or upcoming appointments.</p>
-					</div>
-					<div class="rounded-lg bg-base-200/60 p-4 text-sm opacity-70">
-						No clinical notes have been recorded for this patient yet.
-					</div>
+				<div class="rounded-lg bg-base-200/60 p-4 text-sm opacity-70">
+					No clinical notes have been recorded for this patient yet.
 				</div>
-			</section>
-		</main>
+			</div>
+		</section>
 	</div>
 }

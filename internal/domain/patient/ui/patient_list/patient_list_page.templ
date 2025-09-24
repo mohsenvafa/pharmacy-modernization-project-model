@@ -17,26 +17,23 @@ templ PatientListPage(pageParam PatientListPageParam) {
 }
 
 templ patientList(pageParam PatientListPageParam) {
-	<div class="flex">
-		@layouts.Sidebar()
-		<main class="flex-1">
-			@commonComponents.PageHeader("Patients")
-			<section class="card bg-base-100 col-span-12 overflow-hidden shadow-xs xl:col-span-7">
-				<div class="card-body grow-0">
-					<div class="flex justify-between gap-2">
-						<h2 class="card-title grow">
-							<a class="link-hover link">Recent Patients</a>
-						</h2>
-					</div>
+	<div class="flex flex-col gap-4">
+		@commonComponents.PageHeader("Patients")
+		<section class="card col-span-12 overflow-hidden bg-base-100 shadow-xs xl:col-span-7">
+			<div class="card-body grow-0">
+				<div class="flex justify-between gap-2">
+					<h2 class="card-title grow">
+						<a class="link-hover link">Recent Patients</a>
+					</h2>
 				</div>
-				@commonComponents.DataTable(patientTableColumns, patientTableRows(pageParam.Patients))
-				@commonComponents.Pagination(commonComponents.PaginationParams{
-					CurrentPage: pageParam.CurrentPage,
-					TotalPages:  pageParam.TotalPages,
-					BasePath:    "/patients",
-				})
-			</section>
-		</main>
+			</div>
+			@commonComponents.DataTable(patientTableColumns, patientTableRows(pageParam.Patients))
+			@commonComponents.Pagination(commonComponents.PaginationParams{
+				CurrentPage: pageParam.CurrentPage,
+				TotalPages:  pageParam.TotalPages,
+				BasePath:    "/patients",
+			})
+		</section>
 	</div>
 }
 

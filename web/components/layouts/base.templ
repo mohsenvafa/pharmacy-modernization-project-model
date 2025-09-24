@@ -11,8 +11,13 @@ templ BaseLayout(title string, content templ.Component) {
 			<script src="https://unpkg.com/htmx.org@1.9.12"></script>
 			<script src="https://cdn.jsdelivr.net/npm/theme-change@2.0.2/index.js" defer></script>
 		</head>
-		<body class="min-h-screen bg-base-200 text-base-content">
-			@content
+		<body class="min-h-screen bg-base-200 text-base-content" hx-boost="true" hx-target="#main-content" hx-select="#main-content" hx-swap="outerHTML">
+			<div class="flex min-h-screen">
+				@Sidebar()
+				<main id="main-content" class="flex-1 overflow-y-auto">
+					@content
+				</main>
+			</div>
 		</body>
 	</html>
 }

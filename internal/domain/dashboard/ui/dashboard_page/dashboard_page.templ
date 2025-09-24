@@ -17,17 +17,14 @@ templ DashboardPage(pageParam DashboardPageParam) {
 }
 
 templ dashboard(pageParam DashboardPageParam) {
-	<div class="flex">
-		@layouts.Sidebar()
-		<main class="flex-1">
-			@commonComponents.PageHeader("Dashboard")
-			<section class="p-4 grid gap-4 md:grid-cols-2">
-				@commonComponents.StatisticsCard("Total Patients", fmt.Sprintf("%d", pageParam.NumberOfPatients), "since last month")
-				@commonComponents.StatisticsCard("Active Prescriptions", fmt.Sprintf("%d", pageParam.ActivePrescriptions), "since last month")
-			</section>
-			<section class="p-4">
-				Dashboard content goes here...
-			</section>
-		</main>
+	<div class="flex flex-col gap-4">
+		@commonComponents.PageHeader("Dashboard")
+		<section class="grid gap-4 p-4 md:grid-cols-2">
+			@commonComponents.StatisticsCard("Total Patients", fmt.Sprintf("%d", pageParam.NumberOfPatients), "since last month")
+			@commonComponents.StatisticsCard("Active Prescriptions", fmt.Sprintf("%d", pageParam.ActivePrescriptions), "since last month")
+		</section>
+		<section class="p-4">
+			Dashboard content goes here...
+		</section>
 	</div>
 }

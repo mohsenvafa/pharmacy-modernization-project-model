@@ -14,14 +14,11 @@ templ PrescriptionListPage(pageParam PrescriptionListPageParam) {
 }
 
 templ prescriptionList(pageParam PrescriptionListPageParam) {
-	<div class="flex">
-		@layouts.Sidebar()
-		<main class="flex-1">
-			@commonComponents.PageHeader("Prescriptions")
-			<section class="p-4">
-				Prescription content goes here...
-				<div class="mt-4 text-sm opacity-60">Total prescriptions: { pageParam.NumberOfPrescriptions }</div>
-			</section>
-		</main>
+	<div class="flex flex-col gap-4">
+		@commonComponents.PageHeader("Prescriptions")
+		<section class="p-4">
+			Prescription content goes here...
+			<div class="mt-4 text-sm opacity-60">Total prescriptions: { pageParam.NumberOfPrescriptions }</div>
+		</section>
 	</div>
 }
