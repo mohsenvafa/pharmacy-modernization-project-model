@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"encoding/json"
 	"net/http"
 	"strconv"
 
@@ -9,6 +8,7 @@ import (
 	"go.uber.org/zap"
 
 	service "pharmacy-modernization-project-model/internal/domain/patient/service"
+	helper "pharmacy-modernization-project-model/internal/helper"
 )
 
 type PatientController struct {
@@ -36,11 +36,18 @@ func (c *PatientController) List(w http.ResponseWriter, r *http.Request) {
 	items, err := c.patientService.List(r.Context(), q, limit, offset)
 	if err != nil {
 		c.log.Error("list patients", zap.Error(err))
-		http.Error(w, "failed to list patients", http.StatusInternalServerError)
+		if writeErr := helper.WriteError(w, http.StatusInternalServerError, helper.APIError{
+			Code:    "patient_list_error",
+			Message: "failed to list patients",
+		}); writeErr != nil {
+			c.log.Error("write response", zap.Error(writeErr))
+		}
 		return
 	}
 
-	_ = json.NewEncoder(w).Encode(items)
+	if err := helper.WriteJSON(w, http.StatusOK, items, nil); err != nil {
+		c.log.Error("write response", zap.Error(err))
+	}
 }
 
 func (c *PatientController) GetByID(w http.ResponseWriter, r *http.Request) {
@@ -48,9 +55,16 @@ func (c *PatientController) GetByID(w http.ResponseWriter, r *http.Request) {
 	item, err := c.patientService.GetByID(r.Context(), id)
 	if err != nil {
 		c.log.Error("get patient", zap.Error(err), zap.String("patientID", id))
-		http.Error(w, "failed to fetch patient", http.StatusInternalServerError)
+		if writeErr := helper.WriteError(w, http.StatusInternalServerError, helper.APIError{
+			Code:    "patient_get_error",
+			Message: "failed to fetch patient",
+		}); writeErr != nil {
+			c.log.Error("write response", zap.Error(writeErr))
+		}
 		return
 	}
 
-	_ = json.NewEncoder(w).Encode(item)
+	if err := helper.WriteJSON(w, http.StatusOK, item, nil); err != nil {
+		c.log.Error("write response", zap.Error(err))
+	}
 }
