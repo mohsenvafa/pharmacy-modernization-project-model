@@ -58,6 +58,47 @@ Example: `domain/patient/module.go` builds repositories and services, mounts API
 ### Providers & Cross-Domain Contracts
 Domains define their external expectations as interfaces in a `providers` (or `contracts/providers`) package. The Dashboard module consumes `providers.PatientStatsProvider` and `providers.PrescriptionStatsProvider` (`domain/dashboard/providers/providers.go`). The Patient and Prescription modules satisfy those interfaces through their exported services, enabling loose coupling while preserving compile-time safety.
 
+### Composition Boundaries
+```mermaid
+flowchart TB
+    App["App + wire()"]
+
+    subgraph Patient["Patient Domain"]
+        direction TB
+        PatientProviders["Providers\n(domain expects)"]
+        PatientModule["Module()"]
+        PatientExport["ModuleExport\n(PatientService, AddressService)"]
+        PatientProviders --> PatientModule --> PatientExport
+    end
+
+    subgraph Prescription["Prescription Domain"]
+        direction TB
+        PrescriptionProviders["Providers\n(domain expects)"]
+        PrescriptionModule["Module()"]
+        PrescriptionExport["ModuleExport\n(PrescriptionService)"]
+        PrescriptionProviders --> PrescriptionModule --> PrescriptionExport
+    end
+
+    subgraph Dashboard["Dashboard Domain"]
+        direction TB
+        DashboardProviders["Providers\n(Patient-/PrescriptionStats)"]
+        DashboardModule["Module()"]
+        DashboardProviders --> DashboardModule
+    end
+
+    App -->|init| PatientModule
+    App -->|init| PrescriptionModule
+    App -->|init| DashboardModule
+
+    App -->|inject PatientService as PatientStatsProvider| DashboardModule
+    App -->|inject PrescriptionService as PrescriptionStatsProvider| DashboardModule
+
+    PatientModule -.->|no direct dependency| PrescriptionModule
+    PrescriptionModule -.->|no direct dependency| PatientModule
+```
+
+Only the composition root (`internal/app/wire.go`) coordinates data sharing between domains. Each module exposes its capabilities through a `ModuleExport`, while consuming other domains exclusively via provider interfaces. This keeps modules isolated and prevents hidden, direct dependencies.
+
 ## Domain Package Structure
 Each domain mirrors the same internal layout:
 - `api/` – HTTP APIs that expose domain capabilities as REST endpoints.
