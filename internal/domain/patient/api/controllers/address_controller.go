@@ -2,11 +2,13 @@ package controllers
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
 	"go.uber.org/zap"
 
+	addressRequest "pharmacy-modernization-project-model/internal/domain/patient/contracts/request"
 	service "pharmacy-modernization-project-model/internal/domain/patient/service"
 )
 
@@ -22,6 +24,7 @@ func NewAddressController(addresses service.AddressService, log *zap.Logger) *Ad
 func (c *AddressController) RegisterRoutes(r chi.Router) {
 	r.Get("/", c.ListByPatient)
 	r.Get("/{addressID}", c.GetByID)
+	r.Post("/", c.Create)
 }
 
 func (c *AddressController) ListByPatient(w http.ResponseWriter, r *http.Request) {
@@ -46,4 +49,30 @@ func (c *AddressController) GetByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	_ = json.NewEncoder(w).Encode(address)
+}
+
+func (c *AddressController) Create(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+
+	var req addressRequest.AddressCreateRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		c.log.Warn("invalid address payload", zap.Error(err))
+		http.Error(w, "invalid address payload", http.StatusBadRequest)
+		return
+	}
+
+	patientID := chi.URLParam(r, "patientID")
+	created, err := c.addressService.Create(r.Context(), patientID, req)
+	if err != nil {
+		if errors.Is(err, service.ErrInvalidAddress) {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		c.log.Error("create address", zap.Error(err), zap.String("patientID", patientID))
+		http.Error(w, "failed to create address", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
+	_ = json.NewEncoder(w).Encode(created)
 }
