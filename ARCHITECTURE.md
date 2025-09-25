@@ -136,6 +136,7 @@ Each domain folder has the same shape:
 - `MountUI` functions register handlers and compose shared layouts from `web/components`.
 - Layouts, widgets, and icons are reusable pieces stored under `web/components/layouts`, `web/components/elements`, and `web/components/svg`.
 - Static assets live in `web/public` and the router serves them under `/assets/`.
+- Every page or component has a `.templ` file with only HTML (and optional JS). The template defines an input struct named for the page or component params. A matching `*.handler.go` file sits beside it and holds all Go code: dependencies are fields on the handler struct, and the handler builds the data passed into the template. The domain-level `ui.go` wires the handler, provides dependencies, and mounts the route.
 
 ## Shared Web Components
 - `web/components/layouts/` – Page shells such as `base.templ` and `sidebar.templ`.
