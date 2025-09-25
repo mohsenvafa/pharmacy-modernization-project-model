@@ -2,7 +2,7 @@ package repository
 
 import (
 	"context"
-	m "pharmacy-modernization-project-model/domain/prescription/model"
+	m "pharmacy-modernization-project-model/domain/prescription/contracts/model"
 )
 
 type PrescriptionRepository interface {

@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 
-	m "pharmacy-modernization-project-model/domain/prescription/model"
+	m "pharmacy-modernization-project-model/domain/prescription/contracts/model"
 	repo "pharmacy-modernization-project-model/domain/prescription/repository"
 	irisbilling "pharmacy-modernization-project-model/internal/integrations/iris_billing"
 	irispharmacy "pharmacy-modernization-project-model/internal/integrations/iris_pharmacy"

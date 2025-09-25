@@ -35,7 +35,7 @@ func Module(r chi.Router, deps *ModuleDependencies) ModuleExport {
 
 	svc := prescriptionservice.New(repo, deps.Logger, pharmacyClient, billingClient)
 
-	prescriptionapi.MountApi(r, prescriptionapi.New(svc, deps.Logger))
+	prescriptionapi.MountAPI(r, &prescriptionapi.Dependencies{Service: svc, Logger: deps.Logger})
 	uiprescription.MountUI(r, &uiprescription.PrescriptionDependencies{PrescriptionSvc: svc, Log: deps.Logger})
 
 	return ModuleExport{PrescriptionService: svc}
