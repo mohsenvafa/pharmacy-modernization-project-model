@@ -1,0 +1,58 @@
+package patient_list
+
+import (
+	patientsmodel "pharmacy-modernization-project-model/domain/patient/contracts/model"
+	commonComponents "pharmacy-modernization-project-model/web/components/elements"
+	layouts "pharmacy-modernization-project-model/web/components/layouts"
+)
+
+type PatientListPageParam struct {
+	Patients    []patientsmodel.Patient
+	CurrentPage int
+	TotalPages  int
+}
+
+templ PatientListPage(pageParam PatientListPageParam) {
+	@layouts.BaseLayout("Patient List", patientList(pageParam))
+}
+
+templ patientList(pageParam PatientListPageParam) {
+	<div class="flex flex-col gap-4">
+		@commonComponents.PageHeader("Patients")
+		<section class="card col-span-12 overflow-hidden bg-base-100 shadow-xs xl:col-span-7">
+			<div class="card-body grow-0">
+				<div class="flex justify-between gap-2">
+					<h2 class="card-title grow">
+						<a class="link-hover link">Recent Patients</a>
+					</h2>
+				</div>
+			</div>
+			@commonComponents.DataTable(patientTableColumns, patientTableRows(pageParam.Patients))
+			@commonComponents.Pagination(commonComponents.PaginationParams{
+				CurrentPage: pageParam.CurrentPage,
+				TotalPages:  pageParam.TotalPages,
+				BasePath:    "/patients",
+			})
+		</section>
+	</div>
+}
+
+templ patientTableRows(pats []patientsmodel.Patient) {
+	for _, pat := range pats {
+		<tr>
+			<td class="w-0"><input type="checkbox" class="checkbox"/></td>
+			<td>
+				<div class="flex items-center gap-4">
+					<div>
+						<div class="text-sm font-bold">
+							<a class="link link-hover" href={ "/patients/" + pat.ID }>{ pat.Name }</a>
+						</div>
+						<div class="text-xs opacity-50">{ pat.Phone }</div>
+					</div>
+				</div>
+			</td>
+			<td>{ pat.DOB.Format("Jan 2, 2006") }</td>
+			<td>{ pat.State }</td>
+		</tr>
+	}
+}

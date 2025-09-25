@@ -11,9 +11,9 @@ import (
 	"pharmacy-modernization-project-model/internal/platform/httpx"
 	"pharmacy-modernization-project-model/internal/platform/logging"
 
-	dashboardModule "pharmacy-modernization-project-model/internal/domain/dashboard"
-	patientModule "pharmacy-modernization-project-model/internal/domain/patient"
-	prescriptionModule "pharmacy-modernization-project-model/internal/domain/prescription"
+	dashboardModule "pharmacy-modernization-project-model/domain/dashboard"
+	patientModule "pharmacy-modernization-project-model/domain/patient"
+	prescriptionModule "pharmacy-modernization-project-model/domain/prescription"
 )
 
 func (a *App) wire() error {

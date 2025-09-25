@@ -8,7 +8,7 @@
 - Open: http://localhost:8080
 
 ## Notes
-- Feature-based modules under `internal/domain/*` and UI under `internal/ui/*`.
+- Feature-based modules under `domain/*` and UI under `internal/ui/*`.
 - Viper YAML config in `internal/configs/` with env overrides (RX_*).
 - Zap logging with request/correlation IDs.
 - Tailwind source lives in `web/styles/input.css`; `make tailwind-watch` rebuilds `web/public/app.css` via the standalone Tailwind CLI with DaisyUI.
