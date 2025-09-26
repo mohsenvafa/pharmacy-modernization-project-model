@@ -31,7 +31,11 @@ func Module(r chi.Router, deps *ModuleDependencies) ModuleExport {
 		Logger:         deps.Logger,
 	})
 
-	uipatient.MountUI(r, &uipatient.UiDpendencies{PatientSvc: patSvc, Log: deps.Logger})
+	uipatient.MountUI(r, &uipatient.UiDpendencies{
+		PatientSvc: patSvc,
+		AddressSvc: addrSvc,
+		Log:        deps.Logger,
+	})
 
 	return ModuleExport{PatientService: patSvc, AddressService: addrSvc}
 }
