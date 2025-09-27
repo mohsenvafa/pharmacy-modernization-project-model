@@ -47,6 +47,16 @@ func (r *PrescriptionMemoryRepository) Update(ctx context.Context, id string, p 
 	return p, nil
 }
 
+func (r *PrescriptionMemoryRepository) ListByPatientID(ctx context.Context, patientID string) ([]m.Prescription, error) {
+	result := []m.Prescription{}
+	for _, v := range r.items {
+		if v.PatientID == patientID {
+			result = append(result, v)
+		}
+	}
+	return result, nil
+}
+
 func (r *PrescriptionMemoryRepository) CountByStatus(ctx context.Context, status string) (int, error) {
 	if status == "" {
 		return len(r.items), nil

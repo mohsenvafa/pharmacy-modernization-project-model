@@ -11,4 +11,5 @@ type PrescriptionRepository interface {
 	Create(ctx context.Context, p m.Prescription) (m.Prescription, error)
 	Update(ctx context.Context, id string, p m.Prescription) (m.Prescription, error)
 	CountByStatus(ctx context.Context, status string) (int, error)
+	ListByPatientID(ctx context.Context, patientID string) ([]m.Prescription, error)
 }
