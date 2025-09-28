@@ -9,6 +9,7 @@ import (
 	patientrepo "pharmacy-modernization-project-model/domain/patient/repository"
 	patientservice "pharmacy-modernization-project-model/domain/patient/service"
 	uipatient "pharmacy-modernization-project-model/domain/patient/ui"
+	uipatientContracts "pharmacy-modernization-project-model/domain/patient/ui/contracts"
 )
 
 type ModuleDependencies struct {
@@ -33,7 +34,7 @@ func Module(r chi.Router, deps *ModuleDependencies) ModuleExport {
 		Logger:         deps.Logger,
 	})
 
-	uipatient.MountUI(r, &uipatient.UiDpendencies{
+	uipatient.MountUI(r, &uipatientContracts.UiDependencies{
 		PatientSvc:           patSvc,
 		AddressSvc:           addrSvc,
 		PrescriptionProvider: deps.PrescriptionProvider,

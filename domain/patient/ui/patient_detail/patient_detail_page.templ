@@ -15,7 +15,7 @@ type PatientDetailPageParam struct {
 	Prescriptions templ.Component
 }
 
-templ PatientDetailPage(pageParam PatientDetailPageParam) {
+templ PatientDetailPageComponentView(pageParam PatientDetailPageParam) {
 	@layouts.BaseLayout(fmt.Sprintf("%s • Patient Profile", pageParam.Patient.Name), patientDetail(pageParam))
 }
 

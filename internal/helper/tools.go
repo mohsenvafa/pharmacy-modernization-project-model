@@ -17,3 +17,10 @@ func CalculateAge(dob time.Time) int {
 	}
 	return age
 }
+
+func FormatShortDate(t time.Time) string {
+	if t.IsZero() {
+		return "-"
+	}
+	return t.Format("Jan 2, 2006")
+}

@@ -1,9 +1,8 @@
 package patientprescriptions
 
 import (
-	"time"
-
 	commonmodel "pharmacy-modernization-project-model/domain/common/model"
+	helper "pharmacy-modernization-project-model/internal/helper"
 )
 
 type PrescriptionListParams struct {
@@ -12,7 +11,7 @@ type PrescriptionListParams struct {
 	Prescriptions []commonmodel.PatientPrescription
 }
 
-templ PrescriptionListComponent(params PrescriptionListParams) {
+templ PrescriptionListComponentView(params PrescriptionListParams) {
 	<section class="card bg-base-100 shadow">
 		<div class="card-body space-y-4">
 			<div>
@@ -44,7 +43,7 @@ templ PrescriptionListComponent(params PrescriptionListParams) {
 									<td>
 										<span class="badge badge-outline capitalize">{ rx.Status }</span>
 									</td>
-									<td>{ formatDate(rx.CreatedAt) }</td>
+									<td>{ helper.FormatShortDate(rx.CreatedAt) }</td>
 								</tr>
 							}
 						</tbody>
@@ -68,11 +67,4 @@ templ PlaceHolder(patientID string) {
 	>
 		<div id={ "loading-" + patientID } class="spinner">Loading…</div>
 	</div>
-}
-
-func formatDate(t time.Time) string {
-	if t.IsZero() {
-		return "-"
-	}
-	return t.Format("Jan 2, 2006")
 }

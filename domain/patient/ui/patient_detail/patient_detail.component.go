@@ -10,31 +10,31 @@ import (
 	patSvc "pharmacy-modernization-project-model/domain/patient/service"
 	addresscomponents "pharmacy-modernization-project-model/domain/patient/ui/components/addresslist_server_side"
 	patientprescriptions "pharmacy-modernization-project-model/domain/patient/ui/components/patient_prescriptions"
+	contracts "pharmacy-modernization-project-model/domain/patient/ui/contracts"
 	tools "pharmacy-modernization-project-model/internal/helper"
 )
 
-type PatientDetailHandler struct {
+type PatientDetailComponent struct {
 	patientsService         patSvc.PatientService
 	addressListHandler      *addresscomponents.AddressListComponentHandler
-	prescriptionListHandler *patientprescriptions.PrescriptionListComponentHandler
+	prescriptionListHandler *patientprescriptions.PrescriptionListComponent
 	log                     *zap.Logger
 }
 
 func NewPatientDetailHandler(
-	patients patSvc.PatientService,
+	deps *contracts.UiDependencies,
 	addressListHandler *addresscomponents.AddressListComponentHandler,
-	prescriptionListHandler *patientprescriptions.PrescriptionListComponentHandler,
-	log *zap.Logger,
-) *PatientDetailHandler {
-	return &PatientDetailHandler{
-		patientsService:         patients,
+	prescriptionListHandler *patientprescriptions.PrescriptionListComponent,
+) *PatientDetailComponent {
+	return &PatientDetailComponent{
+		patientsService:         deps.PatientSvc,
 		addressListHandler:      addressListHandler,
 		prescriptionListHandler: prescriptionListHandler,
-		log:                     log,
+		log:                     deps.Log,
 	}
 }
 
-func (h *PatientDetailHandler) Handler(w http.ResponseWriter, r *http.Request) {
+func (h *PatientDetailComponent) Handler(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "patientID")
 	if id == "" {
 		http.Error(w, "missing patient id", http.StatusBadRequest)
@@ -67,14 +67,14 @@ func (h *PatientDetailHandler) Handler(w http.ResponseWriter, r *http.Request) {
 		prescriptionComponent = patientprescriptions.PlaceHolder(id)
 	}
 
-	page := PatientDetailPage(PatientDetailPageParam{
+	view := PatientDetailPageComponentView(PatientDetailPageParam{
 		Patient:       patient,
 		Age:           tools.CalculateAge(patient.DOB),
 		AddressList:   addressComponent,
 		Prescriptions: prescriptionComponent,
 	})
 
-	if err := page.Render(r.Context(), w); err != nil {
+	if err := view.Render(r.Context(), w); err != nil {
 		h.log.Error("failed to render patient detail", zap.Error(err), zap.String("id", id))
 		http.Error(w, "failed to render patient detail", http.StatusInternalServerError)
 		return
