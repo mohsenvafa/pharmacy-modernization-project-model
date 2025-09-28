@@ -9,9 +9,10 @@ import (
 )
 
 type PatientDetailPageParam struct {
-	Patient              patientsmodel.Patient
-	Age                  int
-	AddressListComponent templ.Component
+	Patient       patientsmodel.Patient
+	Age           int
+	AddressList   templ.Component
+	Prescriptions templ.Component
 }
 
 templ PatientDetailPage(pageParam PatientDetailPageParam) {
@@ -72,8 +73,15 @@ templ patientDetail(pageParam PatientDetailPageParam) {
 				</div>
 			</div>
 		</section>
-		<section class="grid gap-4 px-4 md:grid-cols-3">
-			@pageParam.AddressListComponent
-		</section>
+		if pageParam.AddressList != nil || pageParam.Prescriptions != nil {
+			<section class="grid gap-4 px-4 md:grid-cols-2">
+				if pageParam.AddressList != nil {
+					@pageParam.AddressList
+				}
+				if pageParam.Prescriptions != nil {
+					@pageParam.Prescriptions
+				}
+			</section>
+		}
 	</div>
 }

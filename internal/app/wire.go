@@ -42,14 +42,17 @@ func (a *App) wire() error {
 		Logger: logger.Base,
 	})
 
-	// Patient Module
-	patientMod := patientModule.Module(r, &patientModule.ModuleDependencies{Logger: logger.Base})
-
 	// Prescription Module
 	prescriptionMod := prescriptionModule.Module(r, &prescriptionModule.ModuleDependencies{
 		Logger:         logger.Base,
 		PharmacyClient: integration.Pharmacy,
 		BillingClient:  integration.Billing,
+	})
+
+	// Patient Module
+	patientMod := patientModule.Module(r, &patientModule.ModuleDependencies{
+		Logger:               logger.Base,
+		PrescriptionProvider: prescriptionMod.PrescriptionService,
 	})
 
 	// Dashboard Module

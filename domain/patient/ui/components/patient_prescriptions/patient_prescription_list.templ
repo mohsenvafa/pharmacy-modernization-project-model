@@ -1,0 +1,63 @@
+package patientprescriptions
+
+import (
+	"time"
+
+	commonmodel "pharmacy-modernization-project-model/domain/common/model"
+)
+
+type PrescriptionListParams struct {
+	Title        string
+	EmptyMessage string
+	Prescriptions []commonmodel.PatientPrescription
+}
+
+templ PrescriptionListComponent(params PrescriptionListParams) {
+	<section class="card bg-base-100 shadow">
+		<div class="card-body space-y-4">
+			<div>
+				<h2 class="card-title">{ params.Title }</h2>
+				<p class="text-sm opacity-60">Current prescriptions for this patient.</p>
+			</div>
+			if len(params.Prescriptions) == 0 {
+				<div class="rounded-lg bg-base-200/60 p-4 text-sm opacity-70">
+					{ params.EmptyMessage }
+				</div>
+			} else {
+				<div class="overflow-x-auto">
+					<table class="table">
+						<thead>
+							<tr>
+								<th>ID</th>
+								<th>Drug</th>
+								<th>Dose</th>
+								<th>Status</th>
+								<th>Created</th>
+							</tr>
+						</thead>
+						<tbody>
+							for _, rx := range params.Prescriptions {
+								<tr>
+									<td class="font-mono text-sm">{ rx.ID }</td>
+									<td>{ rx.Drug }</td>
+									<td>{ rx.Dose }</td>
+									<td>
+										<span class="badge badge-outline capitalize">{ rx.Status }</span>
+									</td>
+									<td>{ formatDate(rx.CreatedAt) }</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+			}
+		</div>
+	</section>
+}
+
+func formatDate(t time.Time) string {
+	if t.IsZero() {
+		return "-"
+	}
+	return t.Format("Jan 2, 2006")
+}

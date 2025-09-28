@@ -5,13 +5,15 @@ import (
 	"go.uber.org/zap"
 
 	patientapi "pharmacy-modernization-project-model/domain/patient/api"
+	patientproviders "pharmacy-modernization-project-model/domain/patient/providers"
 	patientrepo "pharmacy-modernization-project-model/domain/patient/repository"
 	patientservice "pharmacy-modernization-project-model/domain/patient/service"
 	uipatient "pharmacy-modernization-project-model/domain/patient/ui"
 )
 
 type ModuleDependencies struct {
-	Logger *zap.Logger
+	Logger               *zap.Logger
+	PrescriptionProvider patientproviders.PatientPrescriptionProvider
 }
 
 type ModuleExport struct {
@@ -32,9 +34,10 @@ func Module(r chi.Router, deps *ModuleDependencies) ModuleExport {
 	})
 
 	uipatient.MountUI(r, &uipatient.UiDpendencies{
-		PatientSvc: patSvc,
-		AddressSvc: addrSvc,
-		Log:        deps.Logger,
+		PatientSvc:           patSvc,
+		AddressSvc:           addrSvc,
+		PrescriptionProvider: deps.PrescriptionProvider,
+		Log:                  deps.Logger,
 	})
 
 	return ModuleExport{PatientService: patSvc, AddressService: addrSvc}
