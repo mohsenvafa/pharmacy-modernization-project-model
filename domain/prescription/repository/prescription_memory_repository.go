@@ -10,11 +10,28 @@ import (
 type PrescriptionMemoryRepository struct{ items map[string]m.Prescription }
 
 func NewPrescriptionMemoryRepository() PrescriptionRepository {
-	r := &PrescriptionMemoryRepository{items: map[string]m.Prescription{}}
-	statuses := []m.Status{m.Draft, m.Active, m.Paused, m.Completed}
+	r := &PrescriptionMemoryRepository{
+		items: map[string]m.Prescription{},
+	}
+
+	statuses := []m.Status{
+		m.Draft,
+		m.Active,
+		m.Paused,
+		m.Completed,
+	}
+
 	for i := 1; i <= 50; i++ {
 		id := fmt.Sprintf("R%03d", i)
-		r.items[id] = m.Prescription{ID: id, PatientID: fmt.Sprintf("P%03d", (i%30)+1), Drug: "Amoxicillin", Dose: "500mg", Status: statuses[i%len(statuses)], CreatedAt: time.Now().AddDate(0, 0, -i)}
+		patientID := fmt.Sprintf("P%03d", (i%30)+1)
+		r.items[id] = m.Prescription{
+			ID:        id,
+			PatientID: patientID,
+			Drug:      "Amoxicillin_*" + patientID,
+			Dose:      "500mg",
+			Status:    statuses[i%len(statuses)],
+			CreatedAt: time.Now().AddDate(0, 0, -i),
+		}
 	}
 	return r
 }
