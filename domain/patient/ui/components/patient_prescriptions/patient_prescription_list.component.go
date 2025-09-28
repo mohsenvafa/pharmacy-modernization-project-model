@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"net/http"
+	"time"
 
 	"github.com/a-h/templ"
 	"go.uber.org/zap"
@@ -26,6 +27,12 @@ func (h *PrescriptionListComponent) Handler(w http.ResponseWriter, r *http.Reque
 	view, err := h.componentView(r.Context(), patientID)
 	if err != nil {
 		http.Error(w, "failed to load patient prescriptions", http.StatusInternalServerError)
+		return
+	}
+	select {
+	case <-time.After(3 * time.Second):
+	case <-r.Context().Done():
+		http.Error(w, "request canceled", http.StatusRequestTimeout)
 		return
 	}
 	if err := view.Render(r.Context(), w); err != nil {
