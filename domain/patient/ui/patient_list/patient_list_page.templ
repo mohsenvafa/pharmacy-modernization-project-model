@@ -12,7 +12,7 @@ type PatientListPageParam struct {
 	TotalPages  int
 }
 
-templ PatientListPage(pageParam PatientListPageParam) {
+templ PatientListPageComponentView(pageParam PatientListPageParam) {
 	@layouts.BaseLayout("Patient List", patientList(pageParam))
 }
 

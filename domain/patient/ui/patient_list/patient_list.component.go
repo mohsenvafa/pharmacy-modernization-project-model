@@ -4,19 +4,20 @@ import (
 	"net/http"
 	"strconv"
 
+	"go.uber.org/zap"
+
 	patientmodel "pharmacy-modernization-project-model/domain/patient/contracts/model"
 	patSvc "pharmacy-modernization-project-model/domain/patient/service"
-
-	"go.uber.org/zap"
+	contracts "pharmacy-modernization-project-model/domain/patient/ui/contracts"
 )
 
-type PatientListHandler struct {
+type PatientListComponent struct {
 	patientsService patSvc.PatientService
 	log             *zap.Logger
 }
 
-func NewPatientListHandler(patients patSvc.PatientService, log *zap.Logger) *PatientListHandler {
-	return &PatientListHandler{patientsService: patients, log: log}
+func NewPatientListComponent(deps *contracts.UiDependencies) *PatientListComponent {
+	return &PatientListComponent{patientsService: deps.PatientSvc, log: deps.Log}
 }
 
 const pageSize = 5
@@ -43,9 +44,12 @@ func paginatePatients(pats []patientmodel.Patient, page int) ([]patientmodel.Pat
 	return pats[start:end], totalPages, page
 }
 
-func (u *PatientListHandler) Handler(w http.ResponseWriter, r *http.Request) {
-	patients, err := u.patientsService.List(r.Context(), "", 1000, 0)
+func (c *PatientListComponent) Handler(w http.ResponseWriter, r *http.Request) {
+	patients, err := c.patientsService.List(r.Context(), "", 1000, 0)
 	if err != nil {
+		if c.log != nil {
+			c.log.Error("failed to load patients", zap.Error(err))
+		}
 		http.Error(w, "failed to load patients", http.StatusInternalServerError)
 		return
 	}
@@ -55,14 +59,18 @@ func (u *PatientListHandler) Handler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		pageNum = 1
 	}
-	currentPage := pageNum
-	patientsPage, totalPages, currentPage := paginatePatients(patients, currentPage)
-	page := PatientListPage(PatientListPageParam{
+	patientsPage, totalPages, currentPage := paginatePatients(patients, pageNum)
+
+	view := PatientListPageComponentView(PatientListPageParam{
 		Patients:    patientsPage,
 		CurrentPage: currentPage,
 		TotalPages:  totalPages,
 	})
-	if err := page.Render(r.Context(), w); err != nil {
+
+	if err := view.Render(r.Context(), w); err != nil {
+		if c.log != nil {
+			c.log.Error("failed to render patient list", zap.Error(err))
+		}
 		http.Error(w, "failed to render patient list", http.StatusInternalServerError)
 		return
 	}

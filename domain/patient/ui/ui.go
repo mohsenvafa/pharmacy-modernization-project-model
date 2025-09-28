@@ -7,29 +7,18 @@ import (
 	patientprescriptioncomponents "pharmacy-modernization-project-model/domain/patient/ui/components/patient_prescriptions"
 	contracts "pharmacy-modernization-project-model/domain/patient/ui/contracts"
 	patientdetail "pharmacy-modernization-project-model/domain/patient/ui/patient_detail"
-	pateitnList "pharmacy-modernization-project-model/domain/patient/ui/patient_list"
+	patientlist "pharmacy-modernization-project-model/domain/patient/ui/patient_list"
 )
 
 func MountUI(r chi.Router, dep *contracts.UiDependencies) {
-	patientListPage := pateitnList.NewPatientListHandler(
-		dep.PatientSvc,
-		dep.Log)
-
-	addressListHandler := addresscomponents.NewAddressListComponentHandler(
-		dep.AddressSvc,
-		dep.Log)
-
-	prescriptionListHandler := patientprescriptioncomponents.NewPrescriptionListComponent(dep)
-
-	patientDetailPage := patientdetail.NewPatientDetailHandler(
-		dep,
-		addressListHandler,
-		prescriptionListHandler,
-	)
+	patientListComponent := patientlist.NewPatientListComponent(dep)
+	addressListComponent := addresscomponents.NewAddressListComponent(dep)
+	prescriptionListComponent := patientprescriptioncomponents.NewPrescriptionListComponent(dep)
+	patientDetailComponent := patientdetail.NewPatientDetailComponent(dep, addressListComponent, prescriptionListComponent)
 
 	r.Route("/patients", func(r chi.Router) {
-		r.Get("/", patientListPage.Handler)
-		r.Get("/components/patient-prescriptions-card", prescriptionListHandler.Handler)
-		r.Get("/{patientID}", patientDetailPage.Handler)
+		r.Get("/", patientListComponent.Handler)
+		r.Get("/components/patient-prescriptions-card", prescriptionListComponent.Handler)
+		r.Get("/{patientID}", patientDetailComponent.Handler)
 	})
 }

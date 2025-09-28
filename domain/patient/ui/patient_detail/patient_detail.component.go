@@ -15,35 +15,35 @@ import (
 )
 
 type PatientDetailComponent struct {
-	patientsService         patSvc.PatientService
-	addressListHandler      *addresscomponents.AddressListComponentHandler
-	prescriptionListHandler *patientprescriptions.PrescriptionListComponent
-	log                     *zap.Logger
+	patientsService           patSvc.PatientService
+	addressListComponent      *addresscomponents.AddressListComponent
+	prescriptionListComponent *patientprescriptions.PrescriptionListComponent
+	log                       *zap.Logger
 }
 
-func NewPatientDetailHandler(
+func NewPatientDetailComponent(
 	deps *contracts.UiDependencies,
-	addressListHandler *addresscomponents.AddressListComponentHandler,
-	prescriptionListHandler *patientprescriptions.PrescriptionListComponent,
+	addressListComponent *addresscomponents.AddressListComponent,
+	prescriptionListComponent *patientprescriptions.PrescriptionListComponent,
 ) *PatientDetailComponent {
 	return &PatientDetailComponent{
-		patientsService:         deps.PatientSvc,
-		addressListHandler:      addressListHandler,
-		prescriptionListHandler: prescriptionListHandler,
-		log:                     deps.Log,
+		patientsService:           deps.PatientSvc,
+		addressListComponent:      addressListComponent,
+		prescriptionListComponent: prescriptionListComponent,
+		log:                       deps.Log,
 	}
 }
 
 func (h *PatientDetailComponent) Handler(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "patientID")
-	if id == "" {
+	patientID := chi.URLParam(r, "patientID")
+	if patientID == "" {
 		http.Error(w, "missing patient id", http.StatusBadRequest)
 		return
 	}
 
-	patient, err := h.patientsService.GetByID(r.Context(), id)
+	patient, err := h.patientsService.GetByID(r.Context(), patientID)
 	if err != nil {
-		h.log.Error("failed to fetch patient", zap.Error(err), zap.String("id", id))
+		h.log.Error("failed to fetch patient", zap.Error(err), zap.String("id", patientID))
 		http.Error(w, "failed to load patient", http.StatusInternalServerError)
 		return
 	}
@@ -54,8 +54,8 @@ func (h *PatientDetailComponent) Handler(w http.ResponseWriter, r *http.Request)
 
 	var addressComponent, prescriptionComponent templ.Component
 
-	if h.addressListHandler != nil {
-		component, err := h.addressListHandler.Handler(r.Context(), id)
+	if h.addressListComponent != nil {
+		component, err := h.addressListComponent.View(r.Context(), patientID)
 		if err != nil {
 			http.Error(w, "failed to load patient addresses", http.StatusInternalServerError)
 			return
@@ -63,8 +63,8 @@ func (h *PatientDetailComponent) Handler(w http.ResponseWriter, r *http.Request)
 		addressComponent = component
 	}
 
-	if h.prescriptionListHandler != nil {
-		prescriptionComponent = patientprescriptions.PlaceHolder(id)
+	if h.prescriptionListComponent != nil {
+		prescriptionComponent = patientprescriptions.PlaceHolder(patientID)
 	}
 
 	view := PatientDetailPageComponentView(PatientDetailPageParam{
@@ -75,7 +75,7 @@ func (h *PatientDetailComponent) Handler(w http.ResponseWriter, r *http.Request)
 	})
 
 	if err := view.Render(r.Context(), w); err != nil {
-		h.log.Error("failed to render patient detail", zap.Error(err), zap.String("id", id))
+		h.log.Error("failed to render patient detail", zap.Error(err), zap.String("id", patientID))
 		http.Error(w, "failed to render patient detail", http.StatusInternalServerError)
 		return
 	}
