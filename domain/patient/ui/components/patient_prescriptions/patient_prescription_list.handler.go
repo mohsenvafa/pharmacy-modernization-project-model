@@ -3,6 +3,7 @@ package patientprescriptions
 import (
 	"context"
 	"errors"
+	"net/http"
 
 	"github.com/a-h/templ"
 	"go.uber.org/zap"
@@ -24,7 +25,7 @@ func NewPrescriptionListComponentHandler(deps PrescriptionListDependencies) *Pre
 	return &PrescriptionListComponentHandler{provider: deps.Provider, log: deps.Log}
 }
 
-func (h *PrescriptionListComponentHandler) Handler(ctx context.Context, patientID string) (templ.Component, error) {
+func (h *PrescriptionListComponentHandler) component(ctx context.Context, patientID string) (templ.Component, error) {
 	if patientID == "" {
 		return nil, errors.New("patient id is required")
 	}
@@ -47,4 +48,16 @@ func (h *PrescriptionListComponentHandler) Handler(ctx context.Context, patientI
 	}
 
 	return PrescriptionListComponent(params), nil
+}
+
+func (h *PrescriptionListComponentHandler) Handler(w http.ResponseWriter, r *http.Request) {
+	patientID := r.URL.Query().Get("patientId")
+	component, err := h.component(r.Context(), patientID)
+	if err != nil {
+		http.Error(w, "failed to load patient prescriptions", http.StatusInternalServerError)
+		return
+	}
+	if err := component.Render(r.Context(), w); err != nil {
+		http.Error(w, "failed to render patient prescriptions", http.StatusInternalServerError)
+	}
 }

@@ -20,12 +20,19 @@ type UiDpendencies struct {
 }
 
 func MountUI(r chi.Router, patientDpendencies *UiDpendencies) {
-	patientListPage := pateitnList.NewPatientListHandler(patientDpendencies.PatientSvc, patientDpendencies.Log)
-	addressListHandler := addresscomponents.NewAddressListComponentHandler(patientDpendencies.AddressSvc, patientDpendencies.Log)
-	prescriptionListHandler := patientprescriptioncomponents.NewPrescriptionListComponentHandler(patientprescriptioncomponents.PrescriptionListDependencies{
-		Provider: patientDpendencies.PrescriptionProvider,
-		Log:      patientDpendencies.Log,
-	})
+	patientListPage := pateitnList.NewPatientListHandler(
+		patientDpendencies.PatientSvc,
+		patientDpendencies.Log)
+
+	addressListHandler := addresscomponents.NewAddressListComponentHandler(
+		patientDpendencies.AddressSvc,
+		patientDpendencies.Log)
+
+	prescriptionListHandler := patientprescriptioncomponents.NewPrescriptionListComponentHandler(
+		patientprescriptioncomponents.PrescriptionListDependencies{
+			Provider: patientDpendencies.PrescriptionProvider,
+			Log:      patientDpendencies.Log,
+		})
 
 	patientDetailPage := patientdetail.NewPatientDetailHandler(
 		patientDpendencies.PatientSvc,
@@ -33,8 +40,10 @@ func MountUI(r chi.Router, patientDpendencies *UiDpendencies) {
 		prescriptionListHandler,
 		patientDpendencies.Log,
 	)
+
 	r.Route("/patients", func(r chi.Router) {
 		r.Get("/", patientListPage.Handler)
+		r.Get("/components/patient-prescriptions-card", prescriptionListHandler.Handler)
 		r.Get("/{patientID}", patientDetailPage.Handler)
 	})
 }

@@ -7,8 +7,8 @@ import (
 )
 
 type PrescriptionListParams struct {
-	Title        string
-	EmptyMessage string
+	Title         string
+	EmptyMessage  string
 	Prescriptions []commonmodel.PatientPrescription
 }
 
@@ -53,6 +53,21 @@ templ PrescriptionListComponent(params PrescriptionListParams) {
 			}
 		</div>
 	</section>
+}
+
+templ PlaceHolder(patientID string) {
+	<div
+		id={ "patient-prescriptionscard-" + patientID }
+		hx-get={ "/patients/components/patient-prescriptions-card?patientId=" + patientID }
+		hx-trigger="revealed once"
+		hx-swap="outerHTML"
+		hx-target="this"
+		hx-select="section.card"
+		hx-indicator={ "#loading-" + patientID }
+		class="card skeleton"
+	>
+		<div id={ "loading-" + patientID } class="spinner">Loading…</div>
+	</div>
 }
 
 func formatDate(t time.Time) string {

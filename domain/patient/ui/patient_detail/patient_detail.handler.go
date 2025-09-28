@@ -64,12 +64,7 @@ func (h *PatientDetailHandler) Handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if h.prescriptionListHandler != nil {
-		component, err := h.prescriptionListHandler.Handler(r.Context(), id)
-		if err != nil {
-			http.Error(w, "failed to load patient prescriptions", http.StatusInternalServerError)
-			return
-		}
-		prescriptionComponent = component
+		prescriptionComponent = patientprescriptions.PlaceHolder(id)
 	}
 
 	page := PatientDetailPage(PatientDetailPageParam{
