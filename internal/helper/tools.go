@@ -1,6 +1,9 @@
 package helper
 
-import "time"
+import (
+	"context"
+	"time"
+)
 
 func CalculateAge(dob time.Time) int {
 	if dob.IsZero() {
@@ -23,4 +26,16 @@ func FormatShortDate(t time.Time) string {
 		return "-"
 	}
 	return t.Format("Jan 2, 2006")
+}
+
+func WaitOrContext(ctx context.Context, seconds int) bool {
+	if seconds <= 0 {
+		return true
+	}
+	select {
+	case <-time.After(time.Duration(seconds) * time.Second):
+		return true
+	case <-ctx.Done():
+		return false
+	}
 }

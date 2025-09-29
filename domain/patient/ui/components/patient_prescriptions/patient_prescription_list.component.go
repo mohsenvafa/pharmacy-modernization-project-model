@@ -4,13 +4,13 @@ import (
 	"context"
 	"errors"
 	"net/http"
-	"time"
 
 	"github.com/a-h/templ"
 	"go.uber.org/zap"
 
 	patientproviders "pharmacy-modernization-project-model/domain/patient/providers"
 	contracts "pharmacy-modernization-project-model/domain/patient/ui/contracts"
+	helper "pharmacy-modernization-project-model/internal/helper"
 )
 
 type PrescriptionListComponent struct {
@@ -29,9 +29,7 @@ func (h *PrescriptionListComponent) Handler(w http.ResponseWriter, r *http.Reque
 		http.Error(w, "failed to load patient prescriptions", http.StatusInternalServerError)
 		return
 	}
-	select {
-	case <-time.After(3 * time.Second):
-	case <-r.Context().Done():
+	if !helper.WaitOrContext(r.Context(), 3) {
 		http.Error(w, "request canceled", http.StatusRequestTimeout)
 		return
 	}
