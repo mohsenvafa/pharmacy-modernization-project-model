@@ -9,6 +9,7 @@ import (
 	patientmodel "pharmacy-modernization-project-model/domain/patient/contracts/model"
 	patSvc "pharmacy-modernization-project-model/domain/patient/service"
 	contracts "pharmacy-modernization-project-model/domain/patient/ui/contracts"
+	"pharmacy-modernization-project-model/domain/patient/ui/paths"
 )
 
 type PatientListComponent struct {
@@ -65,6 +66,8 @@ func (c *PatientListComponent) Handler(w http.ResponseWriter, r *http.Request) {
 		Patients:    patientsPage,
 		CurrentPage: currentPage,
 		TotalPages:  totalPages,
+		ListPath:    paths.PatientListURL(),
+		DetailPath:  paths.PatientDetailURL,
 	})
 
 	if err := view.Render(r.Context(), w); err != nil {

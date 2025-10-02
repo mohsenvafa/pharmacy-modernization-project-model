@@ -1,6 +1,9 @@
 package layouts
 
-import components "pharmacy-modernization-project-model/web/components/elements"
+import (
+	components "pharmacy-modernization-project-model/web/components/elements"
+	"pharmacy-modernization-project-model/internal/platform/paths"
+)
 
 templ Sidebar() {
 	<aside class="flex h-screen w-64 flex-col border-r bg-base-100 p-4">
@@ -9,9 +12,9 @@ templ Sidebar() {
 		</div>
 	<nav class="mt-6 flex-1">
 		<ul class="menu gap-1">
-			<li><a href="/">Dashboard</a></li>
-			<li><a href="/patients">Patients</a></li>
-			<li><a href="/prescriptions">Prescriptions</a></li>
+			<li><a href={ paths.DashboardPath }>Dashboard</a></li>
+			<li><a href={ paths.PatientsPath }>Patients</a></li>
+			<li><a href={ paths.PrescriptionsPath }>Prescriptions</a></li>
 			<li><a>Audits</a></li>
 			<li><a>Messages <div class="badge badge-info">12</div></a></li>
 		</ul>

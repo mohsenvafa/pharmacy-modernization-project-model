@@ -2,6 +2,7 @@ package prescription
 
 import (
 	presSvc "pharmacy-modernization-project-model/domain/prescription/service"
+	"pharmacy-modernization-project-model/domain/prescription/ui/paths"
 	prescriptionList "pharmacy-modernization-project-model/domain/prescription/ui/prescription_list"
 
 	"github.com/go-chi/chi/v5"
@@ -16,7 +17,7 @@ type PrescriptionDependencies struct {
 func MountUI(r chi.Router, deps *PrescriptionDependencies) {
 	prescriptionListHandler := prescriptionList.NewPrescriptionListHandler(deps.PrescriptionSvc, deps.Log)
 
-	r.Route("/prescriptions", func(r chi.Router) {
+	r.Route(paths.BasePath, func(r chi.Router) {
 		r.Get("/", prescriptionListHandler.Handler)
 	})
 }

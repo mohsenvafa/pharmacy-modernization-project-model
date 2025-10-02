@@ -5,6 +5,7 @@ import (
 
 	dashboardservice "pharmacy-modernization-project-model/domain/dashboard/service"
 	dashboardPage "pharmacy-modernization-project-model/domain/dashboard/ui/dashboard_page"
+	"pharmacy-modernization-project-model/domain/dashboard/ui/paths"
 )
 
 type DashboardUiDependencies struct {
@@ -13,5 +14,5 @@ type DashboardUiDependencies struct {
 
 func MountUI(r chi.Router, deps *DashboardUiDependencies) {
 	handler := dashboardPage.NewDashboardPageHandler(deps.Service)
-	r.Get("/", handler.Handler)
+	r.Get(paths.DashboardPath, handler.Handler)
 }

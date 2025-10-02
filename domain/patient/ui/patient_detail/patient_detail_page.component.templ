@@ -13,6 +13,7 @@ type PatientDetailPageParam struct {
 	Age           int
 	AddressList   templ.Component
 	Prescriptions templ.Component
+	BackPath      string
 }
 
 templ PatientDetailPageComponentView(pageParam PatientDetailPageParam) {
@@ -23,7 +24,7 @@ templ patientDetail(pageParam PatientDetailPageParam) {
 	<div class="flex flex-col space-y-6">
 		@commonComponents.PageHeader(pageParam.Patient.Name)
 		<div class="flex items-center gap-4 px-4">
-			<a class="btn btn-ghost" href="/patients">
+			<a class="btn btn-ghost" href={ pageParam.BackPath }>
 				← Back to Patients
 			</a>
 		</div>

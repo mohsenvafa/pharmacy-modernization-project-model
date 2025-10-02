@@ -10,6 +10,7 @@ import (
 	"pharmacy-modernization-project-model/internal/integrations"
 	"pharmacy-modernization-project-model/internal/platform/httpx"
 	"pharmacy-modernization-project-model/internal/platform/logging"
+	"pharmacy-modernization-project-model/internal/platform/paths"
 
 	dashboardModule "pharmacy-modernization-project-model/domain/dashboard"
 	patientModule "pharmacy-modernization-project-model/domain/patient"
@@ -34,7 +35,7 @@ func (a *App) wire() error {
 	r.Use(middleware.Timeout(60 * time.Second))
 
 	// Static assets
-	r.Handle("/assets/*", http.StripPrefix("/assets/", http.FileServer(http.Dir("web/public"))))
+	r.Handle(paths.AssetsPath+"*", http.StripPrefix(paths.AssetsPath, http.FileServer(http.Dir("web/public"))))
 
 	// Integrations
 	integration := integrations.New(integrations.Dependencies{

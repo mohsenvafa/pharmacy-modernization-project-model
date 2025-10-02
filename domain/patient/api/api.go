@@ -6,6 +6,7 @@ import (
 
 	controllers "pharmacy-modernization-project-model/domain/patient/api/controllers"
 	"pharmacy-modernization-project-model/domain/patient/service"
+	"pharmacy-modernization-project-model/domain/patient/ui/paths"
 )
 
 type Dependencies struct {
@@ -18,7 +19,7 @@ func MountAPI(r chi.Router, deps *Dependencies) {
 	patientController := controllers.NewPatientController(deps.PatientService, deps.Logger)
 	addressController := controllers.NewAddressController(deps.AddressService, deps.Logger)
 
-	r.Route("/api/v1/patients", func(router chi.Router) {
+	r.Route(paths.APIPath, func(router chi.Router) {
 		patientController.RegisterRoutes(router)
 		router.Route("/{patientID}/addresses", func(addressRouter chi.Router) {
 			addressController.RegisterRoutes(addressRouter)

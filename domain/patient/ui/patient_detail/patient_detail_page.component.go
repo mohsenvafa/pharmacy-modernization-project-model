@@ -8,9 +8,10 @@ import (
 	"go.uber.org/zap"
 
 	patSvc "pharmacy-modernization-project-model/domain/patient/service"
-	addresscomponents "pharmacy-modernization-project-model/domain/patient/ui/components/addresslist_server_side"
+	addresscomponents "pharmacy-modernization-project-model/domain/patient/ui/components/address_list"
 	patientprescriptions "pharmacy-modernization-project-model/domain/patient/ui/components/patient_prescriptions"
 	contracts "pharmacy-modernization-project-model/domain/patient/ui/contracts"
+	"pharmacy-modernization-project-model/domain/patient/ui/paths"
 	tools "pharmacy-modernization-project-model/internal/helper"
 )
 
@@ -72,6 +73,7 @@ func (h *PatientDetailComponent) Handler(w http.ResponseWriter, r *http.Request)
 		Age:           tools.CalculateAge(patient.DOB),
 		AddressList:   addressComponent,
 		Prescriptions: prescriptionComponent,
+		BackPath:      paths.PatientListURL(),
 	})
 
 	if err := view.Render(r.Context(), w); err != nil {

@@ -18,6 +18,7 @@ type PrescriptionListComponent struct {
 	log      *zap.Logger
 }
 
+// Lazy loaded component
 func NewPrescriptionListComponent(deps *contracts.UiDependencies) *PrescriptionListComponent {
 	return &PrescriptionListComponent{provider: deps.PrescriptionProvider, log: deps.Log}
 }
