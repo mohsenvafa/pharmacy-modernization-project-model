@@ -31,3 +31,7 @@ func PatientDetailURL(patientID string) string {
 func PatientAddressAPIURL(patientID string) string {
 	return APIPath + "/" + patientID + "/addresses"
 }
+
+func PatientListURL() string {
+	return ListPath
+}
