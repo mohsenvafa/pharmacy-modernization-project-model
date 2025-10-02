@@ -7,7 +7,10 @@ const (
 	PrescriptionsPath = "/prescriptions"
 
 	// Static assets
-	AssetsPath = "/assets/"
+	AssetsPath  = "/assets/"
+	AppCSSPath  = "/assets/app.css"
+	HtmxJSPath  = "/assets/vendor/htmx.min.js"
+	ThemeJSPath = "/assets/vendor/theme-change.js"
 
 	// API versions
 	APIV1Prefix = "/api/v1"

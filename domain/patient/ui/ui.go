@@ -18,8 +18,8 @@ func MountUI(r chi.Router, dep *contracts.UiDependencies) {
 	patientDetailComponent := patientdetail.NewPatientDetailComponent(dep, addressListComponent, prescriptionListComponent)
 
 	r.Route(paths.BasePath, func(r chi.Router) {
-		r.Get("/", patientListComponent.Handler)
-		r.Get("/components/patient-prescriptions-card", prescriptionListComponent.Handler)
-		r.Get("/{patientID}", patientDetailComponent.Handler)
+		r.Get(paths.ListRoute, patientListComponent.Handler)
+		r.Get(paths.PatientPrescriptionCardComponentRoute, prescriptionListComponent.Handler)
+		r.Get(paths.DetailRoute, patientDetailComponent.Handler)
 	})
 }

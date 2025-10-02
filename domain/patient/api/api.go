@@ -21,7 +21,7 @@ func MountAPI(r chi.Router, deps *Dependencies) {
 
 	r.Route(paths.APIPath, func(router chi.Router) {
 		patientController.RegisterRoutes(router)
-		router.Route("/{patientID}/addresses", func(addressRouter chi.Router) {
+		router.Route(paths.AddressSubRoute, func(addressRouter chi.Router) {
 			addressController.RegisterRoutes(addressRouter)
 		})
 	})

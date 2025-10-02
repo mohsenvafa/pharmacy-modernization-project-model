@@ -11,25 +11,21 @@ const (
 	DetailPath    = BasePath + "/{patientID}"
 	ComponentPath = BasePath + "/components/patient-prescriptions-card"
 
+	// Relative route patterns (for use within Route() blocks)
+	ListRoute                             = "/"
+	DetailRoute                           = "/{patientID}"
+	PatientPrescriptionCardComponentRoute = "/components/patient-prescriptions-card"
+
 	// API paths
 	APIPath = "/api/v1/patients"
+
+	// Address sub-routes
+	AddressSubRoute = "/{patientID}/addresses"
 )
 
-// Helper functions for path generation
+// Helper functions for path generation with parameters
 func PatientDetailURL(patientID string) string {
 	return strings.Replace(DetailPath, "{patientID}", patientID, 1)
-}
-
-func PatientListURL() string {
-	return ListPath
-}
-
-func PatientComponentURL() string {
-	return ComponentPath
-}
-
-func PatientAPIURL() string {
-	return APIPath
 }
 
 func PatientAddressAPIURL(patientID string) string {

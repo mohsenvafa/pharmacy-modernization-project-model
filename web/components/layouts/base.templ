@@ -1,5 +1,7 @@
 package layouts
 
+import "pharmacy-modernization-project-model/internal/platform/paths"
+
 templ BaseLayout(title string, content templ.Component) {
 	<!DOCTYPE html>
 	<html lang="en">
@@ -7,9 +9,9 @@ templ BaseLayout(title string, content templ.Component) {
 			<meta charset="UTF-8"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 			<title>{ title }</title>
-			<link rel="stylesheet" href="/assets/app.css"/>
-			<script src="/assets/vendor/htmx.min.js"></script>
-			<script src="/assets/vendor/theme-change.js" defer></script>
+			<link rel="stylesheet" href={ paths.AppCSSPath }/>
+			<script src={ paths.HtmxJSPath }></script>
+			<script src={ paths.ThemeJSPath } defer></script>
 		</head>
 		<body class="min-h-screen bg-base-200 text-base-content" hx-boost="true" hx-target="#main-content" hx-select="#main-content" hx-swap="outerHTML">
 			<div class="flex min-h-screen">
