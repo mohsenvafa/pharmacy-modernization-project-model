@@ -16,6 +16,7 @@ type AddressListComponent struct {
 	log     *zap.Logger
 }
 
+// Server side component
 func NewAddressListComponent(deps *contracts.UiDependencies) *AddressListComponent {
 	return &AddressListComponent{service: deps.AddressSvc, log: deps.Log}
 }

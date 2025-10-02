@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"strings"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 )
 
 type pharmacyResponse struct {
@@ -25,23 +27,31 @@ type billingResponse struct {
 }
 
 func main() {
-	mux := http.NewServeMux()
+	r := chi.NewRouter()
 
-	mux.HandleFunc("/api/pharmacy/prescriptions/", func(w http.ResponseWriter, r *http.Request) {
-		id := strings.TrimPrefix(r.URL.Path, "/api/pharmacy/prescriptions/")
+	// Add middleware
+	r.Use(middleware.Logger)
+	r.Use(middleware.Recoverer)
+	r.Use(middleware.RequestID)
+	r.Use(middleware.RealIP)
+
+	r.Get("/api/pharmacy/prescriptions/{id}", func(w http.ResponseWriter, r *http.Request) {
+		id := chi.URLParam(r, "id")
 		resp := pharmacyResponse{ID: id, PatientID: "P001", Drug: "Amoxicillin", Dose: "500mg", Status: "active", PharmacyName: "CVS Pharmacy", PharmacyType: "Retail"}
+		w.Header().Set("Content-Type", "application/json")
 		_ = json.NewEncoder(w).Encode(resp)
 	})
 
-	mux.HandleFunc("/api/billing/invoices/", func(w http.ResponseWriter, r *http.Request) {
-		id := strings.TrimPrefix(r.URL.Path, "/api/billing/invoices/")
+	r.Get("/api/billing/invoices/{id}", func(w http.ResponseWriter, r *http.Request) {
+		id := chi.URLParam(r, "id")
 		resp := billingResponse{ID: "INV-" + id, PrescriptionID: id, Amount: 29.99, Status: "paid"}
+		w.Header().Set("Content-Type", "application/json")
 		_ = json.NewEncoder(w).Encode(resp)
 	})
 
 	addr := ":9090"
 	log.Printf("mock iris service listening on %s", addr)
-	if err := http.ListenAndServe(addr, mux); err != nil {
+	if err := http.ListenAndServe(addr, r); err != nil {
 		log.Fatal(err)
 	}
 }
