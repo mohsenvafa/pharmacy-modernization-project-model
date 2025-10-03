@@ -25,6 +25,9 @@ func (a *App) wire() error {
 	// Shared HTTP client (for future external calls)
 	_ = httpx.NewClient(a.Cfg)
 
+	// MongoDB Connection Manager
+	mongoConnMgr := CreateMongoDBConnection(a.Cfg, logger.Base)
+
 	// Router & middleware
 	r := chi.NewRouter()
 	r.Use(middleware.RequestID)
@@ -51,10 +54,13 @@ func (a *App) wire() error {
 	})
 
 	// Patient Module
-	patientMod := patientModule.Module(r, &patientModule.ModuleDependencies{
+	var patientModDeps = &patientModule.ModuleDependencies{
 		Logger:               logger.Base,
 		PrescriptionProvider: prescriptionMod.PrescriptionService,
-	})
+		MongoDBCollection:    GetPatientsCollection(mongoConnMgr),
+	}
+
+	patientMod := patientModule.Module(r, patientModDeps)
 
 	// Dashboard Module
 	dashboardModule.Module(r, &dashboardModule.ModuleDependencies{

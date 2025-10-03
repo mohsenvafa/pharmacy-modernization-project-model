@@ -17,6 +17,26 @@ type Config struct {
 		Level  string `mapstructure:"level"`
 		Format string `mapstructure:"format"`
 	} `mapstructure:"logging"`
+	Database struct {
+		MongoDB struct {
+			URI         string `mapstructure:"uri"`
+			Database    string `mapstructure:"database"`
+			Collections struct {
+				Patients string `mapstructure:"patients"`
+			} `mapstructure:"collections"`
+			Connection struct {
+				MaxPoolSize    uint64 `mapstructure:"max_pool_size"`
+				MinPoolSize    uint64 `mapstructure:"min_pool_size"`
+				MaxIdleTime    string `mapstructure:"max_idle_time"`
+				ConnectTimeout string `mapstructure:"connect_timeout"`
+				SocketTimeout  string `mapstructure:"socket_timeout"`
+			} `mapstructure:"connection"`
+			Options struct {
+				RetryWrites bool `mapstructure:"retry_writes"`
+				RetryReads  bool `mapstructure:"retry_reads"`
+			} `mapstructure:"options"`
+		} `mapstructure:"mongodb"`
+	} `mapstructure:"database"`
 	External struct {
 		Pharmacy struct {
 			BaseURL string `mapstructure:"base_url"`
