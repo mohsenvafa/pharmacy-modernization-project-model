@@ -21,6 +21,15 @@ node_modules/
 # Generated templ files
 *_templ.go
 
+# TypeScript compiled output
+web/components/**/*.js
+web/components/**/*.js.map
+web/components/**/*.d.ts
+web/public/assets/js/dist/
+domain/**/*.js
+domain/**/*.js.map
+domain/**/*.d.ts
+
 # OS junk
 .DS_Store
 web/package-lock.json

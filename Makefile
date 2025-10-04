@@ -14,7 +14,7 @@ endif
 
 TAILWIND_BIN ?= $(DEFAULT_TAILWIND_BIN)
 
-.PHONY: setup tailwind-watch dev dev-watch mock-iris check-tools
+.PHONY: setup tailwind-watch dev dev-watch mock-iris check-tools build-ts watch-ts
 
 setup:
 	@make -f .dev/Makefile.setup setup
@@ -36,13 +36,23 @@ dev-watch:
 		-cmd="go run ./cmd/server" \
 		-open-browser=false
 
-# Convenience target to run both watchers together.
+# Convenience target to run all watchers together.
 dev:
 	@set -euo pipefail; \
 	$(MAKE) tailwind-watch & \
 	TAILWIND_PID=$$!; \
-	trap 'kill $$TAILWIND_PID >/dev/null 2>&1 || true' EXIT INT TERM; \
+	$(MAKE) watch-ts & \
+	TS_PID=$$!; \
+	trap 'kill $$TAILWIND_PID >/dev/null 2>&1 || true; kill $$TS_PID >/dev/null 2>&1 || true' EXIT INT TERM; \
 	$(MAKE) dev-watch
 
 mock-iris:
 	go run ./cmd/iris_mock
+
+# Build TypeScript
+build-ts:
+	@cd web && npm run build
+
+# Watch TypeScript for changes
+watch-ts:
+	@cd web && npm run watch

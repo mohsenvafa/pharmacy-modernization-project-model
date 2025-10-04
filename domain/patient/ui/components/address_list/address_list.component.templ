@@ -9,7 +9,7 @@ type AddressListParams struct {
 }
 
 templ AddressListComponentView(params AddressListParams) {
-	<section class="card bg-base-100 shadow">
+	<section class="card bg-base-100 shadow" data-component="patient.address-list">
 		<div class="card-body space-y-4">
 			<div>
 				<h2 class="card-title">{ params.Title }</h2>

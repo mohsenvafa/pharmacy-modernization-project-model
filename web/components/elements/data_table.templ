@@ -6,7 +6,7 @@ type DataTableColumn struct {
 }
 
 templ DataTable(columns []DataTableColumn, body templ.Component) {
-	<div class="overflow-x-auto">
+	<div class="overflow-x-auto" data-component="web.data-table">
 		<table class="table table-zebra">
 			<thead class="bg-base-200 text-xs uppercase text-base-content/60">
 				<tr>

@@ -17,7 +17,7 @@ templ DashboardPage(pageParam DashboardPageParam) {
 }
 
 templ dashboard(pageParam DashboardPageParam) {
-	<div class="flex flex-col gap-4">
+	<div class="flex flex-col gap-4" data-component="dashboard.dashboard-page">
 		@commonComponents.PageHeader("Dashboard")
 		<section class="grid gap-4 p-4 md:grid-cols-2">
 			@commonComponents.StatisticsCard("Total Patients", fmt.Sprintf("%d", pageParam.NumberOfPatients), "since last month")

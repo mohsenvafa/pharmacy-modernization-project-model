@@ -12,6 +12,7 @@ templ BaseLayout(title string, content templ.Component) {
 			<link rel="stylesheet" href={ paths.AppCSSPath }/>
 			<script src={ paths.HtmxJSPath }></script>
 			<script src={ paths.ThemeJSPath } defer></script>
+    		<script src={ paths.MainJSPath } defer></script>
 		</head>
 		<body class="min-h-screen bg-base-200 text-base-content" hx-boost="true" hx-target="#main-content" hx-select="#main-content" hx-swap="outerHTML">
 			<div class="flex min-h-screen">
