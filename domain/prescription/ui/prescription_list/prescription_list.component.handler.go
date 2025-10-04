@@ -24,7 +24,7 @@ func (h *PrescriptionListHandler) Handler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	page := PrescriptionListPage(PrescriptionListPageParam{
+	page := PrescriptionListPageComponent(PrescriptionListPageParam{
 		NumberOfPrescriptions: len(prescriptions),
 	})
 	if err := page.Render(r.Context(), w); err != nil {

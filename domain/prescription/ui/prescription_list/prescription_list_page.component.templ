@@ -9,7 +9,7 @@ type PrescriptionListPageParam struct {
 	NumberOfPrescriptions int
 }
 
-templ PrescriptionListPage(pageParam PrescriptionListPageParam) {
+templ PrescriptionListPageComponent(pageParam PrescriptionListPageParam) {
 	@layouts.BaseLayout("Prescription List", prescriptionList(pageParam))
 }
 
