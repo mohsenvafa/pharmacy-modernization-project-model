@@ -9,6 +9,7 @@ import (
 
 	service "pharmacy-modernization-project-model/domain/patient/service"
 	helper "pharmacy-modernization-project-model/internal/helper"
+	"pharmacy-modernization-project-model/internal/platform/httpx"
 )
 
 type PatientController struct {
@@ -52,19 +53,21 @@ func (c *PatientController) List(w http.ResponseWriter, r *http.Request) {
 
 func (c *PatientController) GetByID(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "patientID")
+
 	item, err := c.patientService.GetByID(r.Context(), id)
 	if err != nil {
 		c.log.Error("get patient", zap.Error(err), zap.String("patientID", id))
-		if writeErr := helper.WriteError(w, http.StatusInternalServerError, helper.APIError{
-			Code:    "patient_get_error",
-			Message: "failed to fetch patient",
-		}); writeErr != nil {
-			c.log.Error("write response", zap.Error(writeErr))
-		}
+		c.handleError(w, r, err)
 		return
 	}
 
 	if err := helper.WriteJSON(w, http.StatusOK, item, nil); err != nil {
 		c.log.Error("write response", zap.Error(err))
 	}
+}
+
+// handleError handles different types of errors and returns appropriate HTTP responses
+func (c *PatientController) handleError(w http.ResponseWriter, r *http.Request, err error) {
+	// Use the shared error handler
+	httpx.WriteError(w, r, err)
 }

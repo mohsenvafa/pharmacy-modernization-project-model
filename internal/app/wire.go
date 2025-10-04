@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"go.uber.org/zap"
 
 	"pharmacy-modernization-project-model/internal/integrations"
 	"pharmacy-modernization-project-model/internal/platform/httpx"
@@ -26,7 +27,12 @@ func (a *App) wire() error {
 	_ = httpx.NewClient(a.Cfg)
 
 	// MongoDB Connection Manager
-	mongoConnMgr := CreateMongoDBConnection(a.Cfg, logger.Base)
+	mongoConnMgr, err := CreateMongoDBConnection(a.Cfg, logger.Base)
+	if err != nil {
+		logger.Base.Error("Failed to create MongoDB connection", zap.Error(err))
+		// Continue without MongoDB - will use memory repository as fallback
+		mongoConnMgr = nil
+	}
 
 	// Router & middleware
 	r := chi.NewRouter()

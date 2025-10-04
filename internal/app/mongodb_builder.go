@@ -6,12 +6,20 @@ import (
 
 	"pharmacy-modernization-project-model/internal/platform/config"
 	"pharmacy-modernization-project-model/internal/platform/database"
+	platformErrors "pharmacy-modernization-project-model/internal/platform/errors"
 )
 
 // CreateMongoDBConnection creates a MongoDB connection manager based on configuration
-func CreateMongoDBConnection(cfg *config.Config, logger *zap.Logger) *database.ConnectionManager {
+func CreateMongoDBConnection(cfg *config.Config, logger *zap.Logger) (*database.ConnectionManager, error) {
+	// Validate configuration
 	if cfg.Database.MongoDB.URI == "" {
-		return nil
+		logger.Warn("MongoDB URI not configured, skipping MongoDB connection")
+		return nil, platformErrors.NewConfigurationError("database", "mongodb.uri", "MongoDB URI is not configured")
+	}
+
+	if cfg.Database.MongoDB.Database == "" {
+		logger.Error("MongoDB database name is required")
+		return nil, platformErrors.NewConfigurationError("database", "mongodb.database", "MongoDB database name is required")
 	}
 
 	mongoConfig := database.MongoDBConfig{
@@ -35,12 +43,16 @@ func CreateMongoDBConnection(cfg *config.Config, logger *zap.Logger) *database.C
 
 	connMgr, err := database.NewConnectionManager(mongoConfig, logger)
 	if err != nil {
-		logger.Error("Failed to initialize MongoDB connection", zap.Error(err))
-		return nil
+		logger.Error("Failed to initialize MongoDB connection",
+			zap.Error(err),
+			zap.String("uri", cfg.Database.MongoDB.URI),
+			zap.String("database", cfg.Database.MongoDB.Database))
+		return nil, platformErrors.NewConfigurationError("database", "mongodb.connection", "Failed to initialize MongoDB connection")
 	}
 
-	logger.Info("MongoDB connection established successfully")
-	return connMgr
+	logger.Info("MongoDB connection established successfully",
+		zap.String("database", cfg.Database.MongoDB.Database))
+	return connMgr, nil
 }
 
 // GetPatientsCollection returns the patients collection from MongoDB connection manager

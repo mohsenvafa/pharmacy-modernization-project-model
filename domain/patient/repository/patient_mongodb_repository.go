@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -10,7 +11,9 @@ import (
 	"go.uber.org/zap"
 
 	m "pharmacy-modernization-project-model/domain/patient/contracts/model"
+	patientErrors "pharmacy-modernization-project-model/domain/patient/errors"
 	platformErrors "pharmacy-modernization-project-model/internal/platform/errors"
+	"pharmacy-modernization-project-model/internal/platform/validation"
 )
 
 // PatientMongoRepository implements PatientRepository interface using MongoDB
@@ -91,6 +94,12 @@ func (r *PatientMongoRepository) List(ctx context.Context, query string, limit, 
 
 // GetByID retrieves a patient by ID
 func (r *PatientMongoRepository) GetByID(ctx context.Context, id string) (m.Patient, error) {
+	// Input validation using shared validator
+	validator := validation.NewValidator()
+	if err := validator.ValidateID("id", id); err != nil {
+		return m.Patient{}, err
+	}
+
 	start := time.Now()
 	defer func() {
 		r.logger.Debug("MongoDB GetByID operation completed",
@@ -103,7 +112,10 @@ func (r *PatientMongoRepository) GetByID(ctx context.Context, id string) (m.Pati
 	var patient m.Patient
 	err := r.collection.FindOne(ctx, filter).Decode(&patient)
 	if err != nil {
-		return m.Patient{}, r.handleError("GetByID", err)
+		if err == mongo.ErrNoDocuments {
+			return m.Patient{}, patientErrors.NewRecordNotFoundError("Patient", id)
+		}
+		return m.Patient{}, fmt.Errorf("failed to get patient %s: %w", id, err)
 	}
 
 	r.logger.Debug("Successfully retrieved patient from MongoDB",
@@ -114,6 +126,25 @@ func (r *PatientMongoRepository) GetByID(ctx context.Context, id string) (m.Pati
 
 // Create creates a new patient
 func (r *PatientMongoRepository) Create(ctx context.Context, p m.Patient) (m.Patient, error) {
+	// Input validation using shared validator
+	validator := validation.NewValidator()
+
+	// Validate required fields
+	if err := validator.ValidateID("id", p.ID); err != nil {
+		return m.Patient{}, err
+	}
+	if err := validator.ValidateRequired("name", p.Name); err != nil {
+		return m.Patient{}, err
+	}
+	if err := validator.ValidatePhone("phone", p.Phone); err != nil {
+		return m.Patient{}, err
+	}
+
+	// Validate name length
+	if err := validator.ValidateLength("name", p.Name, 2, 100); err != nil {
+		return m.Patient{}, err
+	}
+
 	start := time.Now()
 	defer func() {
 		r.logger.Debug("MongoDB Create operation completed",
@@ -129,7 +160,10 @@ func (r *PatientMongoRepository) Create(ctx context.Context, p m.Patient) (m.Pat
 	// Insert document
 	_, err := r.collection.InsertOne(ctx, p)
 	if err != nil {
-		return m.Patient{}, r.handleError("Create", err)
+		if mongo.IsDuplicateKeyError(err) {
+			return m.Patient{}, patientErrors.NewDuplicateRecordError("Patient", p.ID)
+		}
+		return m.Patient{}, fmt.Errorf("failed to create patient %s: %w", p.ID, err)
 	}
 
 	r.logger.Info("Successfully created patient in MongoDB",

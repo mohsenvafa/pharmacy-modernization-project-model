@@ -26,7 +26,19 @@ func (s *patientSvc) List(ctx context.Context, q string, limit, offset int) ([]m
 	return s.repo.List(ctx, q, limit, offset)
 }
 func (s *patientSvc) GetByID(ctx context.Context, id string) (m.Patient, error) {
-	return s.repo.GetByID(ctx, id)
+	s.log.Info("Getting patient", zap.String("patient_id", id))
+
+	patient, err := s.repo.GetByID(ctx, id)
+	if err != nil {
+		s.log.Error("Failed to get patient",
+			zap.String("patient_id", id),
+			zap.Error(err))
+		return m.Patient{}, err
+	}
+
+	s.log.Info("Patient retrieved successfully",
+		zap.String("patient_id", id))
+	return patient, nil
 }
 
 func (s *patientSvc) Count(ctx context.Context, q string) (int, error) {
