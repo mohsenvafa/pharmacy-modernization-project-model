@@ -7,6 +7,7 @@ import { initializeComponents } from '@web/registry'
 import { registerWebComponents } from '@components/ts/register_components'
 import { registerPatientComponents } from '@domain/patient/ui/ts/register_components'
 import { registerDashboardComponents } from '@domain/dashboard/ui/ts/register_components'
+import { registerPrescriptionComponents } from '@domain/prescription/ui/ts/register_components'
 
 // Register all components
 export function registerAllComponents() {
@@ -16,6 +17,7 @@ export function registerAllComponents() {
   // Register domain-specific components
   registerPatientComponents()
   registerDashboardComponents()
+  registerPrescriptionComponents()
   
   console.log('All components registered')
 }

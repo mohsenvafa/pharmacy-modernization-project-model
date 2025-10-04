@@ -14,7 +14,7 @@ templ PrescriptionListPageComponent(pageParam PrescriptionListPageParam) {
 }
 
 templ prescriptionList(pageParam PrescriptionListPageParam) {
-	<div class="flex flex-col gap-4">
+	<div class="flex flex-col gap-4" data-component="prescription.prescription-list">
 		@commonComponents.PageHeader("Prescriptions")
 		<section class="p-4">
 			Prescription content goes here...
