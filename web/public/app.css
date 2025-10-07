@@ -2322,6 +2322,10 @@ video {
   grid-column: span 12 / span 12;
 }
 
+.m-4 {
+  margin: 1rem;
+}
+
 .mx-4 {
   margin-left: 1rem;
   margin-right: 1rem;
