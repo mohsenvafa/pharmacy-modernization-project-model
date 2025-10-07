@@ -8,13 +8,14 @@ const (
 
 	// UI Routes
 	ListPath      = BasePath + "/"
+	SearchPath    = BasePath + "/search"
 	DetailPath    = BasePath + "/{patientID}"
 	ComponentPath = BasePath + "/components/patient-prescriptions-card"
 
 	// Relative route patterns (for use within Route() blocks)
 	ListRoute                             = "/"
+	SearchRoute                           = "/search"
 	DetailRoute                           = "/{patientID}"
-	PatientSearchRoute                    = "/search"
 	PatientPrescriptionCardComponentRoute = "/components/patient-prescriptions-card"
 
 	// API paths

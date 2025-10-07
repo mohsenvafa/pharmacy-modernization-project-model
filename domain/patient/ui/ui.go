@@ -21,7 +21,7 @@ func MountUI(r chi.Router, dep *contracts.UiDependencies) {
 
 	r.Route(paths.BasePath, func(r chi.Router) {
 		r.Get(paths.ListRoute, patientListComponent.Handler)
-		r.Get(paths.PatientSearchRoute, patientSearchComponent.Handler)
+		r.Get(paths.SearchRoute, patientSearchComponent.Handler)
 		r.Get(paths.PatientPrescriptionCardComponentRoute, prescriptionListComponent.Handler)
 		r.Get(paths.DetailRoute, patientDetailComponent.Handler)
 	})

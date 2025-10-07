@@ -17,14 +17,18 @@ func NewPatientSearchPageComponent(deps *contracts.UiDependencies) *PatientSearc
 }
 
 func (c *PatientSearchComponent) Handler(w http.ResponseWriter, r *http.Request) {
+	// Set cache-busting headers to prevent caching issues
+	w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+	w.Header().Set("Pragma", "no-cache")
+	w.Header().Set("Expires", "0")
 
 	view := PatientSearchPageComponentView()
 
 	if err := view.Render(r.Context(), w); err != nil {
 		if c.log != nil {
-			c.log.Error("failed to render patient list", zap.Error(err))
+			c.log.Error("failed to render patient search", zap.Error(err))
 		}
-		http.Error(w, "failed to render patient list", http.StatusInternalServerError)
+		http.Error(w, "failed to render patient search", http.StatusInternalServerError)
 		return
 	}
 }
