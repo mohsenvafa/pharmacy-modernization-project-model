@@ -14,6 +14,7 @@ const (
 	// Relative route patterns (for use within Route() blocks)
 	ListRoute                             = "/"
 	DetailRoute                           = "/{patientID}"
+	PatientSearchRoute                    = "/search"
 	PatientPrescriptionCardComponentRoute = "/components/patient-prescriptions-card"
 
 	// API paths

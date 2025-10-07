@@ -1,3 +1,28 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Add theme-aware variables without overriding DaisyUI themes */
+@layer base {
+  /* DaisyUI sets data-theme on <html> (or you can set it). */
+  [data-theme="light"] {
+    --optum-primary: 0 61 165; /* #003DA5 */
+    --optum-primary-hover: 0 43 127; /* #002B7F */
+    --optum-outline: 209 213 219; /* #D1D5DB */
+    --optum-muted: 75 85 99; /* #4B5563 */
+  }
+  [data-theme="dark"] {
+    --optum-primary: 102 163 255; /* #66A3FF */
+    --optum-primary-hover: 71 137 245; /* #4789F5 */
+    --optum-outline: 42 46 55; /* #2A2E37 */
+    --optum-muted: 203 213 225; /* #CBD5E1 */
+  }
+
+  [data-theme="light"] {
+    --optum-cream: 255 247 234; /* #FFF7EA */
+  }
+
+  [data-theme="dark"] {
+    --optum-cream: 24 27 33; /* subtle dark surface */
+  }
+}

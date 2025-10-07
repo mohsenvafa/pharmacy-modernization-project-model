@@ -13,7 +13,17 @@ module.exports = {
     fromWeb("../cmd/**/*.go"),
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        // map Tailwind color utilities to CSS variables that flip per theme
+        "optum-primary": "rgb(var(--optum-primary) / <alpha-value>)",
+        "optum-primary-hover":
+          "rgb(var(--optum-primary-hover) / <alpha-value>)",
+        "optum-outline": "rgb(var(--optum-outline) / <alpha-value>)",
+        "optum-muted": "rgb(var(--optum-muted) / <alpha-value>)",
+        "optum-cream": "rgb(var(--optum-cream) / <alpha-value>)",
+      },
+    },
   },
   plugins: [require("daisyui")],
   daisyui: {

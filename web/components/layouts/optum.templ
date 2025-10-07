@@ -1,0 +1,112 @@
+package layouts
+
+import "pharmacy-modernization-project-model/internal/platform/paths"
+
+templ OptumLayout(title string, content templ.Component) {
+	<!DOCTYPE html>
+	<html lang="en">
+		<head>
+			<meta charset="UTF-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+			<title>{ title }</title>
+			<link rel="stylesheet" href={ paths.AppCSSPath }/>
+			<script src={ paths.HtmxJSPath }></script>
+			<script src={ paths.ThemeJSPath } defer></script>
+			<script src={ paths.MainJSPath } defer></script>
+		</head>
+		<body class="min-h-screen bg-base-200 text-base-content">
+			<!-- Top bar -->
+			<header class="bg-base-100 border-b">
+				<div class="navbar mx-auto max-w-6xl px-4">
+					<div class="navbar-start">
+						<!-- Replace with your logo -->
+						<a class="text-2xl font-extrabold text-orange-600">Optum</a>
+					</div>
+					<div class="navbar-end">
+						<button class="btn btn-outline btn-sm">
+							<!-- icon -->
+							<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-width="1.75" d="M9 21h6M10 17h4M12 3v10m5-6 4 4-4 4M7 7l-4 4 4 4"></path></svg>
+							Sign out
+						</button>
+					</div>
+				</div>
+			</header>
+			<main class="mx-auto max-w-6xl px-4">
+				<!-- Title -->
+				<h1 class="mt-8 text-3xl font-extrabold text-optum-primary">Universal Patient Search</h1>
+				<!-- Search Card -->
+				<section class="mt-6">
+					<div class="rounded-2xl p-4 bg-optum-cream">
+						<div class="card bg-base-100 shadow-sm">
+							<div class="card-body">
+								<h2 class="card-title text-2xl text-optum-primary">Search</h2>
+								<!-- Fields -->
+								<div class="grid grid-cols-1 gap-6 md:grid-cols-4 mt-2">
+									<!-- Name -->
+									<label class="form-control w-full">
+										<div class="label flex-col items-start gap-0 p-0">
+											<span class="label-text font-semibold">Name</span>
+											<span class="label-text-alt text-base-content/60">Minimum of 2 letters per name</span>
+										</div>
+										<input type="text" placeholder="Enter name" class="input input-bordered w-full"/>
+									</label>
+									<!-- DOB with calendar button -->
+									<div class="form-control w-full">
+										<div class="label flex-col items-start gap-0 p-0">
+											<span class="label-text font-semibold">Date of birth</span>
+											<span class="label-text-alt text-base-content/60">mm/dd/yyyy</span>
+										</div>
+										<div class="join w-full">
+											<input id="dob" type="date" class="input input-bordered join-item w-full"/>
+										</div>
+									</div>
+									<!-- Cardholder ID -->
+									<label class="form-control w-full">
+										<div class="label flex-col items-start gap-0 p-0">
+											<span class="label-text font-semibold">Cardholder ID</span>
+											<span class="label-text-alt text-base-content/30">Enter full identification number</span>
+										</div>
+										<input type="text" placeholder="Enter full identification number" class="input input-bordered w-full"/>
+									</label>
+									<!-- Source -->
+									<label class="form-control w-full">
+										<div class="label flex-col items-start gap-0 p-0">
+											<span class="label-text font-semibold">Source</span>
+											<span class="label-text-alt invisible" aria-hidden="true">spacer</span>
+										</div>
+										<select class="select select-bordered w-full">
+											<option>HDP / OSP</option>
+											<option>HDP</option>
+											<option>OSP</option>
+										</select>
+									</label>
+								</div>
+								<!-- Actions -->
+								<div class="mt-6 flex flex-wrap gap-3">
+									<!-- Primary -->
+									<button
+										class="btn normal-case rounded-full h-9 px-8
+                                                bg-optum-primary hover:bg-optum-primary-hover
+                                                text-white border-transparent
+                                                focus:outline-none focus:ring-2 focus:ring-optum-primary/40"
+									>
+										Search
+									</button>
+									<!-- Secondary -->
+									<button
+										class="btn normal-case rounded-full h-9 px-8
+                                                bg-base-100 text-optum-muted
+                                                border border-optum-outline hover:bg-base-200
+                                                focus:outline-none focus:ring-2 focus:ring-optum-primary/20"
+									>
+										Clear All
+									</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</section>
+			</main>
+		</body>
+	</html>
+}

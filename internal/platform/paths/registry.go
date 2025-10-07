@@ -5,6 +5,7 @@ const (
 	DashboardPath     = "/"
 	PatientsPath      = "/patients"
 	PrescriptionsPath = "/prescriptions"
+	PatientSearchPath = "/patients/search"
 
 	// Static assets
 	AssetsPath  = "/assets/"

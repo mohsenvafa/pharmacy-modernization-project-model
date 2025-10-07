@@ -9,16 +9,19 @@ import (
 	"pharmacy-modernization-project-model/domain/patient/ui/paths"
 	patientdetail "pharmacy-modernization-project-model/domain/patient/ui/patient_detail"
 	patientlist "pharmacy-modernization-project-model/domain/patient/ui/patient_list"
+	patientsearch "pharmacy-modernization-project-model/domain/patient/ui/patient_search"
 )
 
 func MountUI(r chi.Router, dep *contracts.UiDependencies) {
 	patientListComponent := patientlist.NewPatientListComponent(dep)
+	patientSearchComponent := patientsearch.NewPatientPageComponent(dep)
 	addressListComponent := addresscomponents.NewAddressListComponent(dep)
 	prescriptionListComponent := patientprescriptioncomponents.NewPrescriptionListComponent(dep)
 	patientDetailComponent := patientdetail.NewPatientDetailComponent(dep, addressListComponent, prescriptionListComponent)
 
 	r.Route(paths.BasePath, func(r chi.Router) {
 		r.Get(paths.ListRoute, patientListComponent.Handler)
+		r.Get(paths.PatientSearchRoute, patientSearchComponent.Handler)
 		r.Get(paths.PatientPrescriptionCardComponentRoute, prescriptionListComponent.Handler)
 		r.Get(paths.DetailRoute, patientDetailComponent.Handler)
 	})
