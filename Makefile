@@ -25,7 +25,7 @@ check-tools:
 tailwind-watch:
 	@$(MAKE) check-tools
 	@set -euo pipefail; \
-	"$(TAILWIND_BIN)" -c web/tailwind.config.js -i web/styles/input.css -o web/public/app.css --watch
+	cd web && npx tailwindcss -c tailwind.config.js -i styles/input.css -o public/app.css --watch
 
 # Run templ in watch mode (Tailwind watcher can run separately).
 dev-watch:
