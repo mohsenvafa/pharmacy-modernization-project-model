@@ -26,3 +26,31 @@
     --optum-cream: 24 27 33; /* subtle dark surface */
   }
 }
+
+@layer utilities {
+  .sticky-scope {
+    --sticky-col-1-width: 12rem;
+  }
+
+  .sticky-header {
+    /* header row stays on top of normal cells */
+    position: sticky;
+    top: 0;
+    z-index: 80;
+    @apply bg-base-100;
+  }
+
+  .sticky-col-1 {
+    /* pinned ABOVE header cells behind it */
+    position: sticky;
+    left: 0;
+    z-index: 90; /* ↑ higher than .sticky-header */
+    @apply bg-base-100 border-r border-base-300;
+  }
+  .sticky-col-2 {
+    position: sticky;
+    left: var(--sticky-col-1-width);
+    z-index: 85; /* between col-1 and header */
+    @apply bg-base-100 border-r border-base-300;
+  }
+}

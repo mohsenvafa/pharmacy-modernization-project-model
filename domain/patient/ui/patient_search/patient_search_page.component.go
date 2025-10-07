@@ -8,15 +8,15 @@ import (
 	contracts "pharmacy-modernization-project-model/domain/patient/ui/contracts"
 )
 
-type PatientListComponent struct {
+type PatientSearchComponent struct {
 	log *zap.Logger
 }
 
-func NewPatientPageComponent(deps *contracts.UiDependencies) *PatientListComponent {
-	return &PatientListComponent{log: deps.Log}
+func NewPatientSearchPageComponent(deps *contracts.UiDependencies) *PatientSearchComponent {
+	return &PatientSearchComponent{log: deps.Log}
 }
 
-func (c *PatientListComponent) Handler(w http.ResponseWriter, r *http.Request) {
+func (c *PatientSearchComponent) Handler(w http.ResponseWriter, r *http.Request) {
 
 	view := PatientSearchPageComponentView()
 

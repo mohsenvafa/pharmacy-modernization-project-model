@@ -31,82 +31,9 @@ templ OptumLayout(title string, content templ.Component) {
 					</div>
 				</div>
 			</header>
-			<main class="mx-auto max-w-6xl px-4">
-				<!-- Title -->
-				<h1 class="mt-8 text-3xl font-extrabold text-optum-primary">Universal Patient Search</h1>
-				<!-- Search Card -->
-				<section class="mt-6">
-					<div class="rounded-2xl p-4 bg-optum-cream">
-						<div class="card bg-base-100 shadow-sm">
-							<div class="card-body">
-								<h2 class="card-title text-2xl text-optum-primary">Search</h2>
-								<!-- Fields -->
-								<div class="grid grid-cols-1 gap-6 md:grid-cols-4 mt-2">
-									<!-- Name -->
-									<label class="form-control w-full">
-										<div class="label flex-col items-start gap-0 p-0">
-											<span class="label-text font-semibold">Name</span>
-											<span class="label-text-alt text-base-content/60">Minimum of 2 letters per name</span>
-										</div>
-										<input type="text" placeholder="Enter name" class="input input-bordered w-full"/>
-									</label>
-									<!-- DOB with calendar button -->
-									<div class="form-control w-full">
-										<div class="label flex-col items-start gap-0 p-0">
-											<span class="label-text font-semibold">Date of birth</span>
-											<span class="label-text-alt text-base-content/60">mm/dd/yyyy</span>
-										</div>
-										<div class="join w-full">
-											<input id="dob" type="date" class="input input-bordered join-item w-full"/>
-										</div>
-									</div>
-									<!-- Cardholder ID -->
-									<label class="form-control w-full">
-										<div class="label flex-col items-start gap-0 p-0">
-											<span class="label-text font-semibold">Cardholder ID</span>
-											<span class="label-text-alt text-base-content/30">Enter full identification number</span>
-										</div>
-										<input type="text" placeholder="Enter full identification number" class="input input-bordered w-full"/>
-									</label>
-									<!-- Source -->
-									<label class="form-control w-full">
-										<div class="label flex-col items-start gap-0 p-0">
-											<span class="label-text font-semibold">Source</span>
-											<span class="label-text-alt invisible" aria-hidden="true">spacer</span>
-										</div>
-										<select class="select select-bordered w-full">
-											<option>HDP / OSP</option>
-											<option>HDP</option>
-											<option>OSP</option>
-										</select>
-									</label>
-								</div>
-								<!-- Actions -->
-								<div class="mt-6 flex flex-wrap gap-3">
-									<!-- Primary -->
-									<button
-										class="btn normal-case rounded-full h-9 px-8
-                                                bg-optum-primary hover:bg-optum-primary-hover
-                                                text-white border-transparent
-                                                focus:outline-none focus:ring-2 focus:ring-optum-primary/40"
-									>
-										Search
-									</button>
-									<!-- Secondary -->
-									<button
-										class="btn normal-case rounded-full h-9 px-8
-                                                bg-base-100 text-optum-muted
-                                                border border-optum-outline hover:bg-base-200
-                                                focus:outline-none focus:ring-2 focus:ring-optum-primary/20"
-									>
-										Clear All
-									</button>
-								</div>
-							</div>
-						</div>
-					</div>
-				</section>
-			</main>
+			<div>
+				@content
+			</div>
 		</body>
 	</html>
 }

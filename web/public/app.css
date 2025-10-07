@@ -1236,6 +1236,13 @@ video {
   --size: calc(var(--size-field, 0.25rem) * 8);
 }
 
+.btn-circle {
+  border-radius: calc(infinity * 1px);
+  padding-inline: calc(0.25rem * 0);
+  width: var(--size);
+  height: var(--size);
+}
+
 .navbar {
   display: flex;
   width: 100%;
@@ -1682,6 +1689,11 @@ video {
 .badge-info {
   --badge-color: var(--color-info);
   --badge-fg: var(--color-info-content);
+}
+
+.badge-error {
+  --badge-color: var(--color-error);
+  --badge-fg: var(--color-error-content);
 }
 
 .link {
@@ -2266,6 +2278,14 @@ video {
   visibility: hidden;
 }
 
+.sticky {
+  position: sticky;
+}
+
+.isolate {
+  isolation: isolate;
+}
+
 .col-span-12 {
   grid-column: span 12 / span 12;
 }
@@ -2280,8 +2300,16 @@ video {
   margin-right: auto;
 }
 
+.mt-10 {
+  margin-top: 2.5rem;
+}
+
 .mt-2 {
   margin-top: 0.5rem;
+}
+
+.mt-4 {
+  margin-top: 1rem;
 }
 
 .mt-6 {
@@ -2296,10 +2324,6 @@ video {
   margin-top: auto;
 }
 
-.mt-4 {
-  margin-top: 1rem;
-}
-
 .flex {
   display: flex;
 }
@@ -2312,10 +2336,6 @@ video {
   display: grid;
 }
 
-.h-11 {
-  height: 2.75rem;
-}
-
 .h-4 {
   height: 1rem;
 }
@@ -2324,20 +2344,12 @@ video {
   height: 1.5rem;
 }
 
-.h-screen {
-  height: 100vh;
-}
-
-.h-8 {
-  height: 2rem;
-}
-
-.h-10 {
-  height: 2.5rem;
-}
-
 .h-9 {
   height: 2.25rem;
+}
+
+.h-screen {
+  height: 100vh;
 }
 
 .min-h-screen {
@@ -2364,6 +2376,43 @@ video {
   width: 100%;
 }
 
+.w-max {
+  width: -moz-max-content;
+  width: max-content;
+}
+
+.w-\[10rem\] {
+  width: 10rem;
+}
+
+.w-\[12rem\] {
+  width: 12rem;
+}
+
+.min-w-\[10rem\] {
+  min-width: 10rem;
+}
+
+.min-w-\[12rem\] {
+  min-width: 12rem;
+}
+
+.min-w-\[7rem\] {
+  min-width: 7rem;
+}
+
+.min-w-\[8rem\] {
+  min-width: 8rem;
+}
+
+.min-w-\[9rem\] {
+  min-width: 9rem;
+}
+
+.min-w-full {
+  min-width: 100%;
+}
+
 .max-w-6xl {
   max-width: 72rem;
 }
@@ -2378,6 +2427,10 @@ video {
 
 .grow-0 {
   flex-grow: 0;
+}
+
+.cursor-not-allowed {
+  cursor: not-allowed;
 }
 
 .grid-cols-1 {
@@ -2428,6 +2481,10 @@ video {
   gap: 1.5rem;
 }
 
+.gap-5 {
+  gap: 1.25rem;
+}
+
 .space-y-3 > :not([hidden]) ~ :not([hidden]) {
   --tw-space-y-reverse: 0;
   margin-top: calc(0.75rem * calc(1 - var(--tw-space-y-reverse)));
@@ -2458,6 +2515,10 @@ video {
   overflow-y: auto;
 }
 
+.whitespace-nowrap {
+  white-space: nowrap;
+}
+
 .rounded-2xl {
   border-radius: 1rem;
 }
@@ -2468,6 +2529,10 @@ video {
 
 .rounded-lg {
   border-radius: 0.5rem;
+}
+
+.rounded-xl {
+  border-radius: 0.75rem;
 }
 
 .border {
@@ -2668,6 +2733,16 @@ video {
   box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
 }
 
+.ring-1 {
+  --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
+}
+
+.ring-base-300 {
+  --tw-ring-color: var(--color-base-300);
+}
+
 .filter {
   filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
 }
@@ -2840,6 +2915,39 @@ video {
   margin-block-start: 0;
 }
 
+.sticky-scope {
+  --sticky-col-1-width: 12rem;
+}
+
+.sticky-header {
+  /* header row stays on top of normal cells */
+  position: sticky;
+  top: 0;
+  z-index: 80;
+  background-color: var(--color-base-100);
+}
+
+.sticky-col-1 {
+  /* pinned ABOVE header cells behind it */
+  position: sticky;
+  left: 0;
+  z-index: 90;
+  /* ↑ higher than .sticky-header */
+  border-right-width: 1px;
+  border-color: var(--color-base-300);
+  background-color: var(--color-base-100);
+}
+
+.sticky-col-2 {
+  position: sticky;
+  left: var(--sticky-col-1-width);
+  z-index: 85;
+  /* between col-1 and header */
+  border-right-width: 1px;
+  border-color: var(--color-base-300);
+  background-color: var(--color-base-100);
+}
+
 .\[offset\:end\] {
   offset: end;
 }
@@ -2857,6 +2965,14 @@ video {
 .hover\:bg-optum-primary-hover:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(var(--optum-primary-hover) / var(--tw-bg-opacity, 1));
+}
+
+.hover\:text-base-content:hover {
+  color: var(--color-base-content);
+}
+
+.hover\:underline:hover {
+  text-decoration-line: underline;
 }
 
 .focus\:outline-none:focus {

@@ -14,7 +14,7 @@ import (
 
 func MountUI(r chi.Router, dep *contracts.UiDependencies) {
 	patientListComponent := patientlist.NewPatientListComponent(dep)
-	patientSearchComponent := patientsearch.NewPatientPageComponent(dep)
+	patientSearchComponent := patientsearch.NewPatientSearchPageComponent(dep)
 	addressListComponent := addresscomponents.NewAddressListComponent(dep)
 	prescriptionListComponent := patientprescriptioncomponents.NewPrescriptionListComponent(dep)
 	patientDetailComponent := patientdetail.NewPatientDetailComponent(dep, addressListComponent, prescriptionListComponent)

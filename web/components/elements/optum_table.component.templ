@@ -1,0 +1,98 @@
+package components
+
+templ OptumTable() {
+	<section class="mt-10">
+		<h2 class="text-2xl font-extrabold text-optum-primary">Results</h2>
+		<div class="mt-4 overflow-x-auto rounded-xl ring-1 ring-base-300 bg-base-100 sticky-scope isolate">
+			<table class="table w-max min-w-full whitespace-nowrap">
+				<thead class="bg-base-100">
+					<tr class="text-sm text-base-content/70">
+						<th class="sticky-header sticky-col-1 bg-base-100 w-[12rem] font-semibold text-base-content">First name</th>
+						<th class="sticky-header sticky-col-2 bg-base-100 w-[10rem] font-semibold text-base-content">Middle name</th>
+						<th class="sticky-header bg-base-100 min-w-[8rem]">Alias</th>
+						<th class="sticky-header bg-base-100 min-w-[7rem]">Suffix</th>
+						<th class="sticky-header bg-base-100 min-w-[12rem]">Last name</th>
+						<th class="sticky-header bg-base-100 min-w-[10rem]">Date of birth</th>
+						<th class="sticky-header bg-base-100 min-w-[12rem]">City</th>
+						<th class="sticky-header bg-base-100 min-w-[8rem]">State</th>
+						<th class="sticky-header bg-base-100 min-w-[12rem]">Street</th>
+						<th class="sticky-header bg-base-100 min-w-[10rem]">Zip code</th>
+						<th class="sticky-header bg-base-100 min-w-[12rem]">Phone Number</th>
+						<th class="sticky-header bg-base-100 min-w-[12rem]">Cardholder ID</th>
+						<th class="sticky-header bg-base-100 min-w-[10rem]">Source ID</th>
+						<th class="sticky-header bg-base-100 min-w-[9rem]">Status</th>
+					</tr>
+				</thead>
+				<tbody>
+					<!-- row 1 -->
+					<tr>
+						<td class="sticky-col-1 bg-base-100 w-[12rem]">JOHNATHAN</td>
+						<td class="sticky-col-2 bg-base-100 w-[10rem]">ALAN</td>
+						<td>—</td>
+						<td>—</td>
+						<td>SMITH</td>
+						<td>04/29/1987</td>
+						<td>IRVINE</td>
+						<td>CA</td>
+						<td>123 MAIN ST</td>
+						<td>92618</td>
+						<td>(949) 000-0000</td>
+						<td>1234567890123</td>
+						<td>0000000</td>
+						<td><span class="badge badge-outline badge-error">Deceased</span></td>
+					</tr>
+					<!-- example filler rows -->
+					<tr>
+						<td class="sticky-col-1 bg-base-100 w-[12rem]">XXXXXX</td>
+						<td class="sticky-col-2 bg-base-100 w-[10rem]">XXXX</td>
+						<td>XXXX</td>
+						<td>—</td>
+						<td>XXXX</td>
+						<td>00/00/0000</td>
+						<td>XXXX</td>
+						<td>CA</td>
+						<td>XXXX</td>
+						<td>00000</td>
+						<td>(000) 000-0000</td>
+						<td>0000000000000</td>
+						<td>0000000</td>
+						<td>—</td>
+					</tr>
+					<tr>
+						<td class="sticky-col-1 bg-base-100 w-[12rem]">XXXXXX</td>
+						<td class="sticky-col-2 bg-base-100 w-[10rem]">XXXX</td>
+						<td>XXXX</td>
+						<td>—</td>
+						<td>XXXX</td>
+						<td>00/00/0000</td>
+						<td>XXXX</td>
+						<td>CA</td>
+						<td>XXXX</td>
+						<td>00000</td>
+						<td>(000) 000-0000</td>
+						<td>0000000000000</td>
+						<td>0000000</td>
+						<td>—</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<!-- Pagination -->
+		<div class="mt-4">
+			<nav class="flex items-center gap-5" aria-label="Pagination">
+				<!-- Prev (disabled example) -->
+				<button class="text-sm text-base-content/40 cursor-not-allowed" disabled>‹ Previous</button>
+				<!-- Pages -->
+				<button class="btn btn-circle btn-sm bg-optum-primary text-white border-transparent" aria-current="page">1</button>
+				<button class="text-sm text-base-content/80 hover:text-base-content">2</button>
+				<button class="text-sm text-base-content/80 hover:text-base-content">3</button>
+				<button class="text-sm text-base-content/80 hover:text-base-content">4</button>
+				<button class="text-sm text-base-content/80 hover:text-base-content">5</button>
+				<span class="text-sm text-base-content/60">…</span>
+				<button class="text-sm text-base-content/80 hover:text-base-content">25</button>
+				<!-- Next -->
+				<button class="text-sm text-optum-primary hover:underline">Next ›</button>
+			</nav>
+		</div>
+	</section>
+}
