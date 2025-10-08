@@ -19,8 +19,9 @@ func MountUI(r chi.Router, deps *DashboardUiDependencies) {
 	handler := dashboardPage.NewDashboardPageHandler(deps.Service)
 
 	// Dashboard requires authentication and dashboard:view permission
+	// Uses dev mode if enabled, otherwise cookie-based auth
 	r.With(
-		auth.RequireAuthFromCookie(),
+		auth.RequireAuthWithDevMode(),
 		auth.RequirePermissionsMatchAny(dashboardsecurity.ViewAccess),
 	).Get(paths.DashboardPath, handler.Handler)
 }

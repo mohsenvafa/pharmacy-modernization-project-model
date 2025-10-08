@@ -67,7 +67,8 @@ func MountGraphQL(r chi.Router, deps *Dependencies) {
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(config))
 
 	// Mount GraphQL endpoint with auth middleware (to set user in context)
-	r.Handle(paths.GraphQLPath, authplatform.RequireAuth()(srv))
+	// Uses dev mode if enabled, otherwise requires real JWT
+	r.Handle(paths.GraphQLPath, authplatform.RequireAuthWithDevMode()(srv))
 	r.Handle(paths.GraphQLPlayground, playground.Handler("GraphQL Playground", paths.GraphQLPath))
 
 	deps.Logger.Info("GraphQL server mounted",

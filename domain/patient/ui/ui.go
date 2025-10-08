@@ -23,8 +23,9 @@ func MountUI(r chi.Router, dep *contracts.UiDependencies) {
 	patientDetailComponent := patientdetail.NewPatientDetailComponent(dep, addressListComponent, prescriptionListComponent)
 
 	r.Route(paths.BasePath, func(r chi.Router) {
-		// All patient UI routes require authentication (cookie-based for web)
-		r.Use(auth.RequireAuthFromCookie())
+		// All patient UI routes require authentication
+		// Uses dev mode if enabled, otherwise cookie-based auth
+		r.Use(auth.RequireAuthWithDevMode())
 
 		// All routes require patient:read permission or admin access
 		r.Use(auth.RequirePermissionsMatchAny(patientsecurity.ReadAccess))

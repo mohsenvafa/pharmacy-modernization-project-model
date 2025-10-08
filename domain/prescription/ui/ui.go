@@ -21,8 +21,9 @@ func MountUI(r chi.Router, deps *PrescriptionDependencies) {
 	prescriptionListHandler := prescriptionList.NewPrescriptionListHandler(deps.PrescriptionSvc, deps.Log)
 
 	r.Route(paths.BasePath, func(r chi.Router) {
-		// All prescription UI routes require authentication (cookie-based for web)
-		r.Use(auth.RequireAuthFromCookie())
+		// All prescription UI routes require authentication
+		// Uses dev mode if enabled, otherwise cookie-based auth
+		r.Use(auth.RequireAuthWithDevMode())
 
 		// All routes require prescription:read or healthcare role or admin
 		r.Use(auth.RequirePermissionsMatchAny(prescriptionsecurity.ReadAccess))

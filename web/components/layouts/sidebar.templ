@@ -1,16 +1,26 @@
 package layouts
 
 import (
+	"context"
 	"pharmacy-modernization-project-model/internal/platform/paths"
 	components "pharmacy-modernization-project-model/web/components/elements"
+	usercomponents "pharmacy-modernization-project-model/web/components/user"
 )
 
-templ Sidebar() {
+templ Sidebar(ctx context.Context) {
 	<aside class="flex h-screen w-64 flex-col border-r bg-base-100 p-4">
-		<div>
+		<!-- Header and User Profile Section -->
+		<div class="mb-4">
 			<h2 class="text-xl font-bold">Daisy Pharmacy</h2>
+			<div class="mt-4">
+				@usercomponents.UserInfo(ctx, usercomponents.UserInfoParams{
+					ShowEmail:    true,
+					ShowDevBadge: true,
+					Compact:      false,
+				})
+			</div>
 		</div>
-		<nav class="mt-6 flex-1">
+		<nav class="flex-1 overflow-y-auto">
 			<ul class="menu gap-1">
 				<li><a href={ paths.DashboardPath }>Dashboard</a></li>
 				<li><a href={ paths.PatientsPath }>Patients</a></li>

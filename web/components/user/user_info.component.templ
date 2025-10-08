@@ -1,0 +1,97 @@
+package user
+
+import (
+	"context"
+	"pharmacy-modernization-project-model/internal/platform/auth"
+)
+
+// UserInfoParams holds parameters for the user info component
+type UserInfoParams struct {
+	ShowEmail    bool
+	ShowDevBadge bool
+	Compact      bool
+}
+
+// UserInfo displays the current authenticated user's information
+templ UserInfo(ctx context.Context, params UserInfoParams) {
+	if user, err := auth.GetCurrentUser(ctx); err == nil && user != nil {
+		<div class="rounded-lg bg-base-200 p-3">
+			<div class="flex items-center gap-3">
+				<!-- Avatar with user initial -->
+				<div class="avatar placeholder">
+					<div class="bg-base-300 text-base-content w-10 h-10 rounded-full relative">
+						<span class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-sm font-medium leading-none">{ getInitials(user.Name) }</span>
+					</div>
+				</div>
+				<!-- User details -->
+				<div class="flex-1 overflow-hidden">
+					<p class="truncate text-sm font-semibold">{ user.Name }</p>
+					if params.ShowEmail {
+						<p class="truncate text-xs text-base-content/70">{ user.Email }</p>
+					}
+				</div>
+			</div>
+			<!-- Dev mode badge -->
+			if params.ShowDevBadge && auth.IsDevModeEnabled() {
+				<div class="mt-2 text-center">
+					<span class="badge badge-warning badge-xs">Dev Mode</span>
+				</div>
+			}
+		</div>
+	}
+}
+
+// UserInfoCompact displays a compact version of user info (inline)
+templ UserInfoCompact(ctx context.Context) {
+	if user, err := auth.GetCurrentUser(ctx); err == nil && user != nil {
+		<div class="flex items-center gap-2">
+			<div class="avatar placeholder">
+				<div class="bg-base-300 text-base-content w-8 h-8 rounded-full relative">
+					<span class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-xs font-medium leading-none">{ getInitials(user.Name) }</span>
+				</div>
+			</div>
+			<span class="text-sm font-medium">{ user.Name }</span>
+			if auth.IsDevModeEnabled() {
+				<span class="badge badge-warning badge-xs">Dev</span>
+			}
+		</div>
+	}
+}
+
+// UserAvatar displays just the user's avatar
+templ UserAvatar(ctx context.Context, size string) {
+	if user, err := auth.GetCurrentUser(ctx); err == nil && user != nil {
+		<div class="avatar placeholder">
+			<div class={ "bg-base-300 text-base-content rounded-full relative " + size }>
+				<span class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-sm font-medium leading-none">{ getInitials(user.Name) }</span>
+			</div>
+		</div>
+	}
+}
+
+// UserName displays just the user's name
+templ UserName(ctx context.Context) {
+	if user, err := auth.GetCurrentUser(ctx); err == nil && user != nil {
+		<span>{ user.Name }</span>
+	}
+}
+
+// UserEmail displays just the user's email
+templ UserEmail(ctx context.Context) {
+	if user, err := auth.GetCurrentUser(ctx); err == nil && user != nil {
+		<span>{ user.Email }</span>
+	}
+}
+
+// Helper function to get user initials
+func getInitials(name string) string {
+	if name == "" {
+		return "?"
+	}
+	runes := []rune(name)
+	if len(runes) == 0 {
+		return "?"
+	}
+	// Return first character as initial
+	return string(runes[0])
+}

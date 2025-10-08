@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"strings"
 )
 
 // DevMode configuration
@@ -31,7 +30,7 @@ func initializeMockUsers() {
 		"admin": {
 			ID:    "mock-admin-001",
 			Email: "admin@dev.local",
-			Name:  "Dev Admin",
+			Name:  "Mock Admin",
 			Permissions: []string{
 				"admin:all",
 			},
@@ -195,9 +194,4 @@ func RequireAuthWithDevMode() func(http.Handler) http.Handler {
 			}
 		})
 	}
-}
-
-// Helper to check if request wants to see dev info
-func isDevInfoRequest(r *http.Request) bool {
-	return devModeEnabled && strings.HasSuffix(r.URL.Path, "/__dev/auth")
 }
