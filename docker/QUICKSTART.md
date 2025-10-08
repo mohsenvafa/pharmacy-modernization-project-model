@@ -26,6 +26,9 @@ You'll see:
 🌐 Redis Commander UI is available at: http://localhost:8082
    Username: admin
    Password: admin123
+
+💾 Memcached is available at: localhost:11211
+   No authentication required
 ```
 
 ### 2. Seed the Database

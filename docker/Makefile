@@ -29,6 +29,9 @@ docker-up: ## Start all Docker containers
 	@echo "🌐 Redis Commander UI is available at: http://localhost:8082"
 	@echo "   Username: admin"
 	@echo "   Password: admin123"
+	@echo ""
+	@echo "💾 Memcached is available at: localhost:11211"
+	@echo "   No authentication required"
 
 docker-down: ## Stop all Docker containers
 	@echo "Stopping Docker containers..."
@@ -73,4 +76,8 @@ redis-cli: ## Connect to Redis CLI
 redis-ui: ## Open Redis Commander UI in browser
 	@echo "Opening Redis Commander UI..."
 	@open http://localhost:8082 || xdg-open http://localhost:8082 || echo "Please open http://localhost:8082 in your browser"
+
+memcached-stats: ## Show Memcached stats
+	@echo "📊 Memcached Statistics:"
+	@echo "stats" | nc localhost 11211 || echo "❌ Could not connect to Memcached. Make sure containers are running."
 

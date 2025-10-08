@@ -60,6 +60,16 @@ services:
     networks:
       - rxintake_network
 
+  memcached:
+    image: memcached:1.6-alpine
+    container_name: rxintake_memcached
+    restart: unless-stopped
+    ports:
+      - "11211:11211"
+    command: memcached -m 64
+    networks:
+      - rxintake_network
+
 volumes:
   mongodb_data:
     driver: local

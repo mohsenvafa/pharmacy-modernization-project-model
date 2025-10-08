@@ -20,6 +20,7 @@ This will start:
 - **Mongo Express UI** on `http://localhost:8081`
 - **Redis** on `localhost:6379`
 - **Redis Commander UI** on `http://localhost:8082`
+- **Memcached** on `localhost:11211`
 
 ### Default Credentials
 
@@ -45,6 +46,12 @@ This will start:
 - Username: `admin`
 - Password: `admin123`
 
+**Memcached:**
+- Host: `localhost`
+- Port: `11211`
+- Connection String: `localhost:11211`
+- No authentication required
+
 ## Available Commands
 
 ```bash
@@ -60,6 +67,7 @@ make -f docker/Makefile mongo-shell    # Connect to MongoDB shell
 make -f docker/Makefile mongo-seed     # Seed MongoDB with sample patient data
 make -f docker/Makefile redis-cli      # Connect to Redis CLI
 make -f docker/Makefile redis-ui       # Open Redis Commander UI in browser
+make -f docker/Makefile memcached-stats # Show Memcached statistics
 ```
 
 ## Services
@@ -85,13 +93,19 @@ make -f docker/Makefile redis-ui       # Open Redis Commander UI in browser
 - **Purpose:** Web-based Redis admin interface
 - **Features:** Browse keys, execute commands, view data structures
 
+### Memcached
+- **Port:** 11211
+- **Version:** 1.6 (Alpine)
+- **Memory:** 64MB (configurable)
+- **Authentication:** None (default Memcached behavior)
+
 ## Future Services
 
 This setup can be extended to include:
 - Kafka (with Kafka UI)
-- Memcached
 - PostgreSQL
 - RabbitMQ
+- Elasticsearch
 - Other development dependencies
 
 ## Seeding Data
