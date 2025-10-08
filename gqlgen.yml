@@ -32,3 +32,12 @@ autobind:
 omit_gqlgen_file_notice: true
 omit_slice_element_pointers: true
 
+# Directive configurations
+directives:
+  auth:
+    skip_runtime: false
+  permissionAny:
+    skip_runtime: false
+  permissionAll:
+    skip_runtime: false
+

@@ -17,6 +17,20 @@ type Config struct {
 		Level  string `mapstructure:"level"`
 		Format string `mapstructure:"format"`
 	} `mapstructure:"logging"`
+	Auth struct {
+		DevMode bool `mapstructure:"dev_mode"`
+		JWT     struct {
+			Secret   string `mapstructure:"secret"`
+			Issuer   string `mapstructure:"issuer"`
+			Audience string `mapstructure:"audience"`
+			Cookie   struct {
+				Name     string `mapstructure:"name"`
+				Secure   bool   `mapstructure:"secure"`
+				HTTPOnly bool   `mapstructure:"httponly"`
+				MaxAge   int    `mapstructure:"max_age"`
+			} `mapstructure:"cookie"`
+		} `mapstructure:"jwt"`
+	} `mapstructure:"auth"`
 	Database struct {
 		MongoDB struct {
 			URI         string `mapstructure:"uri"`
@@ -93,5 +107,22 @@ func Load() *Config {
 	if cfg.Logging.Format == "" {
 		cfg.Logging.Format = "console"
 	}
+	// Auth defaults
+	if cfg.Auth.JWT.Secret == "" {
+		cfg.Auth.JWT.Secret = "dev-secret-key-change-in-production"
+	}
+	if cfg.Auth.JWT.Issuer == "" {
+		cfg.Auth.JWT.Issuer = "rxintake"
+	}
+	if cfg.Auth.JWT.Audience == "" {
+		cfg.Auth.JWT.Audience = "rxintake"
+	}
+	if cfg.Auth.JWT.Cookie.Name == "" {
+		cfg.Auth.JWT.Cookie.Name = "auth_token"
+	}
+	if cfg.Auth.JWT.Cookie.MaxAge == 0 {
+		cfg.Auth.JWT.Cookie.MaxAge = 3600 // 1 hour
+	}
+	cfg.Auth.JWT.Cookie.HTTPOnly = true // Always true for security
 	return cfg
 }

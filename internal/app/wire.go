@@ -8,6 +8,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 
 	"pharmacy-modernization-project-model/internal/integrations"
+	"pharmacy-modernization-project-model/internal/platform/auth"
 	"pharmacy-modernization-project-model/internal/platform/database"
 	"pharmacy-modernization-project-model/internal/platform/httpx"
 	"pharmacy-modernization-project-model/internal/platform/logging"
@@ -23,6 +24,21 @@ func (a *App) wire() error {
 	// Logger
 	logger := logging.NewLogger(a.Cfg)
 	a.Logger = logger
+
+	// Initialize authentication system
+	if err := auth.NewBuilder().
+		WithJWTConfig(
+			a.Cfg.Auth.JWT.Secret,
+			a.Cfg.Auth.JWT.Issuer,
+			a.Cfg.Auth.JWT.Audience,
+			a.Cfg.Auth.JWT.Cookie.Name,
+		).
+		WithDevMode(a.Cfg.Auth.DevMode).
+		WithEnvironment(a.Cfg.App.Env).
+		WithLogger(logger.Base).
+		Build(); err != nil {
+		return err
+	}
 
 	// Shared HTTP client (for future external calls)
 	_ = httpx.NewClient(a.Cfg)

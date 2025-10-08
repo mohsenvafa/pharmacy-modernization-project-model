@@ -1,0 +1,34 @@
+package security
+
+// Prescription domain permissions
+const (
+	PermissionRead     = "prescription:read"
+	PermissionWrite    = "prescription:write"
+	PermissionApprove  = "prescription:approve"
+	PermissionDispense = "prescription:dispense"
+	PermissionCancel   = "prescription:cancel"
+)
+
+// Common permission sets for reuse in routes
+var (
+	// ReadAccess - healthcare roles and admins can read prescriptions
+	ReadAccess = []string{
+		PermissionRead,
+		"doctor:role",
+		"pharmacist:role",
+		"nurse:role",
+		"admin:all",
+	}
+
+	// WriteAccess - only doctors or admins can create/edit prescriptions
+	WriteAccess = []string{PermissionWrite, "doctor:role", "admin:all"}
+
+	// ApproveAccess - needs ALL of these permissions to approve prescriptions
+	ApproveAccess = []string{PermissionWrite, PermissionApprove}
+
+	// DispenseAccess - only pharmacists or admins can dispense
+	DispenseAccess = []string{PermissionDispense, "pharmacist:role", "admin:all"}
+
+	// CancelAccess - needs both write and cancel permissions
+	CancelAccess = []string{PermissionWrite, PermissionCancel}
+)

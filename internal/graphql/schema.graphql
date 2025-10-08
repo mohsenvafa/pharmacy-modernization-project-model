@@ -3,6 +3,19 @@
 # Domain-specific types are defined in domain/*/graphql/schema.graphql
 
 # ============================================================================
+# Authentication & Authorization Directives
+# ============================================================================
+
+# Requires user to be authenticated
+directive @auth on FIELD_DEFINITION
+
+# Requires user to have ANY of the specified permissions
+directive @permissionAny(requires: [String!]!) on FIELD_DEFINITION
+
+# Requires user to have ALL of the specified permissions
+directive @permissionAll(requires: [String!]!) on FIELD_DEFINITION
+
+# ============================================================================
 # Common Scalars
 # ============================================================================
 

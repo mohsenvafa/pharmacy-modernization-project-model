@@ -1,0 +1,98 @@
+package auth
+
+import (
+	"fmt"
+
+	"go.uber.org/zap"
+)
+
+// Builder helps configure and initialize the authentication system
+type Builder struct {
+	jwtConfig JWTConfig
+	devMode   bool
+	env       string
+	logger    *zap.Logger
+}
+
+// NewBuilder creates a new auth builder
+func NewBuilder() *Builder {
+	return &Builder{}
+}
+
+// WithJWTConfig sets JWT configuration
+func (b *Builder) WithJWTConfig(secret, issuer, audience, cookieName string) *Builder {
+	b.jwtConfig = JWTConfig{
+		Secret:     secret,
+		Issuer:     issuer,
+		Audience:   audience,
+		CookieName: cookieName,
+	}
+	return b
+}
+
+// WithDevMode enables or disables development mode
+func (b *Builder) WithDevMode(enabled bool) *Builder {
+	b.devMode = enabled
+	return b
+}
+
+// WithEnvironment sets the application environment (dev, prod, etc.)
+func (b *Builder) WithEnvironment(env string) *Builder {
+	b.env = env
+	return b
+}
+
+// WithLogger sets the logger for auth messages
+func (b *Builder) WithLogger(logger *zap.Logger) *Builder {
+	b.logger = logger
+	return b
+}
+
+// Build initializes the authentication system with all configured options
+// Returns an error if configuration is invalid or unsafe
+func (b *Builder) Build() error {
+	// Initialize JWT configuration
+	InitJWTConfig(b.jwtConfig)
+
+	// Safety check: prevent dev mode in production
+	if b.env == "prod" && b.devMode {
+		return fmt.Errorf("FATAL: Dev mode cannot be enabled in production environment (env=%s, dev_mode=%t)", b.env, b.devMode)
+	}
+
+	// Initialize dev mode
+	InitDevMode(b.devMode)
+
+	// Log warnings if dev mode is active
+	if b.devMode {
+		if b.logger != nil {
+			b.logger.Warn("⚠️  AUTH DEV MODE ACTIVE - Do not use in production!")
+		}
+	}
+
+	// Log successful initialization
+	if b.logger != nil {
+		if b.devMode {
+			b.logger.Info("Authentication initialized",
+				zap.String("mode", "development"),
+				zap.Bool("dev_mode", true),
+				zap.String("issuer", b.jwtConfig.Issuer),
+			)
+		} else {
+			b.logger.Info("Authentication initialized",
+				zap.String("mode", "production"),
+				zap.Bool("dev_mode", false),
+				zap.String("issuer", b.jwtConfig.Issuer),
+			)
+		}
+	}
+
+	return nil
+}
+
+// MustBuild initializes authentication and panics on error
+// Use this only when you're certain the configuration is valid
+func (b *Builder) MustBuild() {
+	if err := b.Build(); err != nil {
+		panic(fmt.Sprintf("Failed to initialize authentication: %v", err))
+	}
+}

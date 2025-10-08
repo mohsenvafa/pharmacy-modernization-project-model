@@ -6,6 +6,7 @@ require (
 	github.com/99designs/gqlgen v0.17.81
 	github.com/a-h/templ v0.3.943
 	github.com/go-chi/chi/v5 v5.0.11
+	github.com/golang-jwt/jwt/v5 v5.3.0
 	github.com/google/uuid v1.6.0
 	github.com/spf13/viper v1.18.2
 	github.com/vektah/gqlparser/v2 v2.5.30

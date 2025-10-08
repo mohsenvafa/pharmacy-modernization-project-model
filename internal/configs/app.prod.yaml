@@ -1,0 +1,53 @@
+# Production Configuration
+# This file is merged with app.yaml when RX_APP_ENV=prod
+# Use environment variables for sensitive values
+
+app:
+  env: prod
+  port: 8080
+
+logging:
+  level: info
+  format: json
+
+auth:
+  dev_mode: false  # MUST be false in production
+  jwt:
+    secret: "${RX_AUTH_JWT_SECRET}"  # REQUIRED: Set via environment variable
+    issuer: "${RX_AUTH_JWT_ISSUER}"
+    audience: "${RX_AUTH_JWT_AUDIENCE}"
+    cookie:
+      name: "auth_token"
+      secure: true  # HTTPS only
+      httponly: true
+      max_age: 3600
+
+database:
+  mongodb:
+    uri: "${RX_MONGODB_URI}"
+    database: "rxintake_prod"
+    collections:
+      patients: "patients"
+    connection:
+      max_pool_size: 100
+      min_pool_size: 10
+      max_idle_time: "30m"
+      connect_timeout: "10s"
+      socket_timeout: "30s"
+    options:
+      retry_writes: true
+      retry_reads: true
+
+external:
+  pharmacy:
+    base_url: "${RX_PHARMACY_BASE_URL}"
+    path: "api/pharmacy/prescriptions"
+    use_mock: false
+    api_key: "${RX_PHARMACY_API_KEY}"
+    timeout: "10s"
+  billing:
+    base_url: "${RX_BILLING_BASE_URL}"
+    path: "api/billing/invoices"
+    use_mock: false
+    timeout: "10s"
+
