@@ -2,7 +2,10 @@
 package dashboard_page
 
 import (
+	"context"
 	"fmt"
+	commonsecurity "pharmacy-modernization-project-model/domain/common/security"
+	authComponents "pharmacy-modernization-project-model/web/components/auth"
 	commonComponents "pharmacy-modernization-project-model/web/components/elements"
 	layouts "pharmacy-modernization-project-model/web/components/layouts"
 )
@@ -12,16 +15,20 @@ type DashboardPageParam struct {
 	ActivePrescriptions int
 }
 
-templ DashboardPage(pageParam DashboardPageParam) {
-	@layouts.BaseLayout("Dashboard", dashboard(pageParam))
+templ DashboardPage(ctx context.Context, pageParam DashboardPageParam) {
+	@layouts.BaseLayout("Dashboard", dashboard(ctx, pageParam))
 }
 
-templ dashboard(pageParam DashboardPageParam) {
+templ dashboard(ctx context.Context, pageParam DashboardPageParam) {
 	<div class="flex flex-col gap-4" data-component="dashboard.dashboard-page">
 		@commonComponents.PageHeader("Dashboard")
 		<section class="grid gap-4 p-4 md:grid-cols-2">
-			@commonComponents.StatisticsCard("Total Patients", fmt.Sprintf("%d", pageParam.NumberOfPatients), "since last month")
-			@commonComponents.StatisticsCard("Active Prescriptions", fmt.Sprintf("%d", pageParam.ActivePrescriptions), "since last month")
+			@authComponents.IfHasAnyPermission(ctx, commonsecurity.PatientReadAccess) {
+				@commonComponents.StatisticsCard("Total Patients", fmt.Sprintf("%d", pageParam.NumberOfPatients), "since last month")
+			}
+			@authComponents.IfHasAnyPermission(ctx, commonsecurity.PrescriptionReadAccess) {
+				@commonComponents.StatisticsCard("Active Prescriptions", fmt.Sprintf("%d", pageParam.ActivePrescriptions), "since last month")
+			}
 		</section>
 		<section class="p-4">
 			Dashboard content goes here...

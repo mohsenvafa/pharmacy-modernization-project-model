@@ -21,7 +21,7 @@ func (u *DashboardPageHandler) Handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	page := DashboardPage(DashboardPageParam{
+	page := DashboardPage(r.Context(), DashboardPageParam{
 		NumberOfPatients:    summary.TotalPatients,
 		ActivePrescriptions: summary.ActivePrescriptions,
 	})

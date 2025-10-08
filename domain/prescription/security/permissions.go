@@ -1,8 +1,12 @@
 package security
 
+import (
+	commonsecurity "pharmacy-modernization-project-model/domain/common/security"
+)
+
 // Prescription domain permissions
 const (
-	PermissionRead     = "prescription:read"
+	PermissionRead     = commonsecurity.PrescriptionPermissionRead
 	PermissionWrite    = "prescription:write"
 	PermissionApprove  = "prescription:approve"
 	PermissionDispense = "prescription:dispense"
@@ -12,13 +16,7 @@ const (
 // Common permission sets for reuse in routes
 var (
 	// ReadAccess - healthcare roles and admins can read prescriptions
-	ReadAccess = []string{
-		PermissionRead,
-		"doctor:role",
-		"pharmacist:role",
-		"nurse:role",
-		"admin:all",
-	}
+	ReadAccess = commonsecurity.PrescriptionReadAccess
 
 	// WriteAccess - only doctors or admins can create/edit prescriptions
 	WriteAccess = []string{PermissionWrite, "doctor:role", "admin:all"}

@@ -1,0 +1,23 @@
+package authcomponents
+
+import (
+	"context"
+
+	"pharmacy-modernization-project-model/internal/platform/auth"
+)
+
+// IfHasAnyPermission renders content if the current user has ANY of the required permissions.
+// If no user is authenticated or no permissions match, the content is not rendered.
+templ IfHasAnyPermission(ctx context.Context, requiredPermissions []string) {
+	if auth.HasAnyPermissionCtx(ctx, requiredPermissions) {
+		{ children... }
+	}
+}
+
+// IfHasAllPermissions renders content if the current user has ALL of the required permissions.
+// If no user is authenticated or not all permissions match, the content is not rendered.
+templ IfHasAllPermissions(ctx context.Context, requiredPermissions []string) {
+	if auth.HasAllPermissionsCtx(ctx, requiredPermissions) {
+		{ children... }
+	}
+}

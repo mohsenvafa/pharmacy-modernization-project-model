@@ -11,6 +11,8 @@ import (
 
 // CreateMongoDBConnection creates a MongoDB connection manager based on configuration
 func CreateMongoDBConnection(cfg *config.Config, logger *zap.Logger) (*database.ConnectionManager, error) {
+
+	return nil, nil
 	// Validate configuration
 	if cfg.Database.MongoDB.URI == "" {
 		logger.Warn("MongoDB URI not configured, skipping MongoDB connection")
@@ -52,9 +54,8 @@ func CreateMongoDBConnection(cfg *config.Config, logger *zap.Logger) (*database.
 
 	logger.Info("MongoDB connection established successfully",
 		zap.String("database", cfg.Database.MongoDB.Database))
-	//return connMgr, nil
-	_ = connMgr
-	return nil, nil
+	return connMgr, nil
+
 }
 
 // GetPatientsCollection returns the patients collection from MongoDB connection manager

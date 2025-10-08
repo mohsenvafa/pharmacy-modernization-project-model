@@ -54,7 +54,6 @@ func initializeMockUsers() {
 			Email: "pharmacist@dev.local",
 			Name:  "Dev Pharmacist",
 			Permissions: []string{
-				"patient:read",
 				"prescription:read",
 				"prescription:dispense",
 				"pharmacist:role",
@@ -67,8 +66,8 @@ func initializeMockUsers() {
 			Name:  "Dev Nurse",
 			Permissions: []string{
 				"patient:read",
-				"prescription:read",
 				"nurse:role",
+				"dashboard:view",
 			},
 		},
 		"readonly": {
