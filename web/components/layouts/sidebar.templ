@@ -2,7 +2,9 @@ package layouts
 
 import (
 	"context"
+	commonsecurity "pharmacy-modernization-project-model/domain/common/security"
 	"pharmacy-modernization-project-model/internal/platform/paths"
+	authComponents "pharmacy-modernization-project-model/web/components/auth"
 	components "pharmacy-modernization-project-model/web/components/elements"
 	usercomponents "pharmacy-modernization-project-model/web/components/user"
 )
@@ -22,10 +24,18 @@ templ Sidebar(ctx context.Context) {
 		</div>
 		<nav class="flex-1 overflow-y-auto">
 			<ul class="menu gap-1">
-				<li><a href={ paths.DashboardPath }>Dashboard</a></li>
-				<li><a href={ paths.PatientsPath }>Patients</a></li>
-				<li><a href={ paths.PatientSearchPath } hx-boost="false">Patient Search</a></li>
-				<li><a href={ paths.PrescriptionsPath }>Prescriptions</a></li>
+				@authComponents.IfHasAnyPermission(ctx, commonsecurity.DashboardAccess) {
+					<li><a href={ paths.DashboardPath }>Dashboard</a></li>
+				}
+				@authComponents.IfHasAnyPermission(ctx, commonsecurity.PatientReadAccess) {
+					<li><a href={ paths.PatientsPath }>Patients</a></li>
+				}
+				@authComponents.IfHasAnyPermission(ctx, commonsecurity.PatientReadAccess) {
+					<li><a href={ paths.PatientSearchPath } hx-boost="false">Patient Search</a></li>
+				}
+				@authComponents.IfHasAnyPermission(ctx, commonsecurity.PrescriptionReadAccess) {
+					<li><a href={ paths.PrescriptionsPath }>Prescriptions</a></li>
+				}
 				<li><a>Audits</a></li>
 				<li><a>Messages <div class="badge badge-info">12</div></a></li>
 			</ul>
