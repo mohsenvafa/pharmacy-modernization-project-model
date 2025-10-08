@@ -9,8 +9,10 @@ import (
 	"go.uber.org/zap"
 
 	addressRequest "pharmacy-modernization-project-model/domain/patient/contracts/request"
+	patientsecurity "pharmacy-modernization-project-model/domain/patient/security"
 	service "pharmacy-modernization-project-model/domain/patient/service"
 	helper "pharmacy-modernization-project-model/internal/helper"
+	"pharmacy-modernization-project-model/internal/platform/auth"
 )
 
 type AddressController struct {
@@ -23,9 +25,14 @@ func NewAddressController(addresses service.AddressService, log *zap.Logger) *Ad
 }
 
 func (c *AddressController) RegisterRoutes(r chi.Router) {
-	r.Get("/", c.ListByPatient)
-	r.Get("/{addressID}", c.GetByID)
-	r.Post("/", c.Create)
+	// Address routes inherit auth from parent but add specific permissions
+
+	// Read operations - requires patient:read or admin:all
+	r.With(auth.RequirePermissionsMatchAny(patientsecurity.ReadAccess)).Get("/", c.ListByPatient)
+	r.With(auth.RequirePermissionsMatchAny(patientsecurity.ReadAccess)).Get("/{addressID}", c.GetByID)
+
+	// Write operations - requires patient:write or admin:all
+	r.With(auth.RequirePermissionsMatchAny(patientsecurity.WriteAccess)).Post("/", c.Create)
 }
 
 func (c *AddressController) ListByPatient(w http.ResponseWriter, r *http.Request) {

@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"go.uber.org/zap"
 
 	"pharmacy-modernization-project-model/internal/integrations"
 	"pharmacy-modernization-project-model/internal/platform/auth"
@@ -64,6 +65,12 @@ func (a *App) wire() error {
 
 	// Static assets
 	r.Handle(paths.AssetsPath+"*", http.StripPrefix(paths.AssetsPath, http.FileServer(http.Dir("web/public"))))
+
+	// Dev mode info endpoint (only available when dev mode is enabled)
+	if auth.IsDevModeEnabled() {
+		r.Get("/__dev/auth", auth.DevAuthInfo)
+		logger.Base.Info("Dev mode endpoint registered", zap.String("path", "/__dev/auth"))
+	}
 
 	// Integrations
 	integration := integrations.New(integrations.Dependencies{

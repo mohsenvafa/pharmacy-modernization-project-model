@@ -9,8 +9,10 @@ import (
 
 	request "pharmacy-modernization-project-model/domain/prescription/contracts/request"
 	response "pharmacy-modernization-project-model/domain/prescription/contracts/response"
+	prescriptionsecurity "pharmacy-modernization-project-model/domain/prescription/security"
 	"pharmacy-modernization-project-model/domain/prescription/service"
 	helper "pharmacy-modernization-project-model/internal/helper"
+	"pharmacy-modernization-project-model/internal/platform/auth"
 )
 
 type PrescriptionController struct {
@@ -23,8 +25,12 @@ func NewPrescriptionController(s service.PrescriptionService, log *zap.Logger) *
 }
 
 func (c *PrescriptionController) RegisterRoutes(r chi.Router) {
-	r.Get("/", c.List)
-	r.Get("/{prescriptionID}", c.GetByID)
+	// All prescription API routes require authentication (header-based for API)
+	r.Use(auth.RequireAuthFromHeader())
+
+	// Read operations - requires prescription:read or healthcare role or admin
+	r.With(auth.RequirePermissionsMatchAny(prescriptionsecurity.ReadAccess)).Get("/", c.List)
+	r.With(auth.RequirePermissionsMatchAny(prescriptionsecurity.ReadAccess)).Get("/{prescriptionID}", c.GetByID)
 }
 
 func (c *PrescriptionController) List(w http.ResponseWriter, r *http.Request) {

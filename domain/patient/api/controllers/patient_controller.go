@@ -7,8 +7,10 @@ import (
 	"github.com/go-chi/chi/v5"
 	"go.uber.org/zap"
 
+	patientsecurity "pharmacy-modernization-project-model/domain/patient/security"
 	service "pharmacy-modernization-project-model/domain/patient/service"
 	helper "pharmacy-modernization-project-model/internal/helper"
+	"pharmacy-modernization-project-model/internal/platform/auth"
 	"pharmacy-modernization-project-model/internal/platform/httpx"
 )
 
@@ -22,8 +24,12 @@ func NewPatientController(patients service.PatientService, log *zap.Logger) *Pat
 }
 
 func (c *PatientController) RegisterRoutes(r chi.Router) {
-	r.Get("/", c.List)
-	r.Get("/{patientID}", c.GetByID)
+	// All patient API routes require authentication (header-based for API)
+	r.Use(auth.RequireAuthFromHeader())
+
+	// Read operations - requires patient:read or admin:all
+	r.With(auth.RequirePermissionsMatchAny(patientsecurity.ReadAccess)).Get("/", c.List)
+	r.With(auth.RequirePermissionsMatchAny(patientsecurity.ReadAccess)).Get("/{patientID}", c.GetByID)
 }
 
 func (c *PatientController) List(w http.ResponseWriter, r *http.Request) {

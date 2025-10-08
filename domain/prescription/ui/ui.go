@@ -7,6 +7,9 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"go.uber.org/zap"
+
+	prescriptionsecurity "pharmacy-modernization-project-model/domain/prescription/security"
+	"pharmacy-modernization-project-model/internal/platform/auth"
 )
 
 type PrescriptionDependencies struct {
@@ -18,6 +21,12 @@ func MountUI(r chi.Router, deps *PrescriptionDependencies) {
 	prescriptionListHandler := prescriptionList.NewPrescriptionListHandler(deps.PrescriptionSvc, deps.Log)
 
 	r.Route(paths.BasePath, func(r chi.Router) {
+		// All prescription UI routes require authentication (cookie-based for web)
+		r.Use(auth.RequireAuthFromCookie())
+
+		// All routes require prescription:read or healthcare role or admin
+		r.Use(auth.RequirePermissionsMatchAny(prescriptionsecurity.ReadAccess))
+
 		r.Get("/", prescriptionListHandler.Handler)
 	})
 }

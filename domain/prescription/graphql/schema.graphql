@@ -3,7 +3,7 @@
 type Prescription {
   id: ID!
   patientID: ID!
-  patient: Patient
+  patient: Patient @auth @permissionAny(requires: ["patient:read", "admin:all"])
   drug: String!
   dose: String!
   status: PrescriptionStatus!
@@ -31,7 +31,28 @@ input UpdatePrescriptionInput {
 }
 
 extend type Query {
-  # Prescription queries
+  # Prescription queries - requires authentication and prescription:read or healthcare role or admin
   prescription(id: ID!): Prescription
+    @auth
+    @permissionAny(
+      requires: [
+        "prescription:read"
+        "doctor:role"
+        "pharmacist:role"
+        "nurse:role"
+        "admin:all"
+      ]
+    )
+
   prescriptions(status: String, limit: Int, offset: Int): [Prescription!]!
+    @auth
+    @permissionAny(
+      requires: [
+        "prescription:read"
+        "doctor:role"
+        "pharmacist:role"
+        "nurse:role"
+        "admin:all"
+      ]
+    )
 }

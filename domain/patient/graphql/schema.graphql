@@ -9,6 +9,15 @@ type Patient {
   createdAt: Time!
   addresses: [Address!]!
   prescriptions: [Prescription!]!
+    @auth
+    @permissionAny(
+      requires: [
+        "prescription:read"
+        "doctor:role"
+        "pharmacist:role"
+        "admin:all"
+      ]
+    )
 }
 
 type Address {
@@ -36,7 +45,12 @@ input UpdatePatientInput {
 }
 
 extend type Query {
-  # Patient queries
+  # Patient queries - requires authentication and patient:read or admin:all permission
   patient(id: ID!): Patient
+    @auth
+    @permissionAny(requires: ["patient:read", "admin:all"])
+
   patients(query: String, limit: Int, offset: Int): [Patient!]!
+    @auth
+    @permissionAny(requires: ["patient:read", "admin:all"])
 }

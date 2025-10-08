@@ -6,6 +6,8 @@ type DashboardStats {
 }
 
 extend type Query {
-  # Dashboard queries
+  # Dashboard queries - requires authentication and dashboard:view or admin permission
   dashboardStats: DashboardStats!
+    @auth
+    @permissionAny(requires: ["dashboard:view", "admin:all"])
 }

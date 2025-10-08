@@ -47,6 +47,9 @@ type ResolverRoot interface {
 }
 
 type DirectiveRoot struct {
+	Auth          func(ctx context.Context, obj any, next graphql.Resolver) (res any, err error)
+	PermissionAll func(ctx context.Context, obj any, next graphql.Resolver, requires []string) (res any, err error)
+	PermissionAny func(ctx context.Context, obj any, next graphql.Resolver, requires []string) (res any, err error)
 }
 
 type ComplexityRoot struct {
@@ -466,6 +469,19 @@ var sources = []*ast.Source{
 # Domain-specific types are defined in domain/*/graphql/schema.graphql
 
 # ============================================================================
+# Authentication & Authorization Directives
+# ============================================================================
+
+# Requires user to be authenticated
+directive @auth on FIELD_DEFINITION
+
+# Requires user to have ANY of the specified permissions
+directive @permissionAny(requires: [String!]!) on FIELD_DEFINITION
+
+# Requires user to have ALL of the specified permissions
+directive @permissionAll(requires: [String!]!) on FIELD_DEFINITION
+
+# ============================================================================
 # Common Scalars
 # ============================================================================
 
@@ -497,8 +513,10 @@ type DashboardStats {
 }
 
 extend type Query {
-  # Dashboard queries
-  dashboardStats: DashboardStats!
+  # Dashboard queries - requires authentication and dashboard:view or admin permission
+  dashboardStats: DashboardStats! 
+    @auth 
+    @permissionAny(requires: ["dashboard:view", "admin:all"])
 }
 `, BuiltIn: false},
 	{Name: "../../../domain/patient/graphql/schema.graphql", Input: `# Patient Domain GraphQL Schema
@@ -511,7 +529,7 @@ type Patient {
   state: String!
   createdAt: Time!
   addresses: [Address!]!
-  prescriptions: [Prescription!]!
+  prescriptions: [Prescription!]! @auth @permissionAny(requires: ["prescription:read", "doctor:role", "pharmacist:role", "admin:all"])
 }
 
 type Address {
@@ -539,9 +557,14 @@ input UpdatePatientInput {
 }
 
 extend type Query {
-  # Patient queries
-  patient(id: ID!): Patient
-  patients(query: String, limit: Int, offset: Int): [Patient!]!
+  # Patient queries - requires authentication and patient:read or admin:all permission
+  patient(id: ID!): Patient 
+    @auth 
+    @permissionAny(requires: ["patient:read", "admin:all"])
+  
+  patients(query: String, limit: Int, offset: Int): [Patient!]! 
+    @auth 
+    @permissionAny(requires: ["patient:read", "admin:all"])
 }
 `, BuiltIn: false},
 	{Name: "../../../domain/prescription/graphql/schema.graphql", Input: `# Prescription Domain GraphQL Schema
@@ -549,7 +572,7 @@ extend type Query {
 type Prescription {
   id: ID!
   patientID: ID!
-  patient: Patient
+  patient: Patient @auth @permissionAny(requires: ["patient:read", "admin:all"])
   drug: String!
   dose: String!
   status: PrescriptionStatus!
@@ -577,9 +600,14 @@ input UpdatePrescriptionInput {
 }
 
 extend type Query {
-  # Prescription queries
-  prescription(id: ID!): Prescription
-  prescriptions(status: String, limit: Int, offset: Int): [Prescription!]!
+  # Prescription queries - requires authentication and prescription:read or healthcare role or admin
+  prescription(id: ID!): Prescription 
+    @auth 
+    @permissionAny(requires: ["prescription:read", "doctor:role", "pharmacist:role", "nurse:role", "admin:all"])
+  
+  prescriptions(status: String, limit: Int, offset: Int): [Prescription!]! 
+    @auth 
+    @permissionAny(requires: ["prescription:read", "doctor:role", "pharmacist:role", "nurse:role", "admin:all"])
 }
 `, BuiltIn: false},
 }
@@ -588,6 +616,28 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 // endregion ************************** generated!.gotpl **************************
 
 // region    ***************************** args.gotpl *****************************
+
+func (ec *executionContext) dir_permissionAll_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "requires", ec.unmarshalNString2ᚕstringᚄ)
+	if err != nil {
+		return nil, err
+	}
+	args["requires"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) dir_permissionAny_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "requires", ec.unmarshalNString2ᚕstringᚄ)
+	if err != nil {
+		return nil, err
+	}
+	args["requires"] = arg0
+	return args, nil
+}
 
 func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
@@ -1234,7 +1284,32 @@ func (ec *executionContext) _Patient_prescriptions(ctx context.Context, field gr
 		func(ctx context.Context) (any, error) {
 			return ec.resolvers.Patient().Prescriptions(ctx, obj)
 		},
-		nil,
+		func(ctx context.Context, next graphql.Resolver) graphql.Resolver {
+			directive0 := next
+
+			directive1 := func(ctx context.Context) (any, error) {
+				if ec.directives.Auth == nil {
+					var zeroVal []model1.Prescription
+					return zeroVal, errors.New("directive auth is not implemented")
+				}
+				return ec.directives.Auth(ctx, obj, directive0)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				requires, err := ec.unmarshalNString2ᚕstringᚄ(ctx, []any{"prescription:read", "doctor:role", "pharmacist:role", "admin:all"})
+				if err != nil {
+					var zeroVal []model1.Prescription
+					return zeroVal, err
+				}
+				if ec.directives.PermissionAny == nil {
+					var zeroVal []model1.Prescription
+					return zeroVal, errors.New("directive permissionAny is not implemented")
+				}
+				return ec.directives.PermissionAny(ctx, obj, directive1, requires)
+			}
+
+			next = directive2
+			return next
+		},
 		ec.marshalNPrescription2ᚕpharmacyᚑmodernizationᚑprojectᚑmodelᚋdomainᚋprescriptionᚋcontractsᚋmodelᚐPrescriptionᚄ,
 		true,
 		true,
@@ -1337,7 +1412,32 @@ func (ec *executionContext) _Prescription_patient(ctx context.Context, field gra
 		func(ctx context.Context) (any, error) {
 			return ec.resolvers.Prescription().Patient(ctx, obj)
 		},
-		nil,
+		func(ctx context.Context, next graphql.Resolver) graphql.Resolver {
+			directive0 := next
+
+			directive1 := func(ctx context.Context) (any, error) {
+				if ec.directives.Auth == nil {
+					var zeroVal *model.Patient
+					return zeroVal, errors.New("directive auth is not implemented")
+				}
+				return ec.directives.Auth(ctx, obj, directive0)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				requires, err := ec.unmarshalNString2ᚕstringᚄ(ctx, []any{"patient:read", "admin:all"})
+				if err != nil {
+					var zeroVal *model.Patient
+					return zeroVal, err
+				}
+				if ec.directives.PermissionAny == nil {
+					var zeroVal *model.Patient
+					return zeroVal, errors.New("directive permissionAny is not implemented")
+				}
+				return ec.directives.PermissionAny(ctx, obj, directive1, requires)
+			}
+
+			next = directive2
+			return next
+		},
 		ec.marshalOPatient2ᚖpharmacyᚑmodernizationᚑprojectᚑmodelᚋdomainᚋpatientᚋcontractsᚋmodelᚐPatient,
 		true,
 		false,
@@ -1529,7 +1629,32 @@ func (ec *executionContext) _Query_dashboardStats(ctx context.Context, field gra
 		func(ctx context.Context) (any, error) {
 			return ec.resolvers.Query().DashboardStats(ctx)
 		},
-		nil,
+		func(ctx context.Context, next graphql.Resolver) graphql.Resolver {
+			directive0 := next
+
+			directive1 := func(ctx context.Context) (any, error) {
+				if ec.directives.Auth == nil {
+					var zeroVal *DashboardStats
+					return zeroVal, errors.New("directive auth is not implemented")
+				}
+				return ec.directives.Auth(ctx, nil, directive0)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				requires, err := ec.unmarshalNString2ᚕstringᚄ(ctx, []any{"dashboard:view", "admin:all"})
+				if err != nil {
+					var zeroVal *DashboardStats
+					return zeroVal, err
+				}
+				if ec.directives.PermissionAny == nil {
+					var zeroVal *DashboardStats
+					return zeroVal, errors.New("directive permissionAny is not implemented")
+				}
+				return ec.directives.PermissionAny(ctx, nil, directive1, requires)
+			}
+
+			next = directive2
+			return next
+		},
 		ec.marshalNDashboardStats2ᚖpharmacyᚑmodernizationᚑprojectᚑmodelᚋinternalᚋgraphqlᚋgeneratedᚐDashboardStats,
 		true,
 		true,
@@ -1565,7 +1690,32 @@ func (ec *executionContext) _Query_patient(ctx context.Context, field graphql.Co
 			fc := graphql.GetFieldContext(ctx)
 			return ec.resolvers.Query().Patient(ctx, fc.Args["id"].(string))
 		},
-		nil,
+		func(ctx context.Context, next graphql.Resolver) graphql.Resolver {
+			directive0 := next
+
+			directive1 := func(ctx context.Context) (any, error) {
+				if ec.directives.Auth == nil {
+					var zeroVal *model.Patient
+					return zeroVal, errors.New("directive auth is not implemented")
+				}
+				return ec.directives.Auth(ctx, nil, directive0)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				requires, err := ec.unmarshalNString2ᚕstringᚄ(ctx, []any{"patient:read", "admin:all"})
+				if err != nil {
+					var zeroVal *model.Patient
+					return zeroVal, err
+				}
+				if ec.directives.PermissionAny == nil {
+					var zeroVal *model.Patient
+					return zeroVal, errors.New("directive permissionAny is not implemented")
+				}
+				return ec.directives.PermissionAny(ctx, nil, directive1, requires)
+			}
+
+			next = directive2
+			return next
+		},
 		ec.marshalOPatient2ᚖpharmacyᚑmodernizationᚑprojectᚑmodelᚋdomainᚋpatientᚋcontractsᚋmodelᚐPatient,
 		true,
 		false,
@@ -1624,7 +1774,32 @@ func (ec *executionContext) _Query_patients(ctx context.Context, field graphql.C
 			fc := graphql.GetFieldContext(ctx)
 			return ec.resolvers.Query().Patients(ctx, fc.Args["query"].(*string), fc.Args["limit"].(*int), fc.Args["offset"].(*int))
 		},
-		nil,
+		func(ctx context.Context, next graphql.Resolver) graphql.Resolver {
+			directive0 := next
+
+			directive1 := func(ctx context.Context) (any, error) {
+				if ec.directives.Auth == nil {
+					var zeroVal []model.Patient
+					return zeroVal, errors.New("directive auth is not implemented")
+				}
+				return ec.directives.Auth(ctx, nil, directive0)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				requires, err := ec.unmarshalNString2ᚕstringᚄ(ctx, []any{"patient:read", "admin:all"})
+				if err != nil {
+					var zeroVal []model.Patient
+					return zeroVal, err
+				}
+				if ec.directives.PermissionAny == nil {
+					var zeroVal []model.Patient
+					return zeroVal, errors.New("directive permissionAny is not implemented")
+				}
+				return ec.directives.PermissionAny(ctx, nil, directive1, requires)
+			}
+
+			next = directive2
+			return next
+		},
 		ec.marshalNPatient2ᚕpharmacyᚑmodernizationᚑprojectᚑmodelᚋdomainᚋpatientᚋcontractsᚋmodelᚐPatientᚄ,
 		true,
 		true,
@@ -1683,7 +1858,32 @@ func (ec *executionContext) _Query_prescription(ctx context.Context, field graph
 			fc := graphql.GetFieldContext(ctx)
 			return ec.resolvers.Query().Prescription(ctx, fc.Args["id"].(string))
 		},
-		nil,
+		func(ctx context.Context, next graphql.Resolver) graphql.Resolver {
+			directive0 := next
+
+			directive1 := func(ctx context.Context) (any, error) {
+				if ec.directives.Auth == nil {
+					var zeroVal *model1.Prescription
+					return zeroVal, errors.New("directive auth is not implemented")
+				}
+				return ec.directives.Auth(ctx, nil, directive0)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				requires, err := ec.unmarshalNString2ᚕstringᚄ(ctx, []any{"prescription:read", "doctor:role", "pharmacist:role", "nurse:role", "admin:all"})
+				if err != nil {
+					var zeroVal *model1.Prescription
+					return zeroVal, err
+				}
+				if ec.directives.PermissionAny == nil {
+					var zeroVal *model1.Prescription
+					return zeroVal, errors.New("directive permissionAny is not implemented")
+				}
+				return ec.directives.PermissionAny(ctx, nil, directive1, requires)
+			}
+
+			next = directive2
+			return next
+		},
 		ec.marshalOPrescription2ᚖpharmacyᚑmodernizationᚑprojectᚑmodelᚋdomainᚋprescriptionᚋcontractsᚋmodelᚐPrescription,
 		true,
 		false,
@@ -1740,7 +1940,32 @@ func (ec *executionContext) _Query_prescriptions(ctx context.Context, field grap
 			fc := graphql.GetFieldContext(ctx)
 			return ec.resolvers.Query().Prescriptions(ctx, fc.Args["status"].(*string), fc.Args["limit"].(*int), fc.Args["offset"].(*int))
 		},
-		nil,
+		func(ctx context.Context, next graphql.Resolver) graphql.Resolver {
+			directive0 := next
+
+			directive1 := func(ctx context.Context) (any, error) {
+				if ec.directives.Auth == nil {
+					var zeroVal []model1.Prescription
+					return zeroVal, errors.New("directive auth is not implemented")
+				}
+				return ec.directives.Auth(ctx, nil, directive0)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				requires, err := ec.unmarshalNString2ᚕstringᚄ(ctx, []any{"prescription:read", "doctor:role", "pharmacist:role", "nurse:role", "admin:all"})
+				if err != nil {
+					var zeroVal []model1.Prescription
+					return zeroVal, err
+				}
+				if ec.directives.PermissionAny == nil {
+					var zeroVal []model1.Prescription
+					return zeroVal, errors.New("directive permissionAny is not implemented")
+				}
+				return ec.directives.PermissionAny(ctx, nil, directive1, requires)
+			}
+
+			next = directive2
+			return next
+		},
 		ec.marshalNPrescription2ᚕpharmacyᚑmodernizationᚑprojectᚑmodelᚋdomainᚋprescriptionᚋcontractsᚋmodelᚐPrescriptionᚄ,
 		true,
 		true,
@@ -4692,6 +4917,36 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNString2ᚕstringᚄ(ctx context.Context, v any) ([]string, error) {
+	var vSlice []any
+	vSlice = graphql.CoerceList(v)
+	var err error
+	res := make([]string, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNString2string(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalNString2ᚕstringᚄ(ctx context.Context, sel ast.SelectionSet, v []string) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	for i := range v {
+		ret[i] = ec.marshalNString2string(ctx, sel, v[i])
+	}
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) unmarshalNTime2timeᚐTime(ctx context.Context, v any) (time.Time, error) {

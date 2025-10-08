@@ -13,6 +13,7 @@ import (
 	prescriptiongraphql "pharmacy-modernization-project-model/domain/prescription/graphql"
 	prescriptionservice "pharmacy-modernization-project-model/domain/prescription/service"
 	"pharmacy-modernization-project-model/internal/graphql/generated"
+	authplatform "pharmacy-modernization-project-model/internal/platform/auth"
 	"pharmacy-modernization-project-model/internal/platform/paths"
 )
 
@@ -54,12 +55,19 @@ func MountGraphQL(r chi.Router, deps *Dependencies) {
 		DashboardResolver:    dashboardResolver,
 	}
 
-	// Create GraphQL server
-	config := generated.Config{Resolvers: resolver}
+	// Create GraphQL server with auth directives
+	config := generated.Config{
+		Resolvers: resolver,
+		Directives: generated.DirectiveRoot{
+			Auth:          authplatform.AuthDirective(),
+			PermissionAny: authplatform.PermissionAnyDirective(),
+			PermissionAll: authplatform.PermissionAllDirective(),
+		},
+	}
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(config))
 
-	// Mount endpoints using paths from registry
-	r.Handle(paths.GraphQLPath, srv)
+	// Mount GraphQL endpoint with auth middleware (to set user in context)
+	r.Handle(paths.GraphQLPath, authplatform.RequireAuth()(srv))
 	r.Handle(paths.GraphQLPlayground, playground.Handler("GraphQL Playground", paths.GraphQLPath))
 
 	deps.Logger.Info("GraphQL server mounted",
