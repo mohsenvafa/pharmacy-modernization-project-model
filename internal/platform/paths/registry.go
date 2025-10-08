@@ -16,6 +16,10 @@ const (
 
 	// API versions
 	APIV1Prefix = "/api/v1"
+
+	// GraphQL API
+	GraphQLPath       = "/graphql"
+	GraphQLPlayground = "/playground"
 )
 
 // NavigationPaths provides a structured way to access navigation paths

@@ -1,6 +1,7 @@
 package errors
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
@@ -191,6 +192,25 @@ func NewRetryableError(errorType ErrorType, message string, err error, maxRetrie
 // ShouldRetry checks if the error should be retried
 func (e *RetryableError) ShouldRetry(attempt int) bool {
 	return attempt < e.MaxRetries && e.IsRetryable()
+}
+
+// IsNotFoundError checks if the error is a not found error
+func IsNotFoundError(err error) bool {
+	if err == nil {
+		return false
+	}
+
+	var repoErr *RepositoryError
+	if errors.As(err, &repoErr) {
+		return repoErr.IsNotFound()
+	}
+
+	var notFoundErr RecordNotFoundError
+	if errors.As(err, &notFoundErr) {
+		return true
+	}
+
+	return false
 }
 
 // Generic error handlers for other database types

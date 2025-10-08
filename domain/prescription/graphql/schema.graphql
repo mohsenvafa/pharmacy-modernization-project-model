@@ -1,0 +1,37 @@
+# Prescription Domain GraphQL Schema
+
+type Prescription {
+  id: ID!
+  patientID: ID!
+  patient: Patient
+  drug: String!
+  dose: String!
+  status: PrescriptionStatus!
+  createdAt: Time!
+}
+
+enum PrescriptionStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  COMPLETED
+}
+
+input CreatePrescriptionInput {
+  patientID: ID!
+  drug: String!
+  dose: String!
+  status: PrescriptionStatus!
+}
+
+input UpdatePrescriptionInput {
+  drug: String
+  dose: String
+  status: PrescriptionStatus
+}
+
+extend type Query {
+  # Prescription queries
+  prescription(id: ID!): Prescription
+  prescriptions(status: String, limit: Int, offset: Int): [Prescription!]!
+}

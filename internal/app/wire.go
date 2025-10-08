@@ -16,6 +16,7 @@ import (
 	dashboardModule "pharmacy-modernization-project-model/domain/dashboard"
 	patientModule "pharmacy-modernization-project-model/domain/patient"
 	prescriptionModule "pharmacy-modernization-project-model/domain/prescription"
+	"pharmacy-modernization-project-model/internal/graphql"
 )
 
 func (a *App) wire() error {
@@ -71,9 +72,18 @@ func (a *App) wire() error {
 	patientMod := patientModule.Module(r, patientModDeps)
 
 	// Dashboard Module
-	dashboardModule.Module(r, &dashboardModule.ModuleDependencies{
+	dashboardMod := dashboardModule.Module(r, &dashboardModule.ModuleDependencies{
 		PatientStats:      patientMod.PatientService,
 		PrescriptionStats: prescriptionMod.PrescriptionService,
+	})
+
+	// GraphQL API
+	graphql.MountGraphQL(r, &graphql.Dependencies{
+		PatientService:      patientMod.PatientService,
+		AddressService:      patientMod.AddressService,
+		PrescriptionService: prescriptionMod.PrescriptionService,
+		DashboardService:    dashboardMod.DashboardService,
+		Logger:              logger.Base,
 	})
 
 	a.Router = r

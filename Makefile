@@ -14,7 +14,7 @@ endif
 
 TAILWIND_BIN ?= $(DEFAULT_TAILWIND_BIN)
 
-.PHONY: setup tailwind-watch dev dev-watch mock-iris check-tools build-ts watch-ts
+.PHONY: setup tailwind-watch dev dev-watch mock-iris check-tools build-ts watch-ts graphql-generate graphql-install
 
 setup:
 	@make -f .dev/Makefile.setup setup
@@ -56,3 +56,15 @@ build-ts:
 # Watch TypeScript for changes
 watch-ts:
 	@cd web && npm run watch
+
+# Generate GraphQL code from schemas
+graphql-generate:
+	@echo "🔄 Generating GraphQL code..."
+	@gqlgen generate
+	@echo "✅ GraphQL code generated successfully!"
+
+# Install gqlgen CLI tool
+graphql-install:
+	@echo "📦 Installing gqlgen..."
+	@go install github.com/99designs/gqlgen@latest
+	@echo "✅ gqlgen installed successfully!"

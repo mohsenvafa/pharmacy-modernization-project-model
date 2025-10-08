@@ -19,6 +19,10 @@ templ Sidebar() {
 				<li><a>Audits</a></li>
 				<li><a>Messages <div class="badge badge-info">12</div></a></li>
 			</ul>
+			<div class="divider">Developer</div>
+			<ul class="menu gap-1">
+				<li><a href={ paths.GraphQLPlayground } hx-boost="false" target="_blank">GraphQL Playground</a></li>
+			</ul>
 		</nav>
 		<div class="mt-auto border-t border-base-300 pt-4">
 			@components.ThemeSelection()

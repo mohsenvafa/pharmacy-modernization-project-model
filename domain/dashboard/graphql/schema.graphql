@@ -1,0 +1,11 @@
+# Dashboard Domain GraphQL Schema
+
+type DashboardStats {
+  totalPatients: Int!
+  activePrescriptions: Int!
+}
+
+extend type Query {
+  # Dashboard queries
+  dashboardStats: DashboardStats!
+}

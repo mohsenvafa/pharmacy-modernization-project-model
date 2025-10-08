@@ -13,10 +13,14 @@ type ModuleDependencies struct {
 	PrescriptionStats dashboardproviders.PrescriptionStatsProvider
 }
 
-type ModuleExport struct{}
+type ModuleExport struct {
+	DashboardService dashboardservice.IDashboardService
+}
 
 func Module(r chi.Router, deps *ModuleDependencies) ModuleExport {
 	service := dashboardservice.New(deps.PatientStats, deps.PrescriptionStats)
 	dashboardsvc.MountUI(r, &dashboardsvc.DashboardUiDependencies{Service: service})
-	return ModuleExport{}
+	return ModuleExport{
+		DashboardService: service,
+	}
 }

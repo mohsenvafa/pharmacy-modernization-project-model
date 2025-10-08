@@ -32,6 +32,7 @@ flowchart TB
         direction LR
         UI["UI\n(Templ pages, handlers)"]
         HTTP["HTTP API\n(Controllers, request/response models)"]
+        GraphQL["GraphQL API\n(Resolvers, schemas)"]
         Consumer["Async Consumers\n(Workers, message models)"]
     end
     Business["Business Layer\n(Services, domain models)"]
@@ -40,6 +41,7 @@ flowchart TB
 
     Feature --> UI --> Business --> Data --> Infrastructure
     Feature --> HTTP --> Business
+    Feature --> GraphQL --> Business
     Feature --> Consumer --> Business
     Business --> Data
     Data --> Infrastructure
@@ -102,7 +104,8 @@ flowchart TB
 ## Domain Package Structure
 Each domain folder has the same shape:
 - `api/` – HTTP endpoints. `api/api.go` wires controllers. Controllers call services and return JSON with helpers from `internal/helper`.
-- `service/` – Business logic and interfaces used by API and UI layers.
+- `graphql/` – (Optional) GraphQL resolvers and schemas. Resolvers call services directly and return typed data.
+- `service/` – Business logic and interfaces used by API, GraphQL, and UI layers.
 - `repository/` – Storage adapters. Right now they use in-memory data but can move to real databases later.
 - `contracts/` – Shared models used across the domain.
 - `ui/` – Server-rendered pages built with [Templ](https://templ.guide/). Each page has handlers, `.templ` templates, and generated `*_templ.go` files.
@@ -125,10 +128,21 @@ Each domain folder has the same shape:
 - API controllers expose prescription operations.
 
 ## API Layer
+
+### REST API
 - All routes live on the `chi.Router` created in `internal/app/wire.go`.
 - Domains mount routes like `/api/v1/patients` inside their `Module()` function so versioning stays consistent.
 - Controllers translate service errors into HTTP status codes and reuse the JSON helper response format.
 - Middleware adds logging, correlation IDs, panic recovery, and timeouts.
+
+### GraphQL API
+- Single endpoint at `/graphql` serves all GraphQL queries and mutations (path defined in `internal/platform/paths/registry.go`).
+- GraphQL Playground available at `/playground` for interactive query development.
+- Resolvers in domain-specific `graphql/` folders call domain services directly.
+- Schemas defined in `domain/*/graphql/schema.graphql` and aggregated in `internal/graphql/schema.graphql`.
+- Code generated with `gqlgen` via `make graphql-generate`.
+- Uses the same middleware as REST API for consistent logging and error handling.
+- See `docs/GRAPHQL_IMPLEMENTATION.md` for detailed usage guide.
 
 ## UI Layer
 - UI uses Templ components compiled into Go code (`*_templ.go`).

@@ -1,0 +1,42 @@
+# Patient Domain GraphQL Schema
+
+type Patient {
+  id: ID!
+  name: String!
+  dob: Time!
+  phone: String!
+  state: String!
+  createdAt: Time!
+  addresses: [Address!]!
+  prescriptions: [Prescription!]!
+}
+
+type Address {
+  id: ID!
+  patientID: ID!
+  line1: String!
+  line2: String
+  city: String!
+  state: String!
+  zip: String!
+}
+
+input CreatePatientInput {
+  name: String!
+  dob: Time!
+  phone: String!
+  state: String!
+}
+
+input UpdatePatientInput {
+  name: String
+  dob: Time
+  phone: String
+  state: String
+}
+
+extend type Query {
+  # Patient queries
+  patient(id: ID!): Patient
+  patients(query: String, limit: Int, offset: Int): [Patient!]!
+}

@@ -1,0 +1,27 @@
+# Root GraphQL Schema for RxIntake Application
+# This schema defines the root types and common scalars
+# Domain-specific types are defined in domain/*/graphql/schema.graphql
+
+# ============================================================================
+# Common Scalars
+# ============================================================================
+
+scalar Time
+
+# ============================================================================
+# Root Query Type
+# ============================================================================
+# Domains extend this with their own queries using "extend type Query"
+
+type Query {
+  _empty: String
+}
+
+# ============================================================================
+# Root Mutation Type
+# ============================================================================
+# Domains extend this with their own mutations using "extend type Mutation"
+
+type Mutation {
+  _empty: String
+}
