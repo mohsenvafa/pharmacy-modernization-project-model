@@ -11,8 +11,6 @@ import (
 
 // CreateMongoDBConnection creates a MongoDB connection manager based on configuration
 func CreateMongoDBConnection(cfg *config.Config, logger *zap.Logger) (*database.ConnectionManager, error) {
-
-	return nil, nil
 	// Validate configuration
 	if cfg.Database.MongoDB.URI == "" {
 		logger.Warn("MongoDB URI not configured, skipping MongoDB connection")
@@ -28,7 +26,9 @@ func CreateMongoDBConnection(cfg *config.Config, logger *zap.Logger) (*database.
 		URI:      cfg.Database.MongoDB.URI,
 		Database: cfg.Database.MongoDB.Database,
 		Collections: map[string]string{
-			"patients": cfg.Database.MongoDB.Collections.Patients,
+			"patients":      cfg.Database.MongoDB.Collections.Patients,
+			"addresses":     cfg.Database.MongoDB.Collections.Addresses,
+			"prescriptions": cfg.Database.MongoDB.Collections.Prescriptions,
 		},
 		Connection: database.ConnectionConfig{
 			MaxPoolSize:    cfg.Database.MongoDB.Connection.MaxPoolSize,
@@ -64,4 +64,20 @@ func GetPatientsCollection(mongoConnMgr *database.ConnectionManager) *mongo.Coll
 		return nil
 	}
 	return mongoConnMgr.GetCollection("patients")
+}
+
+// GetAddressesCollection returns the addresses collection from MongoDB connection manager
+func GetAddressesCollection(mongoConnMgr *database.ConnectionManager) *mongo.Collection {
+	if mongoConnMgr == nil {
+		return nil
+	}
+	return mongoConnMgr.GetCollection("addresses")
+}
+
+// GetPrescriptionsCollection returns the prescriptions collection from MongoDB connection manager
+func GetPrescriptionsCollection(mongoConnMgr *database.ConnectionManager) *mongo.Collection {
+	if mongoConnMgr == nil {
+		return nil
+	}
+	return mongoConnMgr.GetCollection("prescriptions")
 }

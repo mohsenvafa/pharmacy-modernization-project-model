@@ -56,3 +56,7 @@ mongo-logs: ## Show MongoDB logs
 mongo-shell: ## Connect to MongoDB shell
 	docker exec -it rxintake_mongodb mongosh -u admin -p admin123 --authenticationDatabase admin
 
+mongo-seed: ## Seed MongoDB with sample data
+	@echo "🌱 Seeding MongoDB with sample patient data..."
+	@cd .. && go run ./cmd/seed
+

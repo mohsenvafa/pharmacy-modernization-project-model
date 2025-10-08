@@ -12,10 +12,10 @@ const (
 )
 
 type Prescription struct {
-	ID        string
-	PatientID string
-	Drug      string
-	Dose      string
-	Status    Status
-	CreatedAt time.Time
+	ID        string    `json:"id" bson:"_id"`
+	PatientID string    `json:"patient_id" bson:"patient_id"`
+	Drug      string    `json:"drug" bson:"drug"`
+	Dose      string    `json:"dose" bson:"dose"`
+	Status    Status    `json:"status" bson:"status"`
+	CreatedAt time.Time `json:"created_at" bson:"created_at"`
 }

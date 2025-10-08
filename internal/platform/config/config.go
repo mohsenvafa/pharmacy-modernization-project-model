@@ -36,7 +36,9 @@ type Config struct {
 			URI         string `mapstructure:"uri"`
 			Database    string `mapstructure:"database"`
 			Collections struct {
-				Patients string `mapstructure:"patients"`
+				Patients      string `mapstructure:"patients"`
+				Addresses     string `mapstructure:"addresses"`
+				Prescriptions string `mapstructure:"prescriptions"`
 			} `mapstructure:"collections"`
 			Connection struct {
 				MaxPoolSize    uint64 `mapstructure:"max_pool_size"`

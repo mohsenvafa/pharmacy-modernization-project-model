@@ -7,10 +7,12 @@ logging:
   format: console
 database:
   mongodb:
-    uri: "mongodb://localhost:27017"
+    uri: "mongodb://admin:admin123@localhost:27017"
     database: "rxintake"
     collections:
       patients: "patients"
+      addresses: "addresses"
+      prescriptions: "prescriptions"
     connection:
       max_pool_size: 100
       min_pool_size: 5

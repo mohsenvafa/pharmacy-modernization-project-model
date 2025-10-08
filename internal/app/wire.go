@@ -72,16 +72,18 @@ func (a *App) wire() error {
 
 	// Prescription Module
 	prescriptionMod := prescriptionModule.Module(r, &prescriptionModule.ModuleDependencies{
-		Logger:         logger.Base,
-		PharmacyClient: integration.Pharmacy,
-		BillingClient:  integration.Billing,
+		Logger:                       logger.Base,
+		PharmacyClient:               integration.Pharmacy,
+		BillingClient:                integration.Billing,
+		PrescriptionsMongoCollection: GetPrescriptionsCollection(mongoConnMgr),
 	})
 
 	// Patient Module
 	var patientModDeps = &patientModule.ModuleDependencies{
-		Logger:               logger.Base,
-		PrescriptionProvider: prescriptionMod.PrescriptionService,
-		MongoDBCollection:    GetPatientsCollection(mongoConnMgr),
+		Logger:                   logger.Base,
+		PrescriptionProvider:     prescriptionMod.PrescriptionService,
+		PatientsMongoCollection:  GetPatientsCollection(mongoConnMgr),
+		AddressesMongoCollection: GetAddressesCollection(mongoConnMgr),
 	}
 
 	patientMod := patientModule.Module(r, patientModDeps)

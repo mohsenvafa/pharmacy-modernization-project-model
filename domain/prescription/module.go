@@ -2,10 +2,11 @@ package prescription
 
 import (
 	"github.com/go-chi/chi/v5"
+	"go.mongodb.org/mongo-driver/mongo"
 	"go.uber.org/zap"
 
 	prescriptionapi "pharmacy-modernization-project-model/domain/prescription/api"
-	prescriptionrepo "pharmacy-modernization-project-model/domain/prescription/repository"
+	prescriptionbuilder "pharmacy-modernization-project-model/domain/prescription/builder"
 	prescriptionservice "pharmacy-modernization-project-model/domain/prescription/service"
 	uiprescription "pharmacy-modernization-project-model/domain/prescription/ui"
 	irisbilling "pharmacy-modernization-project-model/internal/integrations/iris_billing"
@@ -13,9 +14,10 @@ import (
 )
 
 type ModuleDependencies struct {
-	Logger         *zap.Logger
-	PharmacyClient irispharmacy.Client
-	BillingClient  irisbilling.Client
+	Logger                       *zap.Logger
+	PharmacyClient               irispharmacy.Client
+	BillingClient                irisbilling.Client
+	PrescriptionsMongoCollection *mongo.Collection
 }
 
 type ModuleExport struct {
@@ -23,7 +25,7 @@ type ModuleExport struct {
 }
 
 func Module(r chi.Router, deps *ModuleDependencies) ModuleExport {
-	repo := prescriptionrepo.NewPrescriptionMemoryRepository()
+	repo := prescriptionbuilder.CreatePrescriptionRepository(deps.Logger, deps.PrescriptionsMongoCollection)
 	pharmacyClient := deps.PharmacyClient
 	if pharmacyClient == nil {
 		pharmacyClient = irispharmacy.NewMockClient(map[string]irispharmacy.GetPrescriptionResponse{}, deps.Logger)

@@ -107,7 +107,7 @@ func (r *PatientMongoRepository) GetByID(ctx context.Context, id string) (m.Pati
 			zap.Duration("duration", time.Since(start)))
 	}()
 
-	filter := bson.M{"id": id}
+	filter := bson.M{"_id": id}
 
 	var patient m.Patient
 	err := r.collection.FindOne(ctx, filter).Decode(&patient)
@@ -182,7 +182,7 @@ func (r *PatientMongoRepository) Update(ctx context.Context, id string, p m.Pati
 			zap.Duration("duration", time.Since(start)))
 	}()
 
-	filter := bson.M{"id": id}
+	filter := bson.M{"_id": id}
 	update := bson.M{
 		"$set": bson.M{
 			"name":       p.Name,
@@ -287,9 +287,9 @@ func (r *PatientMongoRepository) CreateIndexes(ctx context.Context) error {
 				SetUnique(true),
 		},
 		{
-			Keys: bson.D{{Key: "id", Value: 1}},
+			Keys: bson.D{{Key: "_id", Value: 1}},
 			Options: options.Index().
-				SetName("id_1").
+				SetName("_id_1").
 				SetUnique(true),
 		},
 	}

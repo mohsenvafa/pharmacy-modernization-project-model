@@ -25,6 +25,7 @@ This will start:
 - Username: `admin`
 - Password: `admin123`
 - Connection String: `mongodb://admin:admin123@localhost:27017/`
+- Database: `rxintake`
 
 **Mongo Express UI:**
 - URL: http://localhost:8081
@@ -43,6 +44,7 @@ make -f docker/Makefile docker-clean   # Stop containers and remove all data
 make -f docker/Makefile mongo-ui       # Open MongoDB UI in browser
 make -f docker/Makefile mongo-logs     # Show MongoDB logs
 make -f docker/Makefile mongo-shell    # Connect to MongoDB shell
+make -f docker/Makefile mongo-seed     # Seed MongoDB with sample patient data
 ```
 
 ## Services
@@ -65,9 +67,27 @@ This setup can be extended to include:
 - Memcached
 - Other development dependencies
 
+## Seeding Data
+
+After starting MongoDB, seed it with sample patient data:
+
+```bash
+make -f docker/Makefile mongo-seed
+```
+
+This will populate the database with:
+- **15 patients** (P001-P015)
+- **13 addresses** (multiple patients have multiple addresses)
+- **27 prescriptions** (various statuses: Active, Paused, Completed, Draft)
+
+You can view the data in:
+- Your application at http://localhost:8080
+- Mongo Express UI at http://localhost:8081
+
 ## Notes
 
 - Data is persisted in Docker volumes, so it survives container restarts
 - Use `docker-clean` to completely reset all data (requires confirmation)
 - All services run on a dedicated network `rxintake_network`
+- The seed command will clear existing patients before inserting new ones
 

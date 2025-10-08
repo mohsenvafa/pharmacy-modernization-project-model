@@ -92,7 +92,7 @@ func (r *PrescriptionMongoRepository) GetByID(ctx context.Context, id string) (m
 			zap.Duration("duration", time.Since(start)))
 	}()
 
-	filter := bson.M{"id": id}
+	filter := bson.M{"_id": id}
 
 	var prescription m.Prescription
 	err := r.collection.FindOne(ctx, filter).Decode(&prescription)
@@ -142,7 +142,7 @@ func (r *PrescriptionMongoRepository) Update(ctx context.Context, id string, p m
 			zap.Duration("duration", time.Since(start)))
 	}()
 
-	filter := bson.M{"id": id}
+	filter := bson.M{"_id": id}
 	update := bson.M{
 		"$set": bson.M{
 			"patient_id": p.PatientID,
@@ -270,9 +270,9 @@ func (r *PrescriptionMongoRepository) CreateIndexes(ctx context.Context) error {
 				SetBackground(true),
 		},
 		{
-			Keys: bson.D{{Key: "id", Value: 1}},
+			Keys: bson.D{{Key: "_id", Value: 1}},
 			Options: options.Index().
-				SetName("id_1").
+				SetName("_id_1").
 				SetUnique(true).
 				SetBackground(true),
 		},

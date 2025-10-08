@@ -16,3 +16,13 @@ func CreatePatientRepository(logger *zap.Logger, mongoCollection *mongo.Collecti
 
 	return patientrepo.NewPatientMemoryRepository()
 }
+
+// CreateAddressRepository creates the appropriate address repository based on dependencies
+func CreateAddressRepository(logger *zap.Logger, mongoCollection *mongo.Collection) patientrepo.AddressRepository {
+	// Use MongoDB repository if collection is provided, otherwise fallback to memory
+	if mongoCollection != nil {
+		return patientrepo.NewAddressMongoRepository(mongoCollection, logger)
+	}
+
+	return patientrepo.NewAddressMemoryRepository()
+}
