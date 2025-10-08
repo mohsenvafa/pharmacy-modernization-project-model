@@ -402,7 +402,13 @@ All documentation is in the `docs/` folder:
    - Local testing without JWT tokens
    - Permission testing scenarios
 
-5. **[SECURITY_BUILDER.md](./docs/SECURITY_BUILDER.md)** ⭐ NEW
+5. **[SECURITY_MOCK_USERS.md](./docs/SECURITY_MOCK_USERS.md)** ⭐ NEW
+   - Mock user reference guide
+   - How to check user permissions
+   - Permission comparison table
+   - Testing scenarios by user role
+
+6. **[SECURITY_BUILDER.md](./docs/SECURITY_BUILDER.md)** ⭐ NEW
    - Builder pattern documentation
    - Clean initialization API
    - Configuration examples
