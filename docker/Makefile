@@ -22,6 +22,13 @@ docker-up: ## Start all Docker containers
 	@echo "🌐 Mongo Express UI is available at: http://localhost:8081"
 	@echo "   Username: admin"
 	@echo "   Password: admin123"
+	@echo ""
+	@echo "🔴 Redis is available at: localhost:6379"
+	@echo "   Password: redis123"
+	@echo ""
+	@echo "🌐 Redis Commander UI is available at: http://localhost:8082"
+	@echo "   Username: admin"
+	@echo "   Password: admin123"
 
 docker-down: ## Stop all Docker containers
 	@echo "Stopping Docker containers..."
@@ -59,4 +66,11 @@ mongo-shell: ## Connect to MongoDB shell
 mongo-seed: ## Seed MongoDB with sample data
 	@echo "🌱 Seeding MongoDB with sample patient data..."
 	@cd .. && go run ./cmd/seed
+
+redis-cli: ## Connect to Redis CLI
+	docker exec -it rxintake_redis redis-cli -a redis123
+
+redis-ui: ## Open Redis Commander UI in browser
+	@echo "Opening Redis Commander UI..."
+	@open http://localhost:8082 || xdg-open http://localhost:8082 || echo "Please open http://localhost:8082 in your browser"
 

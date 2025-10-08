@@ -18,6 +18,8 @@ make -f docker/Makefile docker-up
 This will start:
 - **MongoDB** on `localhost:27017`
 - **Mongo Express UI** on `http://localhost:8081`
+- **Redis** on `localhost:6379`
+- **Redis Commander UI** on `http://localhost:8082`
 
 ### Default Credentials
 
@@ -29,6 +31,17 @@ This will start:
 
 **Mongo Express UI:**
 - URL: http://localhost:8081
+- Username: `admin`
+- Password: `admin123`
+
+**Redis:**
+- Host: `localhost`
+- Port: `6379`
+- Password: `redis123`
+- Connection String: `redis://:redis123@localhost:6379`
+
+**Redis Commander UI:**
+- URL: http://localhost:8082
 - Username: `admin`
 - Password: `admin123`
 
@@ -45,6 +58,8 @@ make -f docker/Makefile mongo-ui       # Open MongoDB UI in browser
 make -f docker/Makefile mongo-logs     # Show MongoDB logs
 make -f docker/Makefile mongo-shell    # Connect to MongoDB shell
 make -f docker/Makefile mongo-seed     # Seed MongoDB with sample patient data
+make -f docker/Makefile redis-cli      # Connect to Redis CLI
+make -f docker/Makefile redis-ui       # Open Redis Commander UI in browser
 ```
 
 ## Services
@@ -59,12 +74,24 @@ make -f docker/Makefile mongo-seed     # Seed MongoDB with sample patient data
 - **Purpose:** Web-based MongoDB admin interface
 - **Features:** Browse databases, collections, execute queries
 
+### Redis
+- **Port:** 6379
+- **Version:** 7 (Alpine)
+- **Data:** Persisted in Docker volume `redis_data`
+- **Authentication:** Password protected
+
+### Redis Commander
+- **Port:** 8082
+- **Purpose:** Web-based Redis admin interface
+- **Features:** Browse keys, execute commands, view data structures
+
 ## Future Services
 
 This setup can be extended to include:
-- Kafka
-- Redis
+- Kafka (with Kafka UI)
 - Memcached
+- PostgreSQL
+- RabbitMQ
 - Other development dependencies
 
 ## Seeding Data

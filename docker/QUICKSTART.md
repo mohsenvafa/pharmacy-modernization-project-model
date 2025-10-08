@@ -19,6 +19,13 @@ You'll see:
 🌐 Mongo Express UI is available at: http://localhost:8081
    Username: admin
    Password: admin123
+
+🔴 Redis is available at: localhost:6379
+   Password: redis123
+
+🌐 Redis Commander UI is available at: http://localhost:8082
+   Username: admin
+   Password: admin123
 ```
 
 ### 2. Seed the Database
