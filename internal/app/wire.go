@@ -10,7 +10,6 @@ import (
 
 	"pharmacy-modernization-project-model/internal/integrations"
 	"pharmacy-modernization-project-model/internal/platform/auth"
-	"pharmacy-modernization-project-model/internal/platform/database"
 	"pharmacy-modernization-project-model/internal/platform/httpx"
 	"pharmacy-modernization-project-model/internal/platform/logging"
 	"pharmacy-modernization-project-model/internal/platform/paths"
@@ -44,15 +43,11 @@ func (a *App) wire() error {
 	// Shared HTTP client (for future external calls)
 	_ = httpx.NewClient(a.Cfg)
 
-	// MongoDB Connection Manager
-	mongoConnMgr := &database.ConnectionManager{}
-	mongoConnMgr = nil
-
-	/*mongoConnMgr, err := CreateMongoDBConnection(a.Cfg, logger.Base)
+	mongoConnMgr, err := CreateMongoDBConnection(a.Cfg, logger.Base)
 	if err != nil {
 		logger.Base.Error("Failed to create MongoDB connection", zap.Error(err))
 		// Continue without MongoDB - will use memory repository as fallback
-		}*/
+	}
 
 	// Router & middleware
 	r := chi.NewRouter()
@@ -66,11 +61,8 @@ func (a *App) wire() error {
 	// Static assets
 	r.Handle(paths.AssetsPath+"*", http.StripPrefix(paths.AssetsPath, http.FileServer(http.Dir("web/public"))))
 
-	// Dev mode info endpoint (only available when dev mode is enabled)
-	if auth.IsDevModeEnabled() {
-		r.Get("/__dev/auth", auth.DevAuthInfo)
-		logger.Base.Info("Dev mode endpoint registered", zap.String("path", "/__dev/auth"))
-	}
+	// Register dev mode endpoints (only when dev mode is enabled)
+	auth.RegisterDevEndpoints(r, logger.Base)
 
 	// Integrations
 	integration := integrations.New(integrations.Dependencies{

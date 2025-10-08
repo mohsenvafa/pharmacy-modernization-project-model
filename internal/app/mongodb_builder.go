@@ -52,7 +52,9 @@ func CreateMongoDBConnection(cfg *config.Config, logger *zap.Logger) (*database.
 
 	logger.Info("MongoDB connection established successfully",
 		zap.String("database", cfg.Database.MongoDB.Database))
-	return connMgr, nil
+	//return connMgr, nil
+	_ = connMgr
+	return nil, nil
 }
 
 // GetPatientsCollection returns the patients collection from MongoDB connection manager

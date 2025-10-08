@@ -114,7 +114,7 @@ func ListMockUsers() map[string]*User {
 }
 
 // DevAuthMiddleware bypasses real authentication in dev mode
-// Uses mock users based on X-Mock-User header or defaults to admin
+// Uses mock users based on X-Mock-User header, mock-user cookie, or defaults to admin
 func DevAuthMiddleware() func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -124,8 +124,15 @@ func DevAuthMiddleware() func(http.Handler) http.Handler {
 				return
 			}
 
-			// Check for mock user selection via header
+			// Check for mock user selection via header first, then cookie
 			mockUserKey := r.Header.Get("X-Mock-User")
+			if mockUserKey == "" {
+				// Try cookie as fallback
+				if cookie, err := r.Cookie("mock-user"); err == nil {
+					mockUserKey = cookie.Value
+				}
+			}
+
 			if mockUserKey == "" {
 				// Default to admin user
 				mockUserKey = "admin"
@@ -172,13 +179,52 @@ func DevAuthInfo(w http.ResponseWriter, r *http.Request) {
 		}(),
 		"usage": map[string]string{
 			"header":       "X-Mock-User: <key>",
+			"cookie":       "Set cookie 'mock-user' to <key>",
 			"default":      "admin",
 			"example_curl": "curl -H 'X-Mock-User: doctor' http://localhost:8080/patients",
+			"switch_user":  "/__dev/switch?user=<key>",
 		},
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(info)
+}
+
+// SetMockUserCookie sets a cookie to switch mock users (dev mode only)
+func SetMockUserCookie(w http.ResponseWriter, r *http.Request) {
+	if !devModeEnabled {
+		http.Error(w, "Dev mode not enabled", http.StatusForbidden)
+		return
+	}
+
+	userKey := r.URL.Query().Get("user")
+	if userKey == "" {
+		http.Error(w, "Missing 'user' parameter", http.StatusBadRequest)
+		return
+	}
+
+	// Validate user exists
+	if _, exists := mockUsers[userKey]; !exists {
+		http.Error(w, "Invalid mock user", http.StatusBadRequest)
+		return
+	}
+
+	// Set cookie
+	http.SetCookie(w, &http.Cookie{
+		Name:     "mock-user",
+		Value:    userKey,
+		Path:     "/",
+		MaxAge:   3600,  // 1 hour
+		HttpOnly: false, // Allow JavaScript access for easier testing
+		Secure:   false, // Allow on localhost
+	})
+
+	// Redirect back to home or return success
+	redirect := r.URL.Query().Get("redirect")
+	if redirect == "" {
+		redirect = "/"
+	}
+	http.Redirect(w, r, redirect, http.StatusSeeOther)
 }
 
 // RequireAuthWithDevMode is a wrapper that uses dev mode if enabled, otherwise real auth
