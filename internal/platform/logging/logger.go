@@ -8,8 +8,7 @@ import (
 )
 
 type LoggerBundle struct {
-	Base  *zap.Logger
-	Sugar *zap.SugaredLogger
+	Base *zap.Logger
 }
 
 func NewLogger(cfg *config.Config) *LoggerBundle {
@@ -23,5 +22,5 @@ func NewLogger(cfg *config.Config) *LoggerBundle {
 		conf.Level = zap.NewAtomicLevelAt(lvl)
 		l, _ = conf.Build()
 	}
-	return &LoggerBundle{Base: l, Sugar: l.Sugar()}
+	return &LoggerBundle{Base: l}
 }
