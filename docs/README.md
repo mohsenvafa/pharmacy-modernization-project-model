@@ -32,6 +32,7 @@ Overall application architecture and design patterns.
 
 **Key Documents:**
 - [Architecture Overview](./architecture/ARCHITECTURE.md) - System architecture and design principles
+- [Component Implementation Guide](./architecture/COMPONENT_IMPLEMENTATION_GUIDE.md) - How to implement UI components
 
 ### 🗄️ [MongoDB](./mongodb/)
 Database implementation and patterns.

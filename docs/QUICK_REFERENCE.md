@@ -7,6 +7,7 @@ Quick links to commonly used documentation.
 | Task | Document |
 |------|----------|
 | Understand system architecture | [Architecture Overview](./architecture/ARCHITECTURE.md) |
+| Implement UI components | [Component Implementation Guide](./architecture/COMPONENT_IMPLEMENTATION_GUIDE.md) |
 | Set up authentication | [Security Quick Start](./security/SECURITY_QUICK_START.md) |
 | Use dev mode for testing | [Dev Mode Guide](./security/SECURITY_DEV_MODE.md) |
 | Work with GraphQL | [GraphQL Implementation](./graphql/GRAPHQL_IMPLEMENTATION.md) |

@@ -5,6 +5,7 @@ System architecture and design patterns for the RxIntake application.
 ## 📚 Documentation Files
 
 - **[Architecture Overview](./ARCHITECTURE.md)** - Complete system architecture and design principles
+- **[Component Implementation Guide](./COMPONENT_IMPLEMENTATION_GUIDE.md)** - Step-by-step guide for implementing UI components
 
 ## 🏗️ System Architecture
 
