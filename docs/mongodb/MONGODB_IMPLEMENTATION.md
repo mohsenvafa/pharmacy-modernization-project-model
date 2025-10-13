@@ -83,7 +83,10 @@ brew install mongodb-community
 # Ubuntu/Debian
 sudo apt-get install mongodb
 
-# Docker
+# Podman (Recommended)
+podman run -d -p 27017:27017 --name mongodb mongo:latest
+
+# Docker (Alternative)
 docker run -d -p 27017:27017 --name mongodb mongo:latest
 ```
 

@@ -5,7 +5,7 @@
 ### 1. Start MongoDB Container
 
 ```bash
-make -f docker/Makefile docker-up
+make -f podman/Makefile podman-up
 ```
 
 You'll see:
@@ -34,7 +34,7 @@ You'll see:
 ### 2. Seed the Database
 
 ```bash
-make -f docker/Makefile mongo-seed
+make -f podman/Makefile mongo-seed
 ```
 
 This will populate MongoDB with:
@@ -60,7 +60,7 @@ Your app is now connected to MongoDB and has real data to work with!
 
 **Option 2: MongoDB Shell** (Advanced)
 ```bash
-make -f docker/Makefile mongo-shell
+make -f podman/Makefile mongo-shell
 ```
 
 Then query:
@@ -78,23 +78,23 @@ db.patients.find().pretty()
 
 **Stop MongoDB:**
 ```bash
-make -f docker/Makefile docker-down
+make -f podman/Makefile podman-down
 ```
 
 **Reset and Re-seed:**
 ```bash
-make -f docker/Makefile mongo-seed
+make -f podman/Makefile mongo-seed
 ```
 (This clears existing data and inserts fresh sample data)
 
 **View Logs:**
 ```bash
-make -f docker/Makefile mongo-logs
+make -f podman/Makefile mongo-logs
 ```
 
 **Complete Reset (Remove all data):**
 ```bash
-make -f docker/Makefile docker-clean
+make -f podman/Makefile podman-clean
 ```
 
 ## ✅ Connection String
@@ -108,8 +108,75 @@ This is already set in `internal/configs/app.yaml`.
 
 ## 💡 Tips
 
-- Data persists between container restarts (stored in Docker volumes)
+- Data persists between container restarts (stored in Podman volumes)
 - You can re-run `mongo-seed` anytime to reset to sample data
 - Use Mongo Express UI to browse and edit data visually
 - The sidebar in your app has a direct link to Mongo Express UI
 
+## 🐳 Podman vs Docker
+
+This setup works with both Podman and Docker. The Makefile automatically detects which one you have installed.
+
+**If you have Docker instead:**
+```bash
+# These commands work the same way with Docker
+make -f podman/Makefile podman-up    # Uses Docker if Podman not installed
+# OR use the legacy aliases
+make -f podman/Makefile docker-up
+```
+
+**Why Podman?**
+- Rootless containers (more secure)
+- No daemon required (lighter weight)
+- Compatible with Docker commands and compose files
+- Better integration with systemd
+
+## 📋 Prerequisites
+
+Make sure you have one of these installed:
+
+**Podman (Recommended):**
+```bash
+# macOS
+brew install podman podman-compose
+podman machine init
+podman machine start
+
+# Fedora/RHEL
+sudo dnf install podman podman-compose
+
+# Ubuntu/Debian
+sudo apt-get install podman
+pip install podman-compose
+```
+
+**Docker (Alternative):**
+```bash
+# Download from https://docker.com
+```
+
+## 🔧 Troubleshooting
+
+**Container won't start?**
+```bash
+# Check logs
+make -f podman/Makefile podman-logs
+```
+
+**Port already in use?**
+```bash
+# Check what's using port 27017
+sudo lsof -i :27017
+# Stop that service or change the port in compose.yml
+```
+
+**Permission errors?**
+```bash
+# On Podman, you might need to adjust SELinux context
+# This is automatically handled in the compose file
+```
+
+**Need to reset everything?**
+```bash
+make -f podman/Makefile podman-clean
+```
