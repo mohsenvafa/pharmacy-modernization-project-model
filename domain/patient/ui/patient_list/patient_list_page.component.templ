@@ -47,7 +47,7 @@ templ patientTableRows(pats []patientsmodel.Patient, detailPath func(string) str
 				<div class="flex items-center gap-4">
 					<div>
 						<div class="text-sm font-bold">
-							<a class="link link-hover" href={ detailPath(pat.ID) }>{ pat.Name }</a>
+							<a class="link link-hover" href={ templ.URL(detailPath(pat.ID)) }>{ pat.Name }</a>
 						</div>
 						<div class="text-xs opacity-50">{ pat.Phone }</div>
 					</div>
