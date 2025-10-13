@@ -3,42 +3,42 @@ package components
 import "fmt"
 
 type PaginationParams struct {
-    CurrentPage int
-    TotalPages  int
-    BasePath    string // Base path like "/patients"
-    Query       string // Query string without leading '?'
+	CurrentPage int
+	TotalPages  int
+	BasePath    string // Base path like "/patients"
+	Query       string // Query string without leading '?'
 }
 
 func (p PaginationParams) hasPrev() bool { return p.CurrentPage > 1 }
 func (p PaginationParams) hasNext() bool { return p.CurrentPage < p.TotalPages }
 
-func buildPageURL(base string, page int, query string) string {
-    if query == "" {
-        return fmt.Sprintf("%s?page=%d", base, page)
-    }
-    return fmt.Sprintf("%s?page=%d&%s", base, page, query)
+func buildPageURL(base string, page int, query string) templ.SafeURL {
+	if query == "" {
+		return templ.SafeURL(fmt.Sprintf("%s?page=%d", base, page))
+	}
+	return templ.SafeURL(fmt.Sprintf("%s?page=%d&%s", base, page, query))
 }
 
 templ Pagination(p PaginationParams) {
-    if p.TotalPages <= 1 {
-        return
-    }
-    <div class="flex items-center justify-between border-t border-base-300 bg-base-100 p-4">
-        <div class="text-sm opacity-70">
-            Page { p.CurrentPage } of { p.TotalPages }
-        </div>
-        <div class="join">
-            if p.hasPrev() {
-                <a class="btn btn-sm join-item" href={buildPageURL(p.BasePath, p.CurrentPage-1, p.Query)}>Previous</a>
-            } else {
-                <span class="btn btn-sm join-item btn-disabled">Previous</span>
-            }
-            <span class="btn btn-sm join-item btn-active">{ p.CurrentPage }</span>
-            if p.hasNext() {
-                <a class="btn btn-sm join-item" href={buildPageURL(p.BasePath, p.CurrentPage+1, p.Query)}>Next</a>
-            } else {
-                <span class="btn btn-sm join-item btn-disabled">Next</span>
-            }
-        </div>
-    </div>
+	if p.TotalPages <= 1 {
+		return
+	}
+	<div class="flex items-center justify-between border-t border-base-300 bg-base-100 p-4">
+		<div class="text-sm opacity-70">
+			Page { p.CurrentPage } of { p.TotalPages }
+		</div>
+		<div class="join">
+			if p.hasPrev() {
+				<a class="btn btn-sm join-item" href={ buildPageURL(p.BasePath, p.CurrentPage-1, p.Query) }>Previous</a>
+			} else {
+				<span class="btn btn-sm join-item btn-disabled">Previous</span>
+			}
+			<span class="btn btn-sm join-item btn-active">{ p.CurrentPage }</span>
+			if p.hasNext() {
+				<a class="btn btn-sm join-item" href={ buildPageURL(p.BasePath, p.CurrentPage+1, p.Query) }>Next</a>
+			} else {
+				<span class="btn btn-sm join-item btn-disabled">Next</span>
+			}
+		</div>
+	</div>
 }
