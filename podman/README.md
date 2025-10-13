@@ -29,7 +29,7 @@ pip install podman-compose
 
 ## Quick Start
 
-### Start MongoDB with UI
+### Start MongoDB
 
 ```bash
 make -f podman/Makefile podman-up
@@ -37,57 +37,27 @@ make -f podman/Makefile podman-up
 
 This will start:
 - **MongoDB** on `localhost:27017`
-- **Mongo Express UI** on `http://localhost:8081`
-- **Redis** on `localhost:6379`
-- **Redis Commander UI** on `http://localhost:8082`
-- **Memcached** on `localhost:11211`
 
 ### Default Credentials
 
 **MongoDB:**
 - Username: `admin`
 - Password: `admin123`
-- Connection String: `mongodb://admin:admin123@localhost:27017/`
 - Database: `rxintake`
-
-**Mongo Express UI:**
-- URL: http://localhost:8081
-- Username: `admin`
-- Password: `admin123`
-
-**Redis:**
-- Host: `localhost`
-- Port: `6379`
-- Password: `redis123`
-- Connection String: `redis://:redis123@localhost:6379`
-
-**Redis Commander UI:**
-- URL: http://localhost:8082
-- Username: `admin`
-- Password: `admin123`
-
-**Memcached:**
-- Host: `localhost`
-- Port: `11211`
-- Connection String: `localhost:11211`
-- No authentication required
+- Connection String: `mongodb://admin:admin123@localhost:27017/rxintake`
 
 ## Available Commands
 
 ```bash
-make -f podman/Makefile help              # Show all available commands
-make -f podman/Makefile podman-up         # Start all containers
-make -f podman/Makefile podman-down       # Stop all containers
-make -f podman/Makefile podman-restart    # Restart all containers
-make -f podman/Makefile podman-logs       # View logs from all containers
-make -f podman/Makefile podman-clean      # Stop containers and remove all data
-make -f podman/Makefile mongo-ui          # Open MongoDB UI in browser
-make -f podman/Makefile mongo-logs        # Show MongoDB logs
-make -f podman/Makefile mongo-shell       # Connect to MongoDB shell
-make -f podman/Makefile mongo-seed        # Seed MongoDB with sample patient data
-make -f podman/Makefile redis-cli         # Connect to Redis CLI
-make -f podman/Makefile redis-ui          # Open Redis Commander UI in browser
-make -f podman/Makefile memcached-stats   # Show Memcached statistics
+make -f podman/Makefile help           # Show all available commands
+make -f podman/Makefile podman-up      # Start MongoDB container
+make -f podman/Makefile podman-down    # Stop MongoDB container
+make -f podman/Makefile podman-restart # Restart MongoDB container
+make -f podman/Makefile podman-logs    # View MongoDB logs
+make -f podman/Makefile podman-clean   # Stop container and remove all data
+make -f podman/Makefile mongo-logs     # Show MongoDB logs
+make -f podman/Makefile mongo-shell    # Connect to MongoDB shell
+make -f podman/Makefile mongo-seed     # Seed MongoDB with sample patient data
 ```
 
 ### Legacy Docker Commands
@@ -95,8 +65,8 @@ make -f podman/Makefile memcached-stats   # Show Memcached statistics
 For backwards compatibility, Docker command aliases are available:
 
 ```bash
-make -f podman/Makefile docker-up         # Alias for podman-up
-make -f podman/Makefile docker-down       # Alias for podman-down
+make -f podman/Makefile docker-up      # Alias for podman-up
+make -f podman/Makefile docker-down    # Alias for podman-down
 # ... (all docker-* commands map to podman-* commands)
 ```
 
@@ -104,39 +74,10 @@ make -f podman/Makefile docker-down       # Alias for podman-down
 
 ### MongoDB
 - **Port:** 27017
-- **Version:** 7.0
+- **Version:** 6.0
+- **Container Name:** mongodb
 - **Data:** Persisted in Podman volume `mongodb_data`
-
-### Mongo Express
-- **Port:** 8081
-- **Purpose:** Web-based MongoDB admin interface
-- **Features:** Browse databases, collections, execute queries
-
-### Redis
-- **Port:** 6379
-- **Version:** 7 (Alpine)
-- **Data:** Persisted in Podman volume `redis_data`
-- **Authentication:** Password protected
-
-### Redis Commander
-- **Port:** 8082
-- **Purpose:** Web-based Redis admin interface
-- **Features:** Browse keys, execute commands, view data structures
-
-### Memcached
-- **Port:** 11211
-- **Version:** 1.6 (Alpine)
-- **Memory:** 64MB (configurable)
-- **Authentication:** None (default Memcached behavior)
-
-## Future Services
-
-This setup can be extended to include:
-- Kafka (with Kafka UI)
-- PostgreSQL
-- RabbitMQ
-- Elasticsearch
-- Other development dependencies
+- **Healthcheck:** Automatic ping check every 10 seconds
 
 ## Seeding Data
 
@@ -151,9 +92,7 @@ This will populate the database with:
 - **13 addresses** (multiple patients have multiple addresses)
 - **27 prescriptions** (various statuses: Active, Paused, Completed, Draft)
 
-You can view the data in:
-- Your application at http://localhost:8080
-- Mongo Express UI at http://localhost:8081
+You can view the data in your application at http://localhost:8080
 
 ## Podman vs Docker
 
@@ -214,7 +153,7 @@ podman machine stop
 ## Troubleshooting
 
 ### Port Conflicts
-If ports are already in use:
+If port 27017 is already in use:
 ```bash
 # Check what's using the port
 sudo lsof -i :27017
@@ -236,9 +175,24 @@ podman volume rm mongodb_data
 ```
 
 ### Container Not Starting
-Check logs for specific container:
+Check logs for the container:
 ```bash
-podman logs rxintake_mongodb
+podman logs mongodb
+# Or use the Makefile command
+make -f podman/Makefile mongo-logs
+```
+
+### MongoDB Shell Connection Issues
+If mongo-shell fails:
+```bash
+# Verify container is running
+podman ps
+
+# Check if mongosh is available in the container
+podman exec -it mongodb which mongosh
+
+# Try connecting manually
+podman exec -it mongodb bash
 ```
 
 ### Reset Everything
@@ -249,3 +203,35 @@ make -f podman/Makefile podman-clean
 # Remove all volumes manually
 podman volume prune
 ```
+
+## Configuration
+
+The MongoDB instance is configured with:
+- Authentication enabled (username/password required)
+- Data persistence through volumes
+- Default database: `rxintake`
+- Exposed on localhost:27017
+
+To modify the configuration, edit `compose.yml` and update:
+- Port mappings
+- Environment variables
+- Volume mounts
+- Network settings
+
+## Connection in Your Application
+
+Your application should use this connection string:
+```
+mongodb://admin:admin123@localhost:27017/rxintake
+```
+
+This is already configured in `internal/configs/app.yaml`.
+
+## Future Services
+
+This setup can be extended to include additional services if needed:
+- Redis (caching)
+- PostgreSQL (relational database)
+- Elasticsearch (search)
+- RabbitMQ (message queue)
+- Kafka (event streaming)
