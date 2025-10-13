@@ -34,7 +34,8 @@ dev-watch:
 		-proxyport=7332 \
 		-proxy="http://localhost:8080" \
 		-cmd="go run ./cmd/server" \
-		-open-browser=false
+		-open-browser=false \
+		-sourceMapVisualisations=false
 
 # Convenience target to run all watchers together.
 dev:

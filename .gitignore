@@ -20,6 +20,7 @@ node_modules/
 
 # Generated templ files
 *_templ.go
+*_templ.txt
 
 # TypeScript compiled output
 web/components/**/*.js
