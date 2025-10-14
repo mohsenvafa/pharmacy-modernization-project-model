@@ -1,4 +1,4 @@
-# RxIntake Quick Reference
+# Pharmacy Modernization Quick Reference
 
 Quick links to commonly used documentation.
 

@@ -1,4 +1,4 @@
-# rxintake (Patient & Prescription Management - scaffold)
+# PharmacyModernization (Patient & Prescription Management - Scaffold)
 
 ## Dev
 - **Install**: Go 1.24, `templ`, Node.js 18+, `npm`

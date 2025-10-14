@@ -1,4 +1,4 @@
-# gqlgen configuration for rxintake_scaffold
+# gqlgen configuration for PharmacyModernization
 
 # Schema locations - glob patterns supported
 schema:

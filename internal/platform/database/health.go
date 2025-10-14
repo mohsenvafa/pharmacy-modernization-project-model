@@ -168,7 +168,7 @@ func (hc *HealthChecker) collectionAccessCheck(ctx context.Context) (map[string]
 	defer cancel()
 
 	// List collections to verify access
-	collections, err := hc.client.Database("rxintake").ListCollectionNames(ctx, bson.M{})
+	collections, err := hc.client.Database("pharmacy_modernization").ListCollectionNames(ctx, bson.M{})
 	if err != nil {
 		return nil, err
 	}

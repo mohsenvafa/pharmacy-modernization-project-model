@@ -98,7 +98,7 @@ func Load() *Config {
 		cfg.App.Port = 8080
 	}
 	if cfg.App.Name == "" {
-		cfg.App.Name = "rxintake"
+		cfg.App.Name = "PharmacyModernization"
 	}
 	if cfg.App.Env == "" {
 		cfg.App.Env = "dev"
@@ -114,10 +114,10 @@ func Load() *Config {
 		cfg.Auth.JWT.Secret = "dev-secret-key-change-in-production"
 	}
 	if cfg.Auth.JWT.Issuer == "" {
-		cfg.Auth.JWT.Issuer = "rxintake"
+		cfg.Auth.JWT.Issuer = "PharmacyModernization"
 	}
 	if cfg.Auth.JWT.Audience == "" {
-		cfg.Auth.JWT.Audience = "rxintake"
+		cfg.Auth.JWT.Audience = "PharmacyModernization"
 	}
 	if cfg.Auth.JWT.Cookie.Name == "" {
 		cfg.Auth.JWT.Cookie.Name = "auth_token"

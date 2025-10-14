@@ -1,5 +1,5 @@
 app:
-  name: rxintake
+  name: PharmacyModernization
   env: dev
   port: 8080
 logging:
@@ -8,7 +8,7 @@ logging:
 database:
   mongodb:
     uri: "mongodb://admin:admin123@localhost:27017"
-    database: "rxintake"
+    database: "pharmacy_modernization"
     collections:
       patients: "patients"
       addresses: "addresses"
@@ -26,8 +26,8 @@ auth:
   dev_mode: true  # ONLY for local development - bypasses JWT with mock users
   jwt:
     secret: "dev-secret-key-change-in-production"
-    issuer: "rxintake"
-    audience: "rxintake"
+    issuer: "PharmacyModernization"
+    audience: "PharmacyModernization"
     cookie:
       name: "auth_token"
       secure: false  # Set to true in production (HTTPS only)

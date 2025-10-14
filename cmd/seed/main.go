@@ -47,7 +47,7 @@ func main() {
 
 	// MongoDB connection string
 	uri := "mongodb://admin:admin123@localhost:27017"
-	dbName := "rxintake"
+	dbName := "pharmacy_modernization"
 
 	// Connect to MongoDB
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -81,7 +81,7 @@ func main() {
 	seedPrescriptions(db)
 
 	fmt.Println("\n🎉 Seeding complete! You can view the data at:")
-	fmt.Println("   MongoDB: mongodb://admin:admin123@localhost:27017/rxintake")
+	fmt.Println("   MongoDB: mongodb://admin:admin123@localhost:27017/pharmacy_modernization")
 	fmt.Println("   Mongo Express: http://localhost:8081")
 }
 

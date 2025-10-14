@@ -21,8 +21,8 @@ podman-up: ## Start MongoDB container
 	@echo "📦 MongoDB is available at: localhost:27017"
 	@echo "   Username: admin"
 	@echo "   Password: admin123"
-	@echo "   Database: rxintake"
-	@echo "   Connection: mongodb://admin:admin123@localhost:27017/rxintake"
+	@echo "   Database: pharmacy_modernization"
+	@echo "   Connection: mongodb://admin:admin123@localhost:27017/pharmacy_modernization"
 
 podman-down: ## Stop MongoDB container
 	@echo "Stopping Podman containers..."

@@ -48,7 +48,7 @@ The MongoDB implementation provides:
 database:
   mongodb:
     uri: "mongodb://localhost:27017"
-    database: "rxintake"
+    database: "pharmacy_modernization"
     collections:
       patients: "patients"
     connection:
@@ -68,7 +68,7 @@ You can override configuration using environment variables:
 
 ```bash
 export RX_DATABASE_MONGODB_URI="mongodb://localhost:27017"
-export RX_DATABASE_MONGODB_DATABASE="rxintake"
+export PM_DATABASE_MONGODB_DATABASE="pharmacy_modernization"
 export RX_DATABASE_MONGODB_CONNECTION_MAX_POOL_SIZE=100
 ```
 

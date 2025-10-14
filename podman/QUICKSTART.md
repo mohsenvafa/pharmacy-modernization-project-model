@@ -15,8 +15,8 @@ You'll see:
 📦 MongoDB is available at: localhost:27017
    Username: admin
    Password: admin123
-   Database: rxintake
-   Connection: mongodb://admin:admin123@localhost:27017/rxintake
+   Database: pharmacy_modernization
+   Connection: mongodb://admin:admin123@localhost:27017/pharmacy_modernization
 ```
 
 ### 2. Seed the Database
@@ -47,7 +47,7 @@ make -f podman/Makefile mongo-shell
 
 Then query:
 ```javascript
-use rxintake
+use pharmacy_modernization
 db.patients.find().pretty()
 db.addresses.find().pretty()
 db.prescriptions.find().pretty()
@@ -60,7 +60,7 @@ db.prescriptions.find().pretty()
 
 **Option 3: MongoDB Compass** (GUI - Optional)
 - Download [MongoDB Compass](https://www.mongodb.com/products/compass)
-- Connect to: `mongodb://admin:admin123@localhost:27017/rxintake`
+- Connect to: `mongodb://admin:admin123@localhost:27017/pharmacy_modernization`
 - Browse collections visually
 
 ## 🛠️ Common Tasks
@@ -95,7 +95,7 @@ make -f podman/Makefile podman-restart
 
 Your app is configured to connect to:
 ```
-mongodb://admin:admin123@localhost:27017/rxintake
+mongodb://admin:admin123@localhost:27017/pharmacy_modernization
 ```
 
 This is already set in `internal/configs/app.yaml`.

@@ -1,4 +1,4 @@
-# Root GraphQL Schema for RxIntake Application
+# Root GraphQL Schema for Pharmacy Modernization Application
 # This schema defines the root types and common scalars
 # Domain-specific types are defined in domain/*/graphql/schema.graphql
 

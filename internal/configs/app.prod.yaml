@@ -1,5 +1,5 @@
 # Production Configuration
-# This file is merged with app.yaml when RX_APP_ENV=prod
+# This file is merged with app.yaml when PM_APP_ENV=prod
 # Use environment variables for sensitive values
 
 app:
@@ -13,9 +13,9 @@ logging:
 auth:
   dev_mode: false  # MUST be false in production
   jwt:
-    secret: "${RX_AUTH_JWT_SECRET}"  # REQUIRED: Set via environment variable
-    issuer: "${RX_AUTH_JWT_ISSUER}"
-    audience: "${RX_AUTH_JWT_AUDIENCE}"
+    secret: "${PM_AUTH_JWT_SECRET}"  # REQUIRED: Set via environment variable
+    issuer: "${PM_AUTH_JWT_ISSUER}"
+    audience: "${PM_AUTH_JWT_AUDIENCE}"
     cookie:
       name: "auth_token"
       secure: true  # HTTPS only
@@ -24,8 +24,8 @@ auth:
 
 database:
   mongodb:
-    uri: "${RX_MONGODB_URI}"
-    database: "rxintake_prod"
+    uri: "${PM_MONGODB_URI}"
+    database: "pharmacy_modernization_prod"
     collections:
       patients: "patients"
     connection:
@@ -40,13 +40,13 @@ database:
 
 external:
   pharmacy:
-    base_url: "${RX_PHARMACY_BASE_URL}"
+    base_url: "${PM_PHARMACY_BASE_URL}"
     path: "api/pharmacy/prescriptions"
     use_mock: false
-    api_key: "${RX_PHARMACY_API_KEY}"
+    api_key: "${PM_PHARMACY_API_KEY}"
     timeout: "10s"
   billing:
-    base_url: "${RX_BILLING_BASE_URL}"
+    base_url: "${PM_BILLING_BASE_URL}"
     path: "api/billing/invoices"
     use_mock: false
     timeout: "10s"

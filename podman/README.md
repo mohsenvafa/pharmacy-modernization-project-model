@@ -43,8 +43,8 @@ This will start:
 **MongoDB:**
 - Username: `admin`
 - Password: `admin123`
-- Database: `rxintake`
-- Connection String: `mongodb://admin:admin123@localhost:27017/rxintake`
+- Database: `pharmacy_modernization`
+- Connection String: `mongodb://admin:admin123@localhost:27017/pharmacy_modernization`
 
 ## Available Commands
 
@@ -145,7 +145,7 @@ podman machine stop
 
 - Data is persisted in Podman volumes, so it survives container restarts
 - Use `podman-clean` to completely reset all data (requires confirmation)
-- All services run on a dedicated network `rxintake_network`
+- All services run on a dedicated network `pharmacy_modernization_network`
 - The seed command will clear existing patients before inserting new ones
 - Podman is more secure (rootless) and lightweight compared to Docker
 - Compatible with Docker compose files (no changes needed)
@@ -209,7 +209,7 @@ podman volume prune
 The MongoDB instance is configured with:
 - Authentication enabled (username/password required)
 - Data persistence through volumes
-- Default database: `rxintake`
+- Default database: `pharmacy_modernization`
 - Exposed on localhost:27017
 
 To modify the configuration, edit `compose.yml` and update:
@@ -222,7 +222,7 @@ To modify the configuration, edit `compose.yml` and update:
 
 Your application should use this connection string:
 ```
-mongodb://admin:admin123@localhost:27017/rxintake
+mongodb://admin:admin123@localhost:27017/pharmacy_modernization
 ```
 
 This is already configured in `internal/configs/app.yaml`.

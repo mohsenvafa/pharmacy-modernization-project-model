@@ -1,5 +1,5 @@
 /**
- * Main TypeScript entry point for rxintake_scaffold
+ * Main TypeScript entry point for PharmacyModernization
  * Registers all components and initializes the application
  */
 
@@ -24,7 +24,7 @@ export function registerAllComponents() {
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', () => {
-  console.log('Initializing rxintake_scaffold application')
+  console.log('Initializing PharmacyModernization application')
   
   // Register all components
   registerAllComponents()

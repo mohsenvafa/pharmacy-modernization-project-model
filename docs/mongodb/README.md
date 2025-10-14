@@ -16,7 +16,7 @@ Documentation for MongoDB implementation and data access patterns.
 
 ### Database Structure
 ```
-rxintake (database)
+pharmacy_modernization (database)
 ├── patients (collection)
 ├── prescriptions (collection)
 └── [other domain collections]
@@ -120,7 +120,7 @@ MongoDB is configured in `internal/configs/app.yaml`:
 database:
   mongodb:
     uri: "${RX_MONGODB_URI}"
-    database: "rxintake"
+    database: "pharmacy_modernization"
     timeout: 30
 ```
 
@@ -154,7 +154,7 @@ type Patient struct {
 ### Test Database
 Use a separate database for tests:
 ```go
-testDB := "rxintake_test"
+testDB := "pharmacy_modernization_test"
 ```
 
 ### Cleanup

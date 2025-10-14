@@ -1,5 +1,5 @@
 /**
- * Component Registry for rxintake_scaffold
+ * Component Registry for PharmacyModernization
  * Simple component registry for lazy loading and initialization
  */
 

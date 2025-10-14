@@ -194,7 +194,7 @@ templ Sidebar(ctx context.Context) {
 templ Header(ctx context.Context) {
     <header class="navbar bg-base-100">
         <div class="navbar-start">
-            <h1>RxIntake</h1>
+            <h1>Pharmacy Modernization</h1>
         </div>
         <div class="navbar-end">
             @usercomponents.UserInfoCompact(ctx)

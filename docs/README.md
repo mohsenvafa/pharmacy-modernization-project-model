@@ -1,6 +1,6 @@
-# RxIntake Documentation
+# Pharmacy Modernization Documentation
 
-This directory contains comprehensive documentation for the RxIntake application, organized by topic.
+This directory contains comprehensive documentation for the Pharmacy Modernization application, organized by topic.
 
 ## 📂 Documentation Structure
 

@@ -1,6 +1,6 @@
 # Architecture Documentation
 
-System architecture and design patterns for the RxIntake application.
+System architecture and design patterns for the Pharmacy Modernization application.
 
 ## 📚 Documentation Files
 
