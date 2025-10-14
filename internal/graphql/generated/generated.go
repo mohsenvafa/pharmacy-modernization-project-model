@@ -464,7 +464,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
-	{Name: "../schema.graphql", Input: `# Root GraphQL Schema for RxIntake Application
+	{Name: "../schema.graphql", Input: `# Root GraphQL Schema for Pharmacy Modernization Application
 # This schema defines the root types and common scalars
 # Domain-specific types are defined in domain/*/graphql/schema.graphql
 
@@ -514,8 +514,8 @@ type DashboardStats {
 
 extend type Query {
   # Dashboard queries - requires authentication and dashboard:view or admin permission
-  dashboardStats: DashboardStats! 
-    @auth 
+  dashboardStats: DashboardStats!
+    @auth
     @permissionAny(requires: ["dashboard:view", "admin:all"])
 }
 `, BuiltIn: false},
@@ -529,7 +529,16 @@ type Patient {
   state: String!
   createdAt: Time!
   addresses: [Address!]!
-  prescriptions: [Prescription!]! @auth @permissionAny(requires: ["prescription:read", "doctor:role", "pharmacist:role", "admin:all"])
+  prescriptions: [Prescription!]!
+    @auth
+    @permissionAny(
+      requires: [
+        "prescription:read"
+        "doctor:role"
+        "pharmacist:role"
+        "admin:all"
+      ]
+    )
 }
 
 type Address {
@@ -558,12 +567,12 @@ input UpdatePatientInput {
 
 extend type Query {
   # Patient queries - requires authentication and patient:read or admin:all permission
-  patient(id: ID!): Patient 
-    @auth 
+  patient(id: ID!): Patient
+    @auth
     @permissionAny(requires: ["patient:read", "admin:all"])
-  
-  patients(query: String, limit: Int, offset: Int): [Patient!]! 
-    @auth 
+
+  patients(query: String, limit: Int, offset: Int): [Patient!]!
+    @auth
     @permissionAny(requires: ["patient:read", "admin:all"])
 }
 `, BuiltIn: false},
@@ -601,13 +610,29 @@ input UpdatePrescriptionInput {
 
 extend type Query {
   # Prescription queries - requires authentication and prescription:read or healthcare role or admin
-  prescription(id: ID!): Prescription 
-    @auth 
-    @permissionAny(requires: ["prescription:read", "doctor:role", "pharmacist:role", "nurse:role", "admin:all"])
-  
-  prescriptions(status: String, limit: Int, offset: Int): [Prescription!]! 
-    @auth 
-    @permissionAny(requires: ["prescription:read", "doctor:role", "pharmacist:role", "nurse:role", "admin:all"])
+  prescription(id: ID!): Prescription
+    @auth
+    @permissionAny(
+      requires: [
+        "prescription:read"
+        "doctor:role"
+        "pharmacist:role"
+        "nurse:role"
+        "admin:all"
+      ]
+    )
+
+  prescriptions(status: String, limit: Int, offset: Int): [Prescription!]!
+    @auth
+    @permissionAny(
+      requires: [
+        "prescription:read"
+        "doctor:role"
+        "pharmacist:role"
+        "nurse:role"
+        "admin:all"
+      ]
+    )
 }
 `, BuiltIn: false},
 }

@@ -1,0 +1,64 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug Server",
+      "type": "go",
+      "request": "launch",
+      "mode": "auto",
+      "program": "${workspaceFolder}/cmd/server",
+      "env": {
+        "PM_APP_ENV": "dev"
+      },
+      "args": [],
+      "showLog": true,
+      "trace": "verbose"
+    },
+    {
+      "name": "Debug Server (with MongoDB)",
+      "type": "go",
+      "request": "launch",
+      "mode": "auto",
+      "program": "${workspaceFolder}/cmd/server",
+      "env": {
+        "PM_APP_ENV": "dev"
+      },
+      "preLaunchTask": "start-mongodb",
+      "args": [],
+      "showLog": true
+    },
+    {
+      "name": "Debug Seed Script",
+      "type": "go",
+      "request": "launch",
+      "mode": "auto",
+      "program": "${workspaceFolder}/cmd/seed",
+      "args": [],
+      "showLog": true
+    },
+    {
+      "name": "Debug Mock IRIS",
+      "type": "go",
+      "request": "launch",
+      "mode": "auto",
+      "program": "${workspaceFolder}/cmd/iris_mock",
+      "args": [],
+      "showLog": true
+    },
+    {
+      "name": "Attach to Running Process",
+      "type": "go",
+      "request": "attach",
+      "mode": "local",
+      "processId": "${command:pickProcess}"
+    },
+    {
+      "name": "Attach to Running Go Process",
+      "type": "go",
+      "request": "attach",
+      "mode": "local",
+      "processId": "${command:pickGoProcess}"
+    }
+  ]
+}
+

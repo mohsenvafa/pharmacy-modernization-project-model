@@ -1,0 +1,73 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "start-mongodb",
+      "type": "shell",
+      "command": "make -f podman/Makefile podman-up",
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "stop-mongodb",
+      "type": "shell",
+      "command": "make -f podman/Makefile podman-down",
+      "problemMatcher": []
+    },
+    {
+      "label": "seed-database",
+      "type": "shell",
+      "command": "make -f podman/Makefile mongo-seed",
+      "problemMatcher": [],
+      "dependsOn": ["start-mongodb"],
+      "dependsOrder": "sequence"
+    },
+    {
+      "label": "generate-templ",
+      "type": "shell",
+      "command": "templ generate",
+      "problemMatcher": [],
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      }
+    },
+    {
+      "label": "generate-graphql",
+      "type": "shell",
+      "command": "make graphql-generate",
+      "problemMatcher": [],
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      }
+    },
+    {
+      "label": "generate-all",
+      "dependsOn": ["generate-templ", "generate-graphql"],
+      "dependsOrder": "parallel",
+      "problemMatcher": [],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "dev-setup",
+      "dependsOn": ["start-mongodb", "seed-database"],
+      "dependsOrder": "sequence",
+      "problemMatcher": []
+    },
+    {
+      "label": "clean-all",
+      "type": "shell",
+      "command": "make -f podman/Makefile podman-clean",
+      "problemMatcher": []
+    }
+  ]
+}
+

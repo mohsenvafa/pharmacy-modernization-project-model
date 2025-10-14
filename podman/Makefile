@@ -1,7 +1,10 @@
 .PHONY: help podman-up podman-down podman-restart podman-logs podman-clean mongo-shell mongo-seed mongo-logs
 
-# Compose file location
-COMPOSE_FILE := compose.yml
+# Get the directory where this Makefile is located
+MAKEFILE_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
+
+# Compose file location (relative to Makefile location)
+COMPOSE_FILE := $(MAKEFILE_DIR)compose.yml
 
 # Detect if podman-compose is available, otherwise use docker compose
 COMPOSE_CMD := $(shell which podman-compose >/dev/null 2>&1 && echo "podman-compose" || echo "docker compose")
@@ -55,7 +58,7 @@ mongo-shell: ## Connect to MongoDB shell
 
 mongo-seed: ## Seed MongoDB with sample data
 	@echo "🌱 Seeding MongoDB with sample patient data..."
-	@cd .. && go run ./cmd/seed
+	@cd $(MAKEFILE_DIR).. && go run ./cmd/seed
 
 # Legacy Docker aliases (for backwards compatibility)
 docker-up: podman-up ## Alias for podman-up (backwards compatibility)
