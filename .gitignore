@@ -18,6 +18,10 @@ dist/
 vendor/
 node_modules/
 
+# Log files
+logs/
+*.log
+
 # Generated templ files
 *_templ.go
 *_templ.txt

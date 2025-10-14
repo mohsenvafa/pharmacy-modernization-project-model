@@ -3,8 +3,14 @@ app:
   env: dev
   port: 8080
 logging:
+  enabled: true  # Set to false to disable logging entirely
   level: debug
-  format: console
+  format: console  # "console" or "json"
+  output: file  # "console", "file", or "both"
+  file_path: "logs/app.log"  # Path to log file (only used when output is "file" or "both")
+  file_max_size: 100  # Max size in MB before rotation
+  file_max_backups: 3  # Max number of old log files to keep
+  file_max_age: 28  # Max days to retain old log files
 database:
   mongodb:
     uri: "mongodb://admin:admin123@localhost:27017"

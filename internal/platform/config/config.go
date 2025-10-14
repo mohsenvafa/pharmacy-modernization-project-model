@@ -14,8 +14,14 @@ type Config struct {
 		Port int    `mapstructure:"port"`
 	} `mapstructure:"app"`
 	Logging struct {
-		Level  string `mapstructure:"level"`
-		Format string `mapstructure:"format"`
+		Enabled        bool   `mapstructure:"enabled"`
+		Level          string `mapstructure:"level"`
+		Format         string `mapstructure:"format"`
+		Output         string `mapstructure:"output"`           // "console", "file", or "both"
+		FilePath       string `mapstructure:"file_path"`        // Path to log file
+		FileMaxSize    int    `mapstructure:"file_max_size"`    // Max size in MB before rotation
+		FileMaxBackups int    `mapstructure:"file_max_backups"` // Max number of old log files
+		FileMaxAge     int    `mapstructure:"file_max_age"`     // Max days to retain old log files
 	} `mapstructure:"logging"`
 	Auth struct {
 		DevMode bool `mapstructure:"dev_mode"`
@@ -108,6 +114,25 @@ func Load() *Config {
 	}
 	if cfg.Logging.Format == "" {
 		cfg.Logging.Format = "console"
+	}
+	if cfg.Logging.Output == "" {
+		cfg.Logging.Output = "console"
+	}
+	if cfg.Logging.FilePath == "" {
+		cfg.Logging.FilePath = "logs/app.log"
+	}
+	if cfg.Logging.FileMaxSize == 0 {
+		cfg.Logging.FileMaxSize = 100 // 100MB default
+	}
+	if cfg.Logging.FileMaxBackups == 0 {
+		cfg.Logging.FileMaxBackups = 3
+	}
+	if cfg.Logging.FileMaxAge == 0 {
+		cfg.Logging.FileMaxAge = 28 // 28 days default
+	}
+	// Logging enabled by default if not specified
+	if !v.IsSet("logging.enabled") {
+		cfg.Logging.Enabled = true
 	}
 	// Auth defaults
 	if cfg.Auth.JWT.Secret == "" {

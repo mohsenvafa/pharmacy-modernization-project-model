@@ -12,7 +12,10 @@
       },
       "args": [],
       "showLog": true,
-      "trace": "verbose"
+      "trace": "verbose",
+      "buildFlags": "-gcflags='all=-N -l'",
+      "cwd": "${workspaceFolder}",
+      "dlvFlags": ["--check-go-version=false"]
     },
     {
       "name": "Debug Server (with MongoDB)",
@@ -25,7 +28,10 @@
       },
       "preLaunchTask": "start-mongodb",
       "args": [],
-      "showLog": true
+      "showLog": true,
+      "buildFlags": "-gcflags='all=-N -l'",
+      "cwd": "${workspaceFolder}",
+      "dlvFlags": ["--check-go-version=false"]
     },
     {
       "name": "Debug Seed Script",
@@ -34,6 +40,7 @@
       "mode": "auto",
       "program": "${workspaceFolder}/cmd/seed",
       "args": [],
+      "cwd": "${workspaceFolder}",
       "showLog": true
     },
     {
@@ -43,21 +50,20 @@
       "mode": "auto",
       "program": "${workspaceFolder}/cmd/iris_mock",
       "args": [],
+      "cwd": "${workspaceFolder}",
       "showLog": true
     },
     {
-      "name": "Attach to Running Process",
+      "name": "Attach to Running Process With PID",
       "type": "go",
-      "request": "attach",
+      "request": "attach", 
       "mode": "local",
-      "processId": "${command:pickProcess}"
-    },
-    {
-      "name": "Attach to Running Go Process",
-      "type": "go",
-      "request": "attach",
-      "mode": "local",
-      "processId": "${command:pickGoProcess}"
+      "processId": 10270,
+      "showLog": true,
+      "trace": "verbose",
+      "cwd": "${workspaceFolder}",
+      "buildFlags": "-gcflags='all=-N -l'",
+      "dlvFlags": ["--check-go-version=false", "--accept-multiclient"]
     }
   ]
 }
