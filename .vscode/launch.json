@@ -52,18 +52,6 @@
       "args": [],
       "cwd": "${workspaceFolder}",
       "showLog": true
-    },
-    {
-      "name": "Attach to Running Process With PID",
-      "type": "go",
-      "request": "attach", 
-      "mode": "local",
-      "processId": 10270,
-      "showLog": true,
-      "trace": "verbose",
-      "cwd": "${workspaceFolder}",
-      "buildFlags": "-gcflags='all=-N -l'",
-      "dlvFlags": ["--check-go-version=false", "--accept-multiclient"]
     }
   ]
 }

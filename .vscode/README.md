@@ -58,79 +58,6 @@ Debug the mock external API server.
 - Testing external service integrations
 - Debugging mock responses
 
-### 5. Attach to Running Process
-Attach debugger to an already running process.
-
-**Use this when:**
-- You want to debug a running server
-- You started the server outside the debugger
-
-#### Understanding `${command:pickProcess}`
-
-This configuration uses a special **VS Code variable substitution** that opens an interactive process picker.
-
-**How it works:**
-1. Start the debug config (F5 → select "Attach to Running Process")
-2. VS Code shows a **searchable list** of all running processes
-3. You **select the process** you want to debug
-4. The debugger **attaches** to that process
-
-**Visual example of the picker:**
-```
-┌─────────────────────────────────────────────────┐
-│ Select the process to attach to:                │
-├─────────────────────────────────────────────────┤
-│ > server (PID: 12345) - ./cmd/server            │
-│   chrome (PID: 11223)                           │
-│   postgres (PID: 5432)                          │
-│   go (PID: 98765) - go run ./cmd/server         │
-│   node (PID: 45678)                             │
-└─────────────────────────────────────────────────┘
-```
-
-Type to filter the list (e.g., "server" to find your server).
-
-**Why use this?**
-- Server is already running with important state
-- Don't want to restart to debug
-- Multiple instances running - need to pick one
-- Long startup time
-- Debugging production-like environment
-
-### 6. Attach to Running Go Process
-Same as above, but uses `${command:pickGoProcess}` which shows **only Go processes**.
-
-**Comparison:**
-
-| Configuration | Shows | Best For |
-|--------------|-------|----------|
-| Attach to Running Process | All system processes | When you're not sure |
-| Attach to Running Go Process | Only Go processes | Finding your Go server quickly |
-
-**Find your process PID:**
-```bash
-# Find Go server process
-ps aux | grep "go run ./cmd/server"
-
-# Or check what's on port 8080
-lsof -i :8080
-
-# Output shows:
-# server    12345    mohsen
-```
-
-**Example workflow:**
-```bash
-# 1. Start server in terminal
-go run ./cmd/server
-# Server running on PID 12345
-
-# 2. In VS Code: Press F5
-# 3. Select "Attach to Running Go Process"
-# 4. Type "server" to filter
-# 5. Select your process
-# 6. Debugger attached! Set breakpoints and debug live! 🎉
-```
 
 ## 🎯 Setting Breakpoints
 
@@ -445,8 +372,6 @@ You can use these special variables in `launch.json` configurations:
 | `${fileDirname}` | Directory of current file | `"cwd": "${fileDirname}"` |
 | `${fileBasename}` | Name of current file | Used in test configs |
 | `${fileBasenameNoExtension}` | Filename without extension | Build output names |
-| `${command:pickProcess}` | Opens process picker (all) | Attach to any process |
-| `${command:pickGoProcess}` | Opens Go process picker | Attach to Go process |
 | `${env:VAR_NAME}` | Environment variable value | `"port": "${env:PORT}"` |
 
 **Example using variables:**
@@ -464,20 +389,6 @@ You can use these special variables in `launch.json` configurations:
 }
 ```
 
-**Alternative: Hardcoded Process ID**
-
-Instead of `${command:pickProcess}`, you can hardcode a PID:
-```json
-{
-  "name": "Attach to Process 12345",
-  "type": "go",
-  "request": "attach",
-  "mode": "local",
-  "processId": 12345  // ← Specific process ID
-}
-```
-
-⚠️ **Note:** PIDs change every restart, so `pickProcess` is more flexible.
 
 ### Remote Debugging
 If running on a remote server:
@@ -532,8 +443,8 @@ go install github.com/go-delve/delve/cmd/dlv@latest
 
 ### Breakpoints not working
 1. Make sure you compiled with debug info (debugger does this automatically)
-2. Check that you're debugging the right process
-3. Ensure breakpoint is on an executable line (not comments/empty lines)
+2. Ensure breakpoint is on an executable line (not comments/empty lines)
+3. Try restarting the debugger if breakpoints seem unresponsive
 
 ### Port already in use
 ```bash

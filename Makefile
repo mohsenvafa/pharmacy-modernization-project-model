@@ -45,15 +45,7 @@ dev:
 	TS_PID=$$!; \
 	trap 'kill $$TAILWIND_PID >/dev/null 2>&1 || true; kill $$TS_PID >/dev/null 2>&1 || true' EXIT INT TERM; \
 	echo "🚀 Starting development server..."; \
-	$(MAKE) dev-watch & \
-	DEV_PID=$$!; \
-	sleep 2; \
-	echo ""; \
-	echo "📋 Debug Information:"; \
-	echo "   VS Code Debug Configuration: Use process ID below"; \
-	echo "   Current Go server PID: $$(ps aux | grep 'go run.*cmd/server' | grep -v grep | awk '{print $$2}' | head -1)"; \
-	echo ""; \
-	wait $$DEV_PID
+	$(MAKE) dev-watch 
 
 mock-iris:
 	go run ./cmd/iris_mock
