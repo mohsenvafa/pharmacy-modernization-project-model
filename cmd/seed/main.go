@@ -98,7 +98,7 @@ func seedPatients(db *mongo.Database) {
 	patients := []Patient{
 		{
 			ID:        "P001",
-			Name:      "Ava Thompson",
+			Name:      "Ava Thompson2",
 			DOB:       time.Date(1988, time.January, 12, 0, 0, 0, 0, time.UTC),
 			Phone:     "(206) 417-8842",
 			State:     "Washington",
