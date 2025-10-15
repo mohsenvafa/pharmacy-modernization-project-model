@@ -1,0 +1,179 @@
+package patient_edit
+
+import (
+	"fmt"
+
+	patientsmodel "pharmacy-modernization-project-model/domain/patient/contracts/model"
+	commonComponents "pharmacy-modernization-project-model/web/components/elements"
+	layouts "pharmacy-modernization-project-model/web/components/layouts"
+)
+
+type PatientEditPageParam struct {
+	Patient    patientsmodel.Patient
+	FormData   EditFormData
+	BackPath   string
+	SubmitPath string
+}
+
+templ PatientEditPageComponentView(pageParam PatientEditPageParam) {
+	@layouts.BaseLayout(fmt.Sprintf("Edit %s • Patient", pageParam.Patient.Name), patientEdit(pageParam))
+}
+
+templ patientEdit(pageParam PatientEditPageParam) {
+	<div class="flex flex-col space-y-6" data-component="patient.patient-edit">
+		@commonComponents.PageHeader(fmt.Sprintf("Edit %s", pageParam.Patient.Name))
+		<div class="flex items-center gap-4 px-4">
+			<a class="btn btn-ghost" href={ templ.URL(pageParam.BackPath) }>
+				← Back to Patient Details
+			</a>
+		</div>
+		<!-- Success Message -->
+		if pageParam.FormData.Success {
+			<div class="alert alert-success mx-4">
+				<svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+				</svg>
+				<span>{ pageParam.FormData.SuccessMsg }</span>
+			</div>
+		}
+		<!-- General Error Message -->
+		if pageParam.FormData.Errors["general"] != "" {
+			<div class="alert alert-error mx-4">
+				<svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+				</svg>
+				<span>{ pageParam.FormData.Errors["general"] }</span>
+			</div>
+		}
+		<!-- Edit Form -->
+		<section class="card mx-4 bg-base-100 shadow">
+			<div class="card-body space-y-6">
+				<div>
+					<h2 class="card-title">Edit Patient Information</h2>
+					<p class="text-sm opacity-60">Update the patient's demographic information and contact details.</p>
+				</div>
+				<form method="POST" action={ templ.URL(pageParam.SubmitPath) } class="space-y-6">
+					<div class="grid gap-6 md:grid-cols-2">
+						<!-- Full Name Field -->
+						<div class="form-control">
+							<label class="label" for="name">
+								<span class="label-text font-semibold">Full Name</span>
+								<span class="label-text-alt text-error">*</span>
+							</label>
+							<input
+								type="text"
+								id="name"
+								name="name"
+								value={ pageParam.FormData.Name }
+								class="input input-bordered w-full"
+								placeholder="Enter full name"
+								required
+							/>
+							if pageParam.FormData.Errors["name"] != "" {
+								<label class="label">
+									<span class="label-text-alt text-error">{ pageParam.FormData.Errors["name"] }</span>
+								</label>
+							}
+						</div>
+						<!-- Phone Field -->
+						<div class="form-control">
+							<label class="label" for="phone">
+								<span class="label-text font-semibold">Phone Number</span>
+								<span class="label-text-alt text-error">*</span>
+							</label>
+							<input
+								type="tel"
+								id="phone"
+								name="phone"
+								value={ pageParam.FormData.Phone }
+								class="input input-bordered w-full"
+								placeholder="(555) 123-4567"
+								required
+							/>
+							if pageParam.FormData.Errors["phone"] != "" {
+								<label class="label">
+									<span class="label-text-alt text-error">{ pageParam.FormData.Errors["phone"] }</span>
+								</label>
+							}
+						</div>
+						<!-- Date of Birth Field -->
+						<div class="form-control">
+							<label class="label" for="dob">
+								<span class="label-text font-semibold">Date of Birth</span>
+								<span class="label-text-alt text-error">*</span>
+							</label>
+							<input
+								type="date"
+								id="dob"
+								name="dob"
+								value={ pageParam.FormData.DOB }
+								class="input input-bordered w-full"
+								required
+							/>
+							if pageParam.FormData.Errors["dob"] != "" {
+								<label class="label">
+									<span class="label-text-alt text-error">{ pageParam.FormData.Errors["dob"] }</span>
+								</label>
+							}
+						</div>
+						<!-- State Field -->
+						<div class="form-control">
+							<label class="label" for="state">
+								<span class="label-text font-semibold">State</span>
+								<span class="label-text-alt text-error">*</span>
+							</label>
+							<input
+								type="text"
+								id="state"
+								name="state"
+								value={ pageParam.FormData.State }
+								class="input input-bordered w-full"
+								placeholder="Enter state"
+								required
+							/>
+							if pageParam.FormData.Errors["state"] != "" {
+								<label class="label">
+									<span class="label-text-alt text-error">{ pageParam.FormData.Errors["state"] }</span>
+								</label>
+							}
+						</div>
+					</div>
+					<!-- Form Actions -->
+					<div class="flex gap-4 pt-4">
+						<button type="submit" class="btn btn-primary">
+							<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+							</svg>
+							Save Changes
+						</button>
+						<a href={ templ.URL(pageParam.BackPath) } class="btn btn-ghost">
+							<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+							</svg>
+							Cancel
+						</a>
+					</div>
+				</form>
+			</div>
+		</section>
+		<!-- Current Information Display -->
+		<section class="card mx-4 bg-base-100 shadow">
+			<div class="card-body space-y-4">
+				<div>
+					<h2 class="card-title">Current Information</h2>
+					<p class="text-sm opacity-60">Review the current patient information below.</p>
+				</div>
+				<div class="grid gap-4 md:grid-cols-2">
+					<div>
+						<div class="text-xs uppercase opacity-60">Patient ID</div>
+						<div class="text-base font-semibold">{ pageParam.Patient.ID }</div>
+					</div>
+					<div>
+						<div class="text-xs uppercase opacity-60">Created</div>
+						<div class="text-base font-semibold">{ pageParam.Patient.CreatedAt.Format("January 2, 2006 at 3:04 PM") }</div>
+					</div>
+				</div>
+			</div>
+		</section>
+	</div>
+}

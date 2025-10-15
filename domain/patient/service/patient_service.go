@@ -15,6 +15,7 @@ import (
 type PatientService interface {
 	List(ctx context.Context, query string, limit, offset int) ([]m.Patient, error)
 	GetByID(ctx context.Context, id string) (m.Patient, error)
+	Update(ctx context.Context, patient m.Patient) error
 	Count(ctx context.Context, query string) (int, error)
 }
 
@@ -72,6 +73,32 @@ func (s *patientSvc) GetByID(ctx context.Context, id string) (m.Patient, error) 
 
 	s.log.Info("Patient retrieved successfully", zap.String("patient_id", id))
 	return patient, nil
+}
+
+func (s *patientSvc) Update(ctx context.Context, patient m.Patient) error {
+	s.log.Info("Updating patient", zap.String("patient_id", patient.ID))
+
+	// Update patient in repository
+	_, err := s.repo.Update(ctx, patient.ID, patient)
+	if err != nil {
+		s.log.Error("Failed to update patient",
+			zap.String("patient_id", patient.ID),
+			zap.Error(err))
+		return err
+	}
+
+	// Invalidate cache for this patient
+	if s.cache != nil {
+		cacheKey := s.cacheKeys.PatientByID(patient.ID)
+		if err := s.cache.Delete(ctx, cacheKey); err != nil {
+			s.log.Warn("Failed to invalidate patient cache",
+				zap.String("patient_id", patient.ID),
+				zap.Error(err))
+		}
+	}
+
+	s.log.Info("Patient updated successfully", zap.String("patient_id", patient.ID))
+	return nil
 }
 
 func (s *patientSvc) Count(ctx context.Context, query string) (int, error) {

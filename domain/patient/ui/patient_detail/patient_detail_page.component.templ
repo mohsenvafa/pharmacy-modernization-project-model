@@ -14,6 +14,7 @@ type PatientDetailPageParam struct {
 	AddressList   templ.Component
 	Prescriptions templ.Component
 	BackPath      string
+	EditPath      string
 }
 
 templ PatientDetailPageComponentView(pageParam PatientDetailPageParam) {
@@ -35,9 +36,19 @@ templ patientDetail(pageParam PatientDetailPageParam) {
 		</section>
 		<section class="card mx-4 bg-base-100 shadow">
 			<div class="card-body space-y-4">
-				<div>
-					<h2 class="card-title">Patient Details</h2>
-					<p class="text-sm opacity-60">Key demographic information and contact details.</p>
+				<div class="flex justify-between items-start">
+					<div>
+						<h2 class="card-title">Patient Details</h2>
+						<p class="text-sm opacity-60">Key demographic information and contact details.</p>
+					</div>
+					<!-- Edit Icon -->
+					<a href={ templ.URL(pageParam.EditPath) } class="btn btn-ghost btn-sm btn-circle">
+						@commonComponents.SVGIcon(commonComponents.SVGIconParams{
+							ClassName: "w-4 h-4",
+							ViewBox:   "0 0 24 24",
+							IconName:  "edit",
+						})
+					</a>
 				</div>
 				<div class="grid gap-4 md:grid-cols-2">
 					<div>

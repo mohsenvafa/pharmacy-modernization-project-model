@@ -74,6 +74,7 @@ func (h *PatientDetailComponent) Handler(w http.ResponseWriter, r *http.Request)
 		AddressList:   addressComponent,
 		Prescriptions: prescriptionComponent,
 		BackPath:      paths.PatientListURL(),
+		EditPath:      paths.PatientEditURL(patientID),
 	})
 
 	if err := view.Render(r.Context(), w); err != nil {

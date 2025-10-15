@@ -7,10 +7,12 @@ import { registerComponent } from '@web/registry'
 import { PatientPrescriptionsComponent } from '@domain/patient/ui/components/patient_prescriptions/patient_prescriptions.component'
 import { AddressListComponent } from '@domain/patient/ui/components/address_list/address_list.component'
 import { PatientDetailComponent } from '@domain/patient/ui/patient_detail/patient_detail.component'
+import { PatientEditComponent } from '@domain/patient/ui/patient_edit/patient_edit.component'
 
 // Register patient domain components
 export function registerPatientComponents() {
   registerComponent('patient.patient-prescriptions', () => new PatientPrescriptionsComponent())
   registerComponent('patient.address-list', () => new AddressListComponent())
   registerComponent('patient.patient-detail', () => new PatientDetailComponent())
+  registerComponent('patient.patient-edit', () => new PatientEditComponent())
 }

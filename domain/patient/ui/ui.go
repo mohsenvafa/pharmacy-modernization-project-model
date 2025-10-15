@@ -8,6 +8,7 @@ import (
 	contracts "pharmacy-modernization-project-model/domain/patient/ui/contracts"
 	"pharmacy-modernization-project-model/domain/patient/ui/paths"
 	patientdetail "pharmacy-modernization-project-model/domain/patient/ui/patient_detail"
+	patientedit "pharmacy-modernization-project-model/domain/patient/ui/patient_edit"
 	patientlist "pharmacy-modernization-project-model/domain/patient/ui/patient_list"
 	patientsearch "pharmacy-modernization-project-model/domain/patient/ui/patient_search"
 
@@ -21,6 +22,7 @@ func MountUI(r chi.Router, dep *contracts.UiDependencies) {
 	addressListComponent := addresscomponents.NewAddressListComponent(dep)
 	prescriptionListComponent := patientprescriptioncomponents.NewPrescriptionListComponent(dep)
 	patientDetailComponent := patientdetail.NewPatientDetailComponent(dep, addressListComponent, prescriptionListComponent)
+	patientEditComponent := patientedit.NewPatientEditComponent(dep)
 
 	r.Route(paths.BasePath, func(r chi.Router) {
 		// All patient UI routes require authentication
@@ -34,5 +36,7 @@ func MountUI(r chi.Router, dep *contracts.UiDependencies) {
 		r.Get(paths.SearchRoute, patientSearchComponent.Handler)
 		r.Get(paths.PatientPrescriptionCardComponentRoute, prescriptionListComponent.Handler)
 		r.Get(paths.DetailRoute, patientDetailComponent.Handler)
+		r.Get(paths.EditRoute, patientEditComponent.Handler)
+		r.Post(paths.EditRoute, patientEditComponent.Handler)
 	})
 }
