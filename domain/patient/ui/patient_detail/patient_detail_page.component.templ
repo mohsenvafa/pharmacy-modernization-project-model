@@ -1,9 +1,12 @@
 package patient_detail
 
 import (
+	"context"
 	"fmt"
 
+	commonsecurity "pharmacy-modernization-project-model/domain/common/security"
 	patientsmodel "pharmacy-modernization-project-model/domain/patient/contracts/model"
+	authComponents "pharmacy-modernization-project-model/web/components/auth"
 	commonComponents "pharmacy-modernization-project-model/web/components/elements"
 	layouts "pharmacy-modernization-project-model/web/components/layouts"
 )
@@ -17,11 +20,11 @@ type PatientDetailPageParam struct {
 	EditPath      string
 }
 
-templ PatientDetailPageComponentView(pageParam PatientDetailPageParam) {
-	@layouts.BaseLayout(fmt.Sprintf("%s • Patient Profile", pageParam.Patient.Name), patientDetail(pageParam))
+templ PatientDetailPageComponentView(ctx context.Context, pageParam PatientDetailPageParam) {
+	@layouts.BaseLayout(fmt.Sprintf("%s • Patient Profile", pageParam.Patient.Name), patientDetail(ctx, pageParam))
 }
 
-templ patientDetail(pageParam PatientDetailPageParam) {
+templ patientDetail(ctx context.Context, pageParam PatientDetailPageParam) {
 	<div class="flex flex-col space-y-6" data-component="patient.patient-detail">
 		@commonComponents.PageHeader(pageParam.Patient.Name)
 		<div class="flex items-center gap-4 px-4">
@@ -71,6 +74,26 @@ templ patientDetail(pageParam PatientDetailPageParam) {
 						<div class="text-xs uppercase opacity-60">Patient ID</div>
 						<div class="text-base font-semibold">{ pageParam.Patient.ID }</div>
 					</div>
+					<div>
+						<div class="text-xs uppercase opacity-60"></div>
+						<div class="text-base font-semibold"></div>
+					</div>
+					@authComponents.IfHasAnyPermission(ctx, []string{commonsecurity.PermissionAdminAll}) {
+						if pageParam.Patient.EditBy != nil {
+							<div>
+								<div class="text-xs uppercase opacity-60">Last Edited By</div>
+								<div class="text-base font-semibold">{ *pageParam.Patient.EditBy }</div>
+							</div>
+						}
+					}
+					@authComponents.IfHasAnyPermission(ctx, []string{commonsecurity.PermissionAdminAll}) {
+						if pageParam.Patient.EditTime != nil {
+							<div>
+								<div class="text-xs uppercase opacity-60">Last Edited</div>
+								<div class="text-base font-semibold">{ pageParam.Patient.EditTime.Format("January 2, 2006 at 3:04 PM") }</div>
+							</div>
+						}
+					}
 				</div>
 			</div>
 		</section>

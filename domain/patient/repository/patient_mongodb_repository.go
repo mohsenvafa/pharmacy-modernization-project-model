@@ -201,6 +201,14 @@ func (r *PatientMongoRepository) Update(ctx context.Context, id string, p m.Pati
 		},
 	}
 
+	// Add edit tracking fields if they exist
+	if p.EditBy != nil {
+		update["$set"].(bson.M)["edit_by"] = *p.EditBy
+	}
+	if p.EditTime != nil {
+		update["$set"].(bson.M)["edit_time"] = *p.EditTime
+	}
+
 	opts := options.Update().SetUpsert(false)
 	result, err := r.collection.UpdateOne(ctx, filter, update, opts)
 	if err != nil {

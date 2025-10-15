@@ -10,7 +10,7 @@ import (
 	patSvc "pharmacy-modernization-project-model/domain/patient/service"
 	contracts "pharmacy-modernization-project-model/domain/patient/ui/contracts"
 	"pharmacy-modernization-project-model/domain/patient/ui/paths"
-	tools "pharmacy-modernization-project-model/internal/helper"
+	"pharmacy-modernization-project-model/domain/patient/validation"
 )
 
 type PatientEditComponent struct {
@@ -27,12 +27,7 @@ func NewPatientEditComponent(deps *contracts.UiDependencies) *PatientEditCompone
 
 // EditFormData represents the form data for editing a patient
 type EditFormData struct {
-	ID         string
-	Name       string
-	Phone      string
-	DOB        string // Format: YYYY-MM-DD
-	State      string
-	Errors     map[string]string
+	validation.PatientFormData
 	Success    bool
 	SuccessMsg string
 }
@@ -69,11 +64,13 @@ func (h *PatientEditComponent) showEditForm(w http.ResponseWriter, r *http.Reque
 	// If no form data provided, populate with current patient data
 	if formData.ID == "" {
 		formData = EditFormData{
-			ID:    patient.ID,
-			Name:  patient.Name,
-			Phone: patient.Phone,
-			DOB:   patient.DOB.Format("2006-01-02"),
-			State: patient.State,
+			PatientFormData: validation.PatientFormData{
+				ID:    patient.ID,
+				Name:  patient.Name,
+				Phone: patient.Phone,
+				DOB:   patient.DOB.Format("2006-01-02"),
+				State: patient.State,
+			},
 		}
 	}
 
@@ -100,16 +97,18 @@ func (h *PatientEditComponent) handleFormSubmission(w http.ResponseWriter, r *ht
 	}
 
 	formData := EditFormData{
-		ID:     patientID,
-		Name:   r.FormValue("name"),
-		Phone:  r.FormValue("phone"),
-		DOB:    r.FormValue("dob"),
-		State:  r.FormValue("state"),
-		Errors: make(map[string]string),
+		PatientFormData: validation.PatientFormData{
+			ID:     patientID,
+			Name:   r.FormValue("name"),
+			Phone:  r.FormValue("phone"),
+			DOB:    r.FormValue("dob"),
+			State:  r.FormValue("state"),
+			Errors: make(map[string]string),
+		},
 	}
 
 	// Validate form data
-	validationErrors := h.validateFormData(formData)
+	validationErrors := validation.ValidatePatientForm(formData.PatientFormData)
 	if len(validationErrors) > 0 {
 		formData.Errors = validationErrors
 		h.showEditForm(w, r, patientID, formData)
@@ -149,66 +148,4 @@ func (h *PatientEditComponent) handleFormSubmission(w http.ResponseWriter, r *ht
 
 	// Success - redirect to patient detail page
 	http.Redirect(w, r, paths.PatientDetailURL(patientID), http.StatusSeeOther)
-}
-
-func (h *PatientEditComponent) validateFormData(formData EditFormData) map[string]string {
-	errors := make(map[string]string)
-
-	// Validate name
-	if formData.Name == "" {
-		errors["name"] = "Name is required"
-	} else if len(formData.Name) < 2 {
-		errors["name"] = "Name must be at least 2 characters"
-	} else if len(formData.Name) > 100 {
-		errors["name"] = "Name must be less than 100 characters"
-	}
-
-	// Validate phone
-	if formData.Phone == "" {
-		errors["phone"] = "Phone number is required"
-	} else if !h.isValidPhone(formData.Phone) {
-		errors["phone"] = "Please enter a valid phone number (e.g., (555) 123-4567)"
-	}
-
-	// Validate DOB
-	if formData.DOB == "" {
-		errors["dob"] = "Date of birth is required"
-	} else {
-		dob, err := time.Parse("2006-01-02", formData.DOB)
-		if err != nil {
-			errors["dob"] = "Please enter a valid date"
-		} else {
-			// Check if DOB is not in the future
-			if dob.After(time.Now()) {
-				errors["dob"] = "Date of birth cannot be in the future"
-			}
-			// Check if patient is not too old (reasonable limit)
-			age := tools.CalculateAge(dob)
-			if age > 150 {
-				errors["dob"] = "Please enter a valid date of birth"
-			}
-		}
-	}
-
-	// Validate state
-	if formData.State == "" {
-		errors["state"] = "State is required"
-	} else if len(formData.State) > 50 {
-		errors["state"] = "State must be less than 50 characters"
-	}
-
-	return errors
-}
-
-func (h *PatientEditComponent) isValidPhone(phone string) bool {
-	// Simple phone validation - allows various formats
-	// Remove all non-digit characters
-	digits := ""
-	for _, char := range phone {
-		if char >= '0' && char <= '9' {
-			digits += string(char)
-		}
-	}
-	// Check if we have 10 digits (US phone number)
-	return len(digits) == 10
 }

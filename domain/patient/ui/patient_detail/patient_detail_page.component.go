@@ -68,7 +68,7 @@ func (h *PatientDetailComponent) Handler(w http.ResponseWriter, r *http.Request)
 		prescriptionComponent = patientprescriptions.PlaceHolder(patientID)
 	}
 
-	view := PatientDetailPageComponentView(PatientDetailPageParam{
+	view := PatientDetailPageComponentView(r.Context(), PatientDetailPageParam{
 		Patient:       patient,
 		Age:           tools.CalculateAge(patient.DOB),
 		AddressList:   addressComponent,

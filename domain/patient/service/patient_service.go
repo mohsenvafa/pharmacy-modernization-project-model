@@ -9,6 +9,7 @@ import (
 
 	m "pharmacy-modernization-project-model/domain/patient/contracts/model"
 	repo "pharmacy-modernization-project-model/domain/patient/repository"
+	"pharmacy-modernization-project-model/internal/platform/auth"
 	"pharmacy-modernization-project-model/internal/platform/cache"
 )
 
@@ -76,10 +77,22 @@ func (s *patientSvc) GetByID(ctx context.Context, id string) (m.Patient, error) 
 }
 
 func (s *patientSvc) Update(ctx context.Context, patient m.Patient) error {
-	s.log.Info("Updating patient", zap.String("patient_id", patient.ID))
+	// Get current user for edit tracking
+	user, err := auth.GetCurrentUser(ctx)
+	if err != nil {
+		s.log.Error("Failed to get current user for edit tracking", zap.Error(err))
+		return err
+	}
+
+	s.log.Info("Updating patient", zap.String("patient_id", patient.ID), zap.String("edit_by", user.Name))
+
+	// Set edit tracking fields
+	now := time.Now()
+	patient.EditBy = &user.Name
+	patient.EditTime = &now
 
 	// Update patient in repository
-	_, err := s.repo.Update(ctx, patient.ID, patient)
+	_, err = s.repo.Update(ctx, patient.ID, patient)
 	if err != nil {
 		s.log.Error("Failed to update patient",
 			zap.String("patient_id", patient.ID),
@@ -97,7 +110,7 @@ func (s *patientSvc) Update(ctx context.Context, patient m.Patient) error {
 		}
 	}
 
-	s.log.Info("Patient updated successfully", zap.String("patient_id", patient.ID))
+	s.log.Info("Patient updated successfully", zap.String("patient_id", patient.ID), zap.String("edit_by", user.Name))
 	return nil
 }
 
