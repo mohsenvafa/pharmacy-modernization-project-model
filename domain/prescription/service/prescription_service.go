@@ -22,11 +22,11 @@ type PrescriptionService interface {
 type svc struct {
 	repo     repo.PrescriptionRepository
 	log      *zap.Logger
-	pharmacy irispharmacy.Client
-	billing  irisbilling.Client
+	pharmacy irispharmacy.PharmacyClient
+	billing  irisbilling.BillingClient
 }
 
-func New(r repo.PrescriptionRepository, l *zap.Logger, pharmacy irispharmacy.Client, billing irisbilling.Client) PrescriptionService {
+func New(r repo.PrescriptionRepository, l *zap.Logger, pharmacy irispharmacy.PharmacyClient, billing irisbilling.BillingClient) PrescriptionService {
 	return &svc{repo: r, log: l, pharmacy: pharmacy, billing: billing}
 }
 

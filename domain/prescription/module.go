@@ -15,8 +15,8 @@ import (
 
 type ModuleDependencies struct {
 	Logger                       *zap.Logger
-	PharmacyClient               irispharmacy.Client
-	BillingClient                irisbilling.Client
+	PharmacyClient               irispharmacy.PharmacyClient
+	BillingClient                irisbilling.BillingClient
 	PrescriptionsMongoCollection *mongo.Collection
 }
 
@@ -28,11 +28,11 @@ func Module(r chi.Router, deps *ModuleDependencies) ModuleExport {
 	repo := prescriptionbuilder.CreatePrescriptionRepository(deps.Logger, deps.PrescriptionsMongoCollection)
 	pharmacyClient := deps.PharmacyClient
 	if pharmacyClient == nil {
-		pharmacyClient = irispharmacy.NewMockClient(map[string]irispharmacy.GetPrescriptionResponse{}, deps.Logger)
+		pharmacyClient = irispharmacy.NewMockClient(deps.Logger)
 	}
 	billingClient := deps.BillingClient
 	if billingClient == nil {
-		billingClient = irisbilling.NewMockClient(map[string]irisbilling.GetInvoiceResponse{}, deps.Logger)
+		billingClient = irisbilling.NewMockClient(deps.Logger)
 	}
 
 	svc := prescriptionservice.New(repo, deps.Logger, pharmacyClient, billingClient)

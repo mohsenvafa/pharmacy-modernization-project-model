@@ -10,7 +10,6 @@ import (
 
 	"pharmacy-modernization-project-model/internal/integrations"
 	"pharmacy-modernization-project-model/internal/platform/auth"
-	"pharmacy-modernization-project-model/internal/platform/httpx"
 	"pharmacy-modernization-project-model/internal/platform/logging"
 	"pharmacy-modernization-project-model/internal/platform/paths"
 
@@ -40,9 +39,6 @@ func (a *App) wire() error {
 		return err
 	}
 
-	// Shared HTTP client (for future external calls)
-	_ = httpx.NewClient(a.Cfg)
-
 	mongoConnMgr, err := CreateMongoDBConnection(a.Cfg, logger.Base)
 	if err != nil {
 		logger.Base.Error("Failed to create MongoDB connection", zap.Error(err))
@@ -64,7 +60,7 @@ func (a *App) wire() error {
 	// Register dev mode endpoints (only when dev mode is enabled)
 	auth.RegisterDevEndpoints(r, logger.Base)
 
-	// Integrations
+	// Initialize integrations layer (handles its own HTTP client internally)
 	integration := integrations.New(integrations.Dependencies{
 		Config: a.Cfg,
 		Logger: logger.Base,
@@ -73,8 +69,8 @@ func (a *App) wire() error {
 	// Prescription Module
 	prescriptionMod := prescriptionModule.Module(r, &prescriptionModule.ModuleDependencies{
 		Logger:                       logger.Base,
-		PharmacyClient:               integration.Pharmacy,
-		BillingClient:                integration.Billing,
+		PharmacyClient:               integration.PharmacyClient,
+		BillingClient:                integration.BillingClient,
 		PrescriptionsMongoCollection: GetPrescriptionsCollection(mongoConnMgr),
 	})
 

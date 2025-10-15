@@ -60,20 +60,44 @@ type Config struct {
 		} `mapstructure:"mongodb"`
 	} `mapstructure:"database"`
 	External struct {
+		Stargate struct {
+			UseMock      bool              `mapstructure:"use_mock"`
+			Timeout      string            `mapstructure:"timeout"`
+			ClientID     string            `mapstructure:"client_id"`
+			ClientSecret string            `mapstructure:"client_secret"`
+			Scope        string            `mapstructure:"scope"`
+			Endpoints    StargateEndpoints `mapstructure:"endpoints"`
+		} `mapstructure:"stargate"`
 		Pharmacy struct {
-			BaseURL string `mapstructure:"base_url"`
-			Path    string `mapstructure:"path"`
-			UseMock bool   `mapstructure:"use_mock"`
-			APIKey  string `mapstructure:"api_key"`
-			Timeout string `mapstructure:"timeout"`
+			UseMock   bool              `mapstructure:"use_mock"`
+			Timeout   string            `mapstructure:"timeout"`
+			Endpoints PharmacyEndpoints `mapstructure:"endpoints"`
 		} `mapstructure:"pharmacy"`
 		Billing struct {
-			BaseURL string `mapstructure:"base_url"`
-			Path    string `mapstructure:"path"`
-			UseMock bool   `mapstructure:"use_mock"`
-			Timeout string `mapstructure:"timeout"`
+			UseMock   bool             `mapstructure:"use_mock"`
+			Timeout   string           `mapstructure:"timeout"`
+			Endpoints BillingEndpoints `mapstructure:"endpoints"`
 		} `mapstructure:"billing"`
 	} `mapstructure:"external"`
+}
+
+// StargateEndpoints holds the full URLs for Stargate authentication endpoints
+type StargateEndpoints struct {
+	Token        string `mapstructure:"token"`
+	RefreshToken string `mapstructure:"refresh_token"`
+}
+
+// PharmacyEndpoints holds the full URLs for pharmacy API endpoints
+type PharmacyEndpoints struct {
+	GetPrescription string `mapstructure:"get_prescription"`
+}
+
+// BillingEndpoints holds the full URLs for billing API endpoints
+type BillingEndpoints struct {
+	GetInvoice         string `mapstructure:"get_invoice"`
+	CreateInvoice      string `mapstructure:"create_invoice"`
+	AcknowledgeInvoice string `mapstructure:"acknowledge_invoice"`
+	GetInvoicePayment  string `mapstructure:"get_invoice_payment"`
 }
 
 func Load() *Config {

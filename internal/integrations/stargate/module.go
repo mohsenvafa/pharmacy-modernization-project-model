@@ -1,4 +1,4 @@
-package iris_pharmacy
+package stargate
 
 import (
 	"time"
@@ -8,7 +8,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// ModuleDependencies holds all dependencies required to initialize the pharmacy module
+// ModuleDependencies holds all dependencies required to initialize the Stargate token module
 type ModuleDependencies struct {
 	Config     Config
 	Logger     *zap.Logger
@@ -17,18 +17,18 @@ type ModuleDependencies struct {
 	Timeout    time.Duration
 }
 
-// ModuleExport contains the exported services from the pharmacy module
+// ModuleExport contains the exported services from the Stargate token module
 type ModuleExport struct {
-	PharmacyClient PharmacyClient
+	TokenClient TokenClient
 }
 
-// Module initializes and returns the pharmacy module with its dependencies
+// Module initializes and returns the Stargate token module with its dependencies
 func Module(deps ModuleDependencies) ModuleExport {
 	// Use mock client if configured
 	if deps.UseMock {
-		deps.Logger.Info("initializing mock pharmacy client")
+		deps.Logger.Info("initializing mock Stargate token client")
 		return ModuleExport{
-			PharmacyClient: NewMockClient(deps.Logger),
+			TokenClient: NewMockClient(deps.Logger),
 		}
 	}
 
@@ -39,7 +39,7 @@ func Module(deps ModuleDependencies) ModuleExport {
 			timeout = 30 * time.Second
 		}
 
-		deps.Logger.Warn("no shared http client provided, creating dedicated client for pharmacy service",
+		deps.Logger.Warn("no shared http client provided, creating dedicated client for Stargate",
 			zap.Duration("timeout", timeout),
 			zap.String("note", "consider passing shared client for better connection pooling"),
 		)
@@ -47,16 +47,16 @@ func Module(deps ModuleDependencies) ModuleExport {
 		deps.HTTPClient = httpclient.NewClient(
 			httpclient.Config{
 				Timeout:     timeout,
-				ServiceName: "iris_pharmacy",
+				ServiceName: "stargate_auth",
 			},
 			deps.Logger,
 		)
 	}
 
-	deps.Logger.Info("initializing HTTP pharmacy client",
-		zap.String("get_prescription_url", deps.Config.GetPrescriptionURL),
+	deps.Logger.Info("initializing HTTP Stargate token client",
+		zap.String("token_url", deps.Config.TokenURL),
 	)
 
 	client := NewHTTPClient(deps.Config, deps.HTTPClient, deps.Logger)
-	return ModuleExport{PharmacyClient: client}
+	return ModuleExport{TokenClient: client}
 }

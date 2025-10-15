@@ -2,56 +2,65 @@ package iris_pharmacy
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"net/http"
 	"strings"
+
+	"pharmacy-modernization-project-model/internal/platform/httpclient"
 
 	"go.uber.org/zap"
 )
 
+// HTTPClient implements PharmacyClient using HTTP requests
 type HTTPClient struct {
-	endpoint   string
-	httpClient *http.Client
-	log        *zap.Logger
+	client    *httpclient.Client
+	endpoints EndpointsConfig
+	logger    *zap.Logger
 }
 
-func NewHTTPClient(cfg Config, httpClient *http.Client, log *zap.Logger) *HTTPClient {
-	if httpClient == nil {
-		httpClient = http.DefaultClient
+// NewHTTPClient creates a new HTTP-based pharmacy client
+func NewHTTPClient(cfg Config, client *httpclient.Client, logger *zap.Logger) *HTTPClient {
+	return &HTTPClient{
+		client:    client,
+		endpoints: &cfg,
+		logger:    logger,
 	}
-	endpoint := strings.TrimSuffix(cfg.BaseURL, "/") + "/" + strings.Trim(cfg.Path, "/") + "/"
-	return &HTTPClient{endpoint: endpoint, httpClient: httpClient, log: log}
 }
 
-func (c *HTTPClient) GetPrescription(ctx context.Context, prescriptionID string) (GetPrescriptionResponse, error) {
-	var result GetPrescriptionResponse
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.endpoint+prescriptionID, nil)
+// replacePathParams replaces {paramName} in URL with actual values
+func replacePathParams(url string, params map[string]string) string {
+	for key, value := range params {
+		placeholder := "{" + key + "}"
+		url = strings.ReplaceAll(url, placeholder, value)
+	}
+	return url
+}
+
+// GetPrescription retrieves a prescription for a given prescription ID
+func (c *HTTPClient) GetPrescription(ctx context.Context, prescriptionID string) (*PrescriptionResponse, error) {
+	url := replacePathParams(c.endpoints.GetPrescriptionEndpoint(), map[string]string{
+		"prescriptionID": prescriptionID,
+	})
+
+	c.logger.Debug("fetching prescription",
+		zap.String("prescription_id", prescriptionID),
+		zap.String("url", url),
+	)
+
+	var response PrescriptionResponse
+	err := c.client.GetJSON(ctx, url, &response)
 	if err != nil {
-		if c.log != nil {
-			c.log.Error("iris_pharmacy request", zap.Error(err), zap.String("prescriptionID", prescriptionID))
-		}
-		return result, err
+		return nil, fmt.Errorf("failed to get prescription: %w", err)
 	}
 
-	resp, err := c.httpClient.Do(req)
-	if err != nil {
-		if c.log != nil {
-			c.log.Error("iris_pharmacy response", zap.Error(err), zap.String("prescriptionID", prescriptionID))
-		}
-		return result, err
-	}
-	defer resp.Body.Close()
+	c.logger.Debug("prescription retrieved successfully",
+		zap.String("prescription_id", prescriptionID),
+		zap.String("drug", response.Drug),
+		zap.String("status", response.Status),
+		zap.String("pharmacy_name", response.PharmacyName),
+	)
 
-	if resp.StatusCode >= 400 {
-		return result, fmt.Errorf("iris pharmacy: unexpected status %d", resp.StatusCode)
-	}
-
-	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return result, err
-	}
-
-	return result, nil
+	return &response, nil
 }
 
-var _ Client = (*HTTPClient)(nil)
+// Verify HTTPClient implements PharmacyClient
+var _ PharmacyClient = (*HTTPClient)(nil)

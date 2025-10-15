@@ -1,6 +1,7 @@
 package iris_pharmacy
 
-type GetPrescriptionResponse struct {
+// PrescriptionResponse represents a prescription from IRIS pharmacy system
+type PrescriptionResponse struct {
 	ID           string `json:"id"`
 	PatientID    string `json:"patient_id"`
 	Drug         string `json:"drug"`

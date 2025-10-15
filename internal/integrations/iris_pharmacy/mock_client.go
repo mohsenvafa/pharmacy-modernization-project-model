@@ -6,27 +6,50 @@ import (
 	"go.uber.org/zap"
 )
 
+// MockClient implements PharmacyClient with in-memory mock data
 type MockClient struct {
-	data map[string]GetPrescriptionResponse
-	log  *zap.Logger
+	data   map[string]PrescriptionResponse
+	logger *zap.Logger
 }
 
-func NewMockClient(seed map[string]GetPrescriptionResponse, log *zap.Logger) *MockClient {
-	data := make(map[string]GetPrescriptionResponse)
-	for k, v := range seed {
-		data[k] = v
+// NewMockClient creates a new mock pharmacy client
+func NewMockClient(logger *zap.Logger) *MockClient {
+	return &MockClient{
+		data:   make(map[string]PrescriptionResponse),
+		logger: logger,
 	}
-	return &MockClient{data: data, log: log}
 }
 
-func (c *MockClient) GetPrescription(ctx context.Context, prescriptionID string) (GetPrescriptionResponse, error) {
-	if val, ok := c.data[prescriptionID]; ok {
-		return val, nil
-	}
-	if c.log != nil {
-		c.log.Warn("mock iris pharmacy: prescription not found", zap.String("prescriptionID", prescriptionID))
-	}
-	return GetPrescriptionResponse{ID: prescriptionID, Status: "unknown", PharmacyName: "CVS", PharmacyType: "Retail"}, nil
+// SeedPrescription adds a mock prescription (useful for testing)
+func (c *MockClient) SeedPrescription(prescription PrescriptionResponse) {
+	c.data[prescription.ID] = prescription
 }
 
-var _ Client = (*MockClient)(nil)
+// GetPrescription retrieves a mock prescription for a given prescription ID
+func (c *MockClient) GetPrescription(ctx context.Context, prescriptionID string) (*PrescriptionResponse, error) {
+	if prescription, ok := c.data[prescriptionID]; ok {
+		c.logger.Debug("mock prescription found",
+			zap.String("prescription_id", prescriptionID),
+			zap.String("drug", prescription.Drug),
+			zap.String("status", prescription.Status),
+		)
+		return &prescription, nil
+	}
+
+	c.logger.Warn("mock prescription not found, returning default",
+		zap.String("prescription_id", prescriptionID),
+	)
+
+	// Return a default prescription for unknown prescription IDs
+	defaultPrescription := &PrescriptionResponse{
+		ID:           prescriptionID,
+		Status:       "unknown",
+		PharmacyName: "CVS",
+		PharmacyType: "Retail",
+	}
+
+	return defaultPrescription, nil
+}
+
+// Verify MockClient implements PharmacyClient
+var _ PharmacyClient = (*MockClient)(nil)
