@@ -2,7 +2,6 @@
 # For Podman, use: podman-compose up -d
 # For Docker, use: docker compose up -d
 
-# Note: At work, change the image to your enterprise registry:
 # image: docker.repo1.uhc.com/mongo:6.0
 
 services:

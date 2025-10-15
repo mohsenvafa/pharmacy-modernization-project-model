@@ -14,7 +14,7 @@ endif
 
 TAILWIND_BIN ?= $(DEFAULT_TAILWIND_BIN)
 
-.PHONY: setup tailwind-watch dev dev-watch mock-iris check-tools build-ts watch-ts graphql-generate graphql-install
+.PHONY: setup tailwind-watch dev dev-watch mock-iris check-tools build-ts watch-ts graphql-generate graphql-install podman-up podman-down podman-logs
 
 setup:
 	@make -f .dev/Makefile.setup setup
@@ -69,3 +69,13 @@ graphql-install:
 	@echo "📦 Installing gqlgen..."
 	@go install github.com/99designs/gqlgen@latest
 	@echo "✅ gqlgen installed successfully!"
+
+# Podman container management
+podman-up: ## Start MongoDB and Memcached containers
+	@make -f podman/Makefile podman-up
+
+podman-down: ## Stop MongoDB and Memcached containers
+	@make -f podman/Makefile podman-down
+
+podman-logs: ## Show container logs
+	@make -f podman/Makefile podman-logs

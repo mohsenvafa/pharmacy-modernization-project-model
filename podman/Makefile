@@ -6,8 +6,9 @@ MAKEFILE_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 # Compose file location (relative to Makefile location)
 COMPOSE_FILE := $(MAKEFILE_DIR)compose.yml
 
-# Detect if podman-compose is available, otherwise use docker compose
-COMPOSE_CMD := $(shell which podman-compose >/dev/null 2>&1 && echo "podman-compose" || echo "docker compose")
+# Always use podman compose (detection commented out)
+# COMPOSE_CMD := $(shell podman compose version >/dev/null 2>&1 && echo "podman compose" || echo "docker compose")
+COMPOSE_CMD := podman compose
 
 help: ## Show this help message
 	@echo 'Usage: make -f podman/Makefile [target]'
