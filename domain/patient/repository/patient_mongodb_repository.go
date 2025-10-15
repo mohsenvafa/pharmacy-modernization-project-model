@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"fmt"
+	"regexp"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -20,6 +21,11 @@ import (
 type PatientMongoRepository struct {
 	collection *mongo.Collection
 	logger     *zap.Logger
+}
+
+// escapeRegexChars escapes special regex characters in a string to prevent regex injection
+func escapeRegexChars(input string) string {
+	return regexp.QuoteMeta(input)
 }
 
 // NewPatientMongoRepository creates a new MongoDB patient repository
@@ -55,14 +61,16 @@ func (r *PatientMongoRepository) List(ctx context.Context, query string, limit, 
 			zap.Duration("duration", time.Since(start)))
 	}()
 
-	// Build filter
+	// Build filter with input sanitization to prevent regex injection
 	filter := bson.M{}
 	if query != "" {
+		// Escape special regex characters to prevent regex injection
+		escapedQuery := escapeRegexChars(query)
 		filter = bson.M{
 			"$or": []bson.M{
-				{"name": bson.M{"$regex": query, "$options": "i"}},
-				{"phone": bson.M{"$regex": query, "$options": "i"}},
-				{"state": bson.M{"$regex": query, "$options": "i"}},
+				{"name": bson.M{"$regex": escapedQuery, "$options": "i"}},
+				{"phone": bson.M{"$regex": escapedQuery, "$options": "i"}},
+				{"state": bson.M{"$regex": escapedQuery, "$options": "i"}},
 			},
 		}
 	}
@@ -229,14 +237,16 @@ func (r *PatientMongoRepository) Count(ctx context.Context, query string) (int, 
 			zap.Duration("duration", time.Since(start)))
 	}()
 
-	// Build filter
+	// Build filter with input sanitization to prevent regex injection
 	filter := bson.M{}
 	if query != "" {
+		// Escape special regex characters to prevent regex injection
+		escapedQuery := escapeRegexChars(query)
 		filter = bson.M{
 			"$or": []bson.M{
-				{"name": bson.M{"$regex": query, "$options": "i"}},
-				{"phone": bson.M{"$regex": query, "$options": "i"}},
-				{"state": bson.M{"$regex": query, "$options": "i"}},
+				{"name": bson.M{"$regex": escapedQuery, "$options": "i"}},
+				{"phone": bson.M{"$regex": escapedQuery, "$options": "i"}},
+				{"state": bson.M{"$regex": escapedQuery, "$options": "i"}},
 			},
 		}
 	}
@@ -347,6 +357,17 @@ func (r *PatientMongoRepository) FindByState(ctx context.Context, state string, 
 			zap.Int("offset", offset),
 			zap.Duration("duration", time.Since(start)))
 	}()
+
+	// Validate state input to prevent NoSQL injection
+	if state != "" {
+		validator := validation.NewValidator()
+		if err := validator.ValidateLength("state", state, 2, 50); err != nil {
+			r.logger.Warn("Invalid state provided",
+				zap.String("state", state),
+				zap.Error(err))
+			return nil, platformErrors.NewValidationError("state", state, "Invalid state value")
+		}
+	}
 
 	filter := bson.M{"state": state}
 	opts := options.Find().
