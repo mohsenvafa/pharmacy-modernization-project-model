@@ -1,6 +1,9 @@
 package prescription
 
 import (
+	"context"
+	"time"
+
 	"github.com/go-chi/chi/v5"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.uber.org/zap"
@@ -18,6 +21,12 @@ type ModuleDependencies struct {
 	PharmacyClient               irispharmacy.PharmacyClient
 	BillingClient                irisbilling.BillingClient
 	PrescriptionsMongoCollection *mongo.Collection
+	CacheService                 interface { // Cache interface
+		Get(ctx context.Context, key string) ([]byte, error)
+		Set(ctx context.Context, key string, value []byte, ttl time.Duration) error
+		Delete(ctx context.Context, key string) error
+		Close() error
+	}
 }
 
 type ModuleExport struct {
@@ -35,7 +44,7 @@ func Module(r chi.Router, deps *ModuleDependencies) ModuleExport {
 		billingClient = irisbilling.NewMockClient(deps.Logger)
 	}
 
-	svc := prescriptionservice.New(repo, deps.Logger, pharmacyClient, billingClient)
+	svc := prescriptionservice.New(repo, deps.CacheService, deps.Logger, pharmacyClient, billingClient)
 
 	prescriptionapi.MountAPI(r, &prescriptionapi.Dependencies{Service: svc, Logger: deps.Logger})
 	uiprescription.MountUI(r, &uiprescription.PrescriptionDependencies{PrescriptionSvc: svc, Log: deps.Logger})

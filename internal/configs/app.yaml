@@ -39,6 +39,25 @@ auth:
       secure: false  # Set to true in production (HTTPS only)
       httponly: true
       max_age: 3600  # 1 hour in seconds
+cache:
+  # Memcached as primary cache (distributed cache)
+  memcached:
+    addr: "localhost:11211"
+    prefix: "rx:"
+  
+  # Redis as alternative distributed cache
+  redis:
+    addr: "localhost:6379"
+    password: ""
+    db: 0
+    prefix: "rx:"
+  
+  # In-memory cache configuration (for hybrid or memory-only)
+  memory:
+    max_cost: 67108864  # 64MB (64<<20)
+    buffer_items: 64
+    metrics: true
+    default_ttl: "30m"
 external:
   pharmacy:
     base_url: "http://localhost:9090"

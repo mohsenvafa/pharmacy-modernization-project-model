@@ -1,6 +1,9 @@
 package patient
 
 import (
+	"context"
+	"time"
+
 	"github.com/go-chi/chi/v5"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.uber.org/zap"
@@ -18,6 +21,12 @@ type ModuleDependencies struct {
 	PrescriptionProvider     patientproviders.PatientPrescriptionProvider
 	PatientsMongoCollection  *mongo.Collection
 	AddressesMongoCollection *mongo.Collection
+	CacheService             interface { // Cache interface
+		Get(ctx context.Context, key string) ([]byte, error)
+		Set(ctx context.Context, key string, value []byte, ttl time.Duration) error
+		Delete(ctx context.Context, key string) error
+		Close() error
+	}
 }
 
 type ModuleExport struct {
@@ -29,7 +38,7 @@ func Module(r chi.Router, deps *ModuleDependencies) ModuleExport {
 	patRepo := patientbuilder.CreatePatientRepository(deps.Logger, deps.PatientsMongoCollection)
 	addrRepo := patientbuilder.CreateAddressRepository(deps.Logger, deps.AddressesMongoCollection)
 
-	patSvc := patientservice.New(patRepo, deps.Logger)
+	patSvc := patientservice.New(patRepo, deps.CacheService, deps.Logger)
 	addrSvc := patientservice.NewAddressService(addrRepo)
 
 	patientapi.MountAPI(r, &patientapi.Dependencies{

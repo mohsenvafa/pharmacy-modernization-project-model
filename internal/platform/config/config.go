@@ -79,6 +79,7 @@ type Config struct {
 			Endpoints BillingEndpoints `mapstructure:"endpoints"`
 		} `mapstructure:"billing"`
 	} `mapstructure:"external"`
+	Cache CacheConfig `mapstructure:"cache"`
 }
 
 // StargateEndpoints holds the full URLs for Stargate authentication endpoints
@@ -98,6 +99,35 @@ type BillingEndpoints struct {
 	CreateInvoice      string `mapstructure:"create_invoice"`
 	AcknowledgeInvoice string `mapstructure:"acknowledge_invoice"`
 	GetInvoicePayment  string `mapstructure:"get_invoice_payment"`
+}
+
+// CacheConfig holds cache configuration
+type CacheConfig struct {
+	Redis     RedisCacheConfig     `mapstructure:"redis"`
+	Memcached MemcachedCacheConfig `mapstructure:"memcached"`
+	Memory    MemoryCacheConfig    `mapstructure:"memory"`
+}
+
+// RedisCacheConfig holds Redis cache configuration
+type RedisCacheConfig struct {
+	Addr     string `mapstructure:"addr"`
+	Password string `mapstructure:"password"`
+	DB       int    `mapstructure:"db"`
+	Prefix   string `mapstructure:"prefix"`
+}
+
+// MemcachedCacheConfig holds Memcached cache configuration
+type MemcachedCacheConfig struct {
+	Addr   string `mapstructure:"addr"`
+	Prefix string `mapstructure:"prefix"`
+}
+
+// MemoryCacheConfig holds in-memory cache configuration
+type MemoryCacheConfig struct {
+	MaxCost     int64  `mapstructure:"max_cost"`
+	BufferItems int64  `mapstructure:"buffer_items"`
+	Metrics     bool   `mapstructure:"metrics"`
+	DefaultTTL  string `mapstructure:"default_ttl"`
 }
 
 func Load() *Config {

@@ -2,6 +2,9 @@ package service
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
+	"time"
 
 	commonmodel "pharmacy-modernization-project-model/domain/common/model"
 	m "pharmacy-modernization-project-model/domain/prescription/contracts/model"
@@ -21,24 +24,91 @@ type PrescriptionService interface {
 
 type svc struct {
 	repo     repo.PrescriptionRepository
+	cache    Cache
 	log      *zap.Logger
 	pharmacy irispharmacy.PharmacyClient
 	billing  irisbilling.BillingClient
 }
 
-func New(r repo.PrescriptionRepository, l *zap.Logger, pharmacy irispharmacy.PharmacyClient, billing irisbilling.BillingClient) PrescriptionService {
-	return &svc{repo: r, log: l, pharmacy: pharmacy, billing: billing}
+// Cache interface for prescription service
+type Cache interface {
+	Get(ctx context.Context, key string) ([]byte, error)
+	Set(ctx context.Context, key string, value []byte, ttl time.Duration) error
+	Delete(ctx context.Context, key string) error
+	Close() error
+}
+
+func New(r repo.PrescriptionRepository, cache Cache, l *zap.Logger, pharmacy irispharmacy.PharmacyClient, billing irisbilling.BillingClient) PrescriptionService {
+	return &svc{repo: r, cache: cache, log: l, pharmacy: pharmacy, billing: billing}
 }
 
 func (s *svc) List(ctx context.Context, status string, limit, offset int) ([]m.Prescription, error) {
 	return s.repo.List(ctx, status, limit, offset)
 }
 func (s *svc) GetByID(ctx context.Context, id string) (m.Prescription, error) {
-	return s.repo.GetByID(ctx, id)
+	cacheKey := fmt.Sprintf("prescription:id:%s", id)
+
+	// Try cache first
+	if s.cache != nil {
+		if cached, err := s.cache.Get(ctx, cacheKey); err == nil {
+			var prescription m.Prescription
+			if err := json.Unmarshal(cached, &prescription); err == nil {
+				if s.log != nil {
+					s.log.Debug("Prescription retrieved from cache", zap.String("prescription_id", id))
+				}
+				return prescription, nil
+			}
+		}
+	}
+
+	prescription, err := s.repo.GetByID(ctx, id)
+	if err != nil {
+		return m.Prescription{}, err
+	}
+
+	// Cache the result
+	if s.cache != nil {
+		if data, err := json.Marshal(prescription); err == nil {
+			if err := s.cache.Set(ctx, cacheKey, data, 15*time.Minute); err != nil && s.log != nil {
+				s.log.Warn("Failed to cache prescription", zap.String("prescription_id", id), zap.Error(err))
+			}
+		}
+	}
+
+	return prescription, nil
 }
 
 func (s *svc) CountByStatus(ctx context.Context, status string) (int, error) {
-	return s.repo.CountByStatus(ctx, status)
+	cacheKey := fmt.Sprintf("prescription:count:status:%s", status)
+
+	// Try cache first
+	if s.cache != nil {
+		if cached, err := s.cache.Get(ctx, cacheKey); err == nil {
+			var count int
+			if err := json.Unmarshal(cached, &count); err == nil {
+				if s.log != nil {
+					s.log.Debug("Prescription count retrieved from cache", zap.String("status", status))
+				}
+				return count, nil
+			}
+		}
+	}
+
+	count, err := s.repo.CountByStatus(ctx, status)
+	if err != nil {
+		return 0, err
+	}
+
+	// Cache the result with shorter TTL for counts
+	if s.cache != nil {
+		if data, err := json.Marshal(count); err == nil {
+			if err := s.cache.Set(ctx, cacheKey, data, 5*time.Minute); err != nil && s.log != nil {
+				s.log.Warn("Failed to cache prescription count", zap.String("status", status), zap.Error(err))
+			}
+		}
+	}
+
+	return count, nil
 }
 
 func (s *svc) PatientPrescriptionListByPatientID(ctx context.Context, patientID string) ([]commonmodel.PatientPrescription, error) {

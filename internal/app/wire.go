@@ -45,6 +45,16 @@ func (a *App) wire() error {
 		// Continue without MongoDB - will use memory repository as fallback
 	}
 
+	// Create cache builder
+	cacheBuilder := NewCacheBuilder(a.Cfg, logger.Base)
+
+	// Create primary cache (Memcached)
+	primaryCache, err := cacheBuilder.BuildMemcachedCache("rx:")
+	if err != nil {
+		logger.Base.Warn("Failed to create Memcached cache, falling back to memory cache", zap.Error(err))
+		primaryCache, _ = cacheBuilder.BuildMemoryCache(67108864) // 64MB fallback
+	}
+
 	// Router & middleware
 	r := chi.NewRouter()
 	r.Use(middleware.RequestID)
@@ -72,6 +82,7 @@ func (a *App) wire() error {
 		PharmacyClient:               integration.PharmacyClient,
 		BillingClient:                integration.BillingClient,
 		PrescriptionsMongoCollection: GetPrescriptionsCollection(mongoConnMgr),
+		CacheService:                 primaryCache,
 	})
 
 	// Patient Module
@@ -80,6 +91,7 @@ func (a *App) wire() error {
 		PrescriptionProvider:     prescriptionMod.PrescriptionService,
 		PatientsMongoCollection:  GetPatientsCollection(mongoConnMgr),
 		AddressesMongoCollection: GetAddressesCollection(mongoConnMgr),
+		CacheService:             primaryCache,
 	}
 
 	patientMod := patientModule.Module(r, patientModDeps)
