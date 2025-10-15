@@ -115,7 +115,10 @@ export class PatientEditComponent {
         break
 
       case 'state':
-        if (value.length > 50) {
+        if (value.length === 0) {
+          errorMessage = 'State is required'
+          isValid = false
+        } else if (value.length > 50) {
           errorMessage = 'State must be less than 50 characters'
           isValid = false
         }
