@@ -6,8 +6,8 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"go.uber.org/zap"
 
+	"pharmacy-modernization-project-model/internal/app/builder"
 	"pharmacy-modernization-project-model/internal/integrations"
 	"pharmacy-modernization-project-model/internal/platform/auth"
 	"pharmacy-modernization-project-model/internal/platform/logging"
@@ -25,35 +25,15 @@ func (a *App) wire() error {
 	a.Logger = logger
 
 	// Initialize authentication system
-	if err := auth.NewBuilder().
-		WithJWTConfig(
-			a.Cfg.Auth.JWT.Secret,
-			a.Cfg.Auth.JWT.Issuer,
-			a.Cfg.Auth.JWT.Audience,
-			a.Cfg.Auth.JWT.Cookie.Name,
-		).
-		WithDevMode(a.Cfg.Auth.DevMode).
-		WithEnvironment(a.Cfg.App.Env).
-		WithLogger(logger.Base).
-		Build(); err != nil {
+	if err := a.wireAuth(); err != nil {
 		return err
 	}
 
-	mongoConnMgr, err := CreateMongoDBConnection(a.Cfg, logger.Base)
-	if err != nil {
-		logger.Base.Error("Failed to create MongoDB connection", zap.Error(err))
-		// Continue without MongoDB - will use memory repository as fallback
-	}
+	// Create main MongoDB connection
+	mongoConnMgr := a.wireMongodb()
 
-	// Create cache builder
-	cacheBuilder := NewCacheBuilder(a.Cfg, logger.Base)
-
-	// Create primary cache (Memcached)
-	primaryCache, err := cacheBuilder.BuildMemcachedCache("rx:")
-	if err != nil {
-		logger.Base.Warn("Failed to create Memcached cache, falling back to memory cache", zap.Error(err))
-		primaryCache, _ = cacheBuilder.BuildMemoryCache(67108864) // 64MB fallback
-	}
+	// Create primary cache (MongoDB or Memory)
+	primaryCache := a.wireCache()
 
 	// Router & middleware
 	r := chi.NewRouter()
@@ -81,7 +61,7 @@ func (a *App) wire() error {
 		Logger:                       logger.Base,
 		PharmacyClient:               integration.PharmacyClient,
 		BillingClient:                integration.BillingClient,
-		PrescriptionsMongoCollection: GetPrescriptionsCollection(mongoConnMgr),
+		PrescriptionsMongoCollection: builder.GetPrescriptionsCollection(mongoConnMgr),
 		CacheService:                 primaryCache,
 	})
 
@@ -89,8 +69,8 @@ func (a *App) wire() error {
 	var patientModDeps = &patientModule.ModuleDependencies{
 		Logger:                   logger.Base,
 		PrescriptionProvider:     prescriptionMod.PrescriptionService,
-		PatientsMongoCollection:  GetPatientsCollection(mongoConnMgr),
-		AddressesMongoCollection: GetAddressesCollection(mongoConnMgr),
+		PatientsMongoCollection:  builder.GetPatientsCollection(mongoConnMgr),
+		AddressesMongoCollection: builder.GetAddressesCollection(mongoConnMgr),
 		CacheService:             primaryCache,
 	}
 

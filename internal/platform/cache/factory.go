@@ -8,20 +8,17 @@ import (
 )
 
 type CacheConfig struct {
-	Strategy  string
-	Redis     RedisConfig
-	Memcached MemcachedConfig
-	Memory    MemoryConfig
+	Strategy string
+	Memory   MemoryConfig
+	MongoDB  MongoDBConfig
 }
 
 func NewCache(strategy string, config CacheConfig, logger *zap.Logger) (Cache, error) {
 	switch strategy {
 	case "hybrid":
 		return NewHybridCacheFromConfig(config, logger)
-	case "redis":
-		return NewRedisCache(config.Redis, logger), nil
-	case "memcached":
-		return NewMemcachedCache(config.Memcached, logger), nil
+	case "mongodb":
+		return NewMongoDBCache(config.MongoDB, logger)
 	case "memory":
 		return NewMemoryCache(config.Memory, logger)
 	default:
@@ -43,17 +40,16 @@ func NewHybridCacheFromConfig(config CacheConfig, logger *zap.Logger) (Cache, er
 		return nil, fmt.Errorf("failed to create memory cache: %w", err)
 	}
 
-	// Create shared cache (prefer Memcached, fallback to Redis)
-	var sharedCache Cache
-	if config.Memcached.Addr != "" {
-		sharedCache = NewMemcachedCache(config.Memcached, logger)
-		logger.Info("Hybrid cache using Memcached as shared tier")
-	} else if config.Redis.Addr != "" {
-		sharedCache = NewRedisCache(config.Redis, logger)
-		logger.Info("Hybrid cache using Redis as shared tier")
-	} else {
-		return nil, fmt.Errorf("hybrid cache requires either Redis or Memcached configuration")
+	// Create shared cache (MongoDB)
+	if config.MongoDB.Collection == nil {
+		return nil, fmt.Errorf("hybrid cache requires MongoDB configuration")
 	}
+
+	sharedCache, err := NewMongoDBCache(config.MongoDB, logger)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create MongoDB cache: %w", err)
+	}
+	logger.Info("Hybrid cache using MongoDB as shared tier")
 
 	return NewHybridCache(localCache, sharedCache), nil
 }

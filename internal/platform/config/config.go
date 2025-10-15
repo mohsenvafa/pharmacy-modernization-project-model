@@ -103,23 +103,22 @@ type BillingEndpoints struct {
 
 // CacheConfig holds cache configuration
 type CacheConfig struct {
-	Redis     RedisCacheConfig     `mapstructure:"redis"`
-	Memcached MemcachedCacheConfig `mapstructure:"memcached"`
-	Memory    MemoryCacheConfig    `mapstructure:"memory"`
+	MongoDB CacheMongoDBConfig `mapstructure:"mongodb"`
+	Memory  MemoryCacheConfig  `mapstructure:"memory"`
 }
 
-// RedisCacheConfig holds Redis cache configuration
-type RedisCacheConfig struct {
-	Addr     string `mapstructure:"addr"`
-	Password string `mapstructure:"password"`
-	DB       int    `mapstructure:"db"`
-	Prefix   string `mapstructure:"prefix"`
-}
-
-// MemcachedCacheConfig holds Memcached cache configuration
-type MemcachedCacheConfig struct {
-	Addr   string `mapstructure:"addr"`
-	Prefix string `mapstructure:"prefix"`
+// CacheMongoDBConfig holds MongoDB cache configuration
+type CacheMongoDBConfig struct {
+	URI        string `mapstructure:"uri"`
+	Database   string `mapstructure:"database"`
+	Collection string `mapstructure:"collection"`
+	Connection struct {
+		MaxPoolSize    uint64 `mapstructure:"max_pool_size"`
+		MinPoolSize    uint64 `mapstructure:"min_pool_size"`
+		MaxIdleTime    string `mapstructure:"max_idle_time"`
+		ConnectTimeout string `mapstructure:"connect_timeout"`
+		SocketTimeout  string `mapstructure:"socket_timeout"`
+	} `mapstructure:"connection"`
 }
 
 // MemoryCacheConfig holds in-memory cache configuration

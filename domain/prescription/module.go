@@ -1,9 +1,6 @@
 package prescription
 
 import (
-	"context"
-	"time"
-
 	"github.com/go-chi/chi/v5"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.uber.org/zap"
@@ -14,6 +11,7 @@ import (
 	uiprescription "pharmacy-modernization-project-model/domain/prescription/ui"
 	irisbilling "pharmacy-modernization-project-model/internal/integrations/iris_billing"
 	irispharmacy "pharmacy-modernization-project-model/internal/integrations/iris_pharmacy"
+	"pharmacy-modernization-project-model/internal/platform/cache"
 )
 
 type ModuleDependencies struct {
@@ -21,12 +19,7 @@ type ModuleDependencies struct {
 	PharmacyClient               irispharmacy.PharmacyClient
 	BillingClient                irisbilling.BillingClient
 	PrescriptionsMongoCollection *mongo.Collection
-	CacheService                 interface { // Cache interface
-		Get(ctx context.Context, key string) ([]byte, error)
-		Set(ctx context.Context, key string, value []byte, ttl time.Duration) error
-		Delete(ctx context.Context, key string) error
-		Close() error
-	}
+	CacheService                 cache.Cache
 }
 
 type ModuleExport struct {

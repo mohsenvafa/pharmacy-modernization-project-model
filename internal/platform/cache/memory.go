@@ -79,12 +79,12 @@ func (m *MemoryCache) Stats() CacheStats {
 	}
 
 	return CacheStats{
-		Hits:      hits,
-		Misses:    misses,
-		Evictions: metrics.Evictions(),
-		Errors:    metrics.Errors(),
+		Hits:      int64(hits),
+		Misses:    int64(misses),
+		Evictions: int64(metrics.KeysEvicted()),
+		Errors:    0, // Ristretto doesn't track errors separately
 		HitRate:   hitRate,
-		Size:      metrics.KeysAdded() - metrics.KeysEvicted(),
-		MaxSize:   int64(metrics.Capacity()),
+		Size:      int64(metrics.KeysAdded() - metrics.KeysEvicted()),
+		MaxSize:   m.config.MaxCost,
 	}
 }

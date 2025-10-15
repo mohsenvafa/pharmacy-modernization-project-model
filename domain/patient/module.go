@@ -1,9 +1,6 @@
 package patient
 
 import (
-	"context"
-	"time"
-
 	"github.com/go-chi/chi/v5"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.uber.org/zap"
@@ -14,6 +11,7 @@ import (
 	patientservice "pharmacy-modernization-project-model/domain/patient/service"
 	uipatient "pharmacy-modernization-project-model/domain/patient/ui"
 	uipatientContracts "pharmacy-modernization-project-model/domain/patient/ui/contracts"
+	"pharmacy-modernization-project-model/internal/platform/cache"
 )
 
 type ModuleDependencies struct {
@@ -21,12 +19,7 @@ type ModuleDependencies struct {
 	PrescriptionProvider     patientproviders.PatientPrescriptionProvider
 	PatientsMongoCollection  *mongo.Collection
 	AddressesMongoCollection *mongo.Collection
-	CacheService             interface { // Cache interface
-		Get(ctx context.Context, key string) ([]byte, error)
-		Set(ctx context.Context, key string, value []byte, ttl time.Duration) error
-		Delete(ctx context.Context, key string) error
-		Close() error
-	}
+	CacheService             cache.Cache
 }
 
 type ModuleExport struct {

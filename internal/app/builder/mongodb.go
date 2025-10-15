@@ -1,4 +1,4 @@
-package app
+package builder
 
 import (
 	"go.mongodb.org/mongo-driver/mongo"

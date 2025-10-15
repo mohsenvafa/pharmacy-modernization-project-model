@@ -2,32 +2,34 @@
 
 ## Overview
 
-This project implements a flexible, multi-strategy caching layer with **Memcached** as the primary distributed cache. The caching system supports multiple strategies (Memcached, Redis, Memory, Hybrid) and can be easily injected into services throughout the application.
+This project implements a simple, flexible caching layer with **MongoDB** as the primary distributed cache and **Ristretto** for ultra-fast in-memory caching. The system uses your existing MongoDB connection, so no additional services are required.
 
 ## Architecture
 
 ### Cache Strategies
 
-1. **Memcached** (Primary) - Distributed cache for production use
-2. **Redis** - Alternative distributed cache
-3. **Memory** (Ristretto) - Ultra-fast in-memory cache
-4. **Hybrid** - Combines memory (L1) + distributed cache (L2) for optimal performance
+1. **MongoDB** (Primary) - Persistent distributed cache using existing MongoDB
+2. **Memory** (Ristretto) - Ultra-fast in-memory cache
+3. **Hybrid** - Combines memory (L1) + MongoDB (L2) for optimal performance
 
 ### Key Components
 
 ```
 internal/platform/cache/
 ├── cache.go          # Cache interface and types
-├── memcached.go      # Memcached implementation
-├── redis.go          # Redis implementation
+├── mongodb.go        # MongoDB implementation with TTL
 ├── memory.go         # Ristretto in-memory implementation
-├── hybrid.go         # Hybrid cache (memory + distributed)
+├── hybrid.go         # Hybrid cache (memory + MongoDB)
 ├── factory.go        # Cache factory for creating instances
 ├── middleware.go     # Metrics and logging middleware
 └── health.go         # Health check utilities
 
 internal/app/
-└── cache_builder.go  # Builder for creating cache instances
+├── builder/
+│   ├── cache.go      # Cache builder for creating cache instances
+│   └── mongodb.go    # MongoDB builder for main database
+├── cache.wire.go     # Cache wiring logic
+└── mongodb.wire.go   # MongoDB wiring logic
 ```
 
 ## Configuration
@@ -36,19 +38,19 @@ internal/app/
 
 ```yaml
 cache:
-  # Memcached as primary cache (distributed cache)
-  memcached:
-    addr: "localhost:11211"
-    prefix: "rx:"
+  # MongoDB cache configuration (independent from main database)
+  mongodb:
+    uri: "mongodb://admin:admin123@localhost:27017"
+    database: "pharmacy_modernization_cache"  # Separate database for cache
+    collection: "cache"
+    connection:
+      max_pool_size: 50
+      min_pool_size: 5
+      max_idle_time: "30m"
+      connect_timeout: "10s"
+      socket_timeout: "30s"
   
-  # Redis as alternative distributed cache
-  redis:
-    addr: "localhost:6379"
-    password: ""
-    db: 0
-    prefix: "rx:"
-  
-  # In-memory cache configuration (for hybrid or memory-only)
+  # In-memory cache configuration
   memory:
     max_cost: 67108864  # 64MB (64<<20)
     buffer_items: 64
@@ -58,22 +60,16 @@ cache:
 
 ### Docker/Podman Compose
 
-The `podman/compose.yml` includes Memcached:
+Only MongoDB is required (already in your `compose.yml`):
 
 ```yaml
 services:
-  memcached:
-    image: memcached:1.6-alpine
-    container_name: memcached
+  mongodb:
+    image: mongo:6.0
+    container_name: mongodb
     restart: always
     ports:
-      - "11211:11211"
-    command: memcached -m 64 -c 1024 -I 4m
-    healthcheck:
-      test: ["CMD", "nc", "-z", "localhost", "11211"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
+      - "27017:27017"
 ```
 
 ## Usage
@@ -81,7 +77,7 @@ services:
 ### Starting the Cache Service
 
 ```bash
-# Start Memcached and MongoDB
+# Start MongoDB
 cd podman
 podman-compose up -d
 
@@ -97,25 +93,16 @@ The `CacheBuilder` provides flexible cache creation:
 // In wire.go or module initialization
 cacheBuilder := NewCacheBuilder(config, logger)
 
-// Create Memcached cache (primary)
-primaryCache, err := cacheBuilder.BuildMemcachedCache("rx:")
+// Create MongoDB cache (uses separate cache MongoDB connection)
+cacheMongoConnMgr, _ := CreateCacheMongoDBConnection(config, logger)
+cacheCollection := GetCacheMongoCollection(cacheMongoConnMgr, config)
+mongoCache, err := cacheBuilder.BuildMongoDBCache(cacheCollection, "rx:")
 
 // Create memory cache
 memCache, err := cacheBuilder.BuildMemoryCache(67108864) // 64MB
 
-// Create hybrid cache
+// Create hybrid cache (memory + MongoDB)
 hybridCache, err := cacheBuilder.BuildHybridCache(33554432) // 32MB memory
-
-// Create Redis cache
-redisCache, err := cacheBuilder.BuildRedisCache("localhost:6379", "api:")
-
-// Create custom strategy cache
-customCache, err := cacheBuilder.BuildCache("memcached", CacheInstanceConfig{
-    Memcached: cache.MemcachedConfig{
-        Addr:   "localhost:11211",
-        Prefix: "custom:",
-    },
-})
 ```
 
 ### Service Integration
@@ -159,6 +146,59 @@ func (s *patientSvc) GetByID(ctx context.Context, id string) (m.Patient, error) 
 }
 ```
 
+## MongoDB Cache Details
+
+### How It Works
+
+MongoDB cache uses a dedicated `cache` collection with automatic TTL expiration:
+
+```go
+type cacheDocument struct {
+    Key      string    `bson:"_id"`       // Cache key (unique)
+    Value    []byte    `bson:"value"`     // Cached data
+    ExpireAt time.Time `bson:"expireAt"`  // TTL expiration time
+}
+```
+
+### TTL Index
+
+The MongoDB cache automatically creates a TTL index on the `expireAt` field:
+
+```javascript
+db.cache.createIndex({ "expireAt": 1 }, { expireAfterSeconds: 0 })
+```
+
+This tells MongoDB to automatically delete documents when `expireAt` time is reached.
+
+### Database and Collection Structure
+
+**Separate databases for clear separation:**
+
+```
+MongoDB Server (localhost:27017)
+├── pharmacy_modernization/        # Main database
+│   ├── patients
+│   ├── prescriptions
+│   └── addresses
+└── pharmacy_modernization_cache/  # Cache database (separate)
+    └── cache                       # Cache collection (auto-expires)
+```
+
+**Why separate databases?**
+- ✅ Clear separation of concerns
+- ✅ Independent backup/restore strategies
+- ✅ Different retention policies
+- ✅ Easy to drop cache without affecting data
+- ✅ Independent monitoring and metrics
+
+### Benefits
+
+- ✅ **No additional service** required (uses existing MongoDB)
+- ✅ **Persistent cache** (survives restarts)
+- ✅ **Automatic TTL expiration** via MongoDB indexes
+- ✅ **Multi-instance support** (shared cache across app instances)
+- ✅ **Simple setup** (just use existing MongoDB connection)
+
 ## Cache Key Strategy
 
 ### Key Patterns
@@ -176,10 +216,6 @@ func (s *patientSvc) GetByID(ctx context.Context, id string) (m.Patient, error) 
 
 // Dashboard aggregates
 "dashboard:summary"            // Dashboard summary data
-
-// External API data
-"iris:prescription:{id}"       // Cached external API response
-"iris:invoice:{id}"            // Cached invoice data
 ```
 
 ### TTL Recommendations
@@ -193,10 +229,6 @@ const (
     // Dynamic data
     TTLPrescriptionData = 15 * time.Minute
     TTLDashboardSummary = 2 * time.Minute
-    
-    // External API data (critical for performance)
-    TTLIrisPrescription = 10 * time.Minute
-    TTLIrisInvoice     = 15 * time.Minute
     
     // Count/aggregate data
     TTLCountData      = 5 * time.Minute
@@ -228,6 +260,17 @@ type CacheStats struct {
 ```go
 healthChecker := cache.NewCacheHealthChecker(cacheService)
 err := healthChecker.Check(ctx)
+```
+
+### Verify Cache in MongoDB
+
+```bash
+mongosh mongodb://admin:admin123@localhost:27017
+
+use pharmacy_modernization
+db.cache.find().pretty()
+db.cache.stats()
+db.cache.getIndexes()
 ```
 
 ## Best Practices
@@ -266,7 +309,6 @@ func (s *service) Update(ctx context.Context, id string, data Data) error {
 
     // Invalidate related cache entries
     s.cache.Delete(ctx, fmt.Sprintf("data:id:%s", id))
-    s.cache.Delete(ctx, "data:list:*")  // Invalidate list queries
     
     return nil
 }
@@ -295,7 +337,14 @@ return s.repo.Get(ctx, id)
 - **Moderately changing data**: 15-30 minutes
 - **Rarely changing data**: 1+ hours
 - **Count queries**: 5 minutes (cheaper to recompute)
-- **External API calls**: 10-15 minutes (balance freshness vs. API costs)
+
+## Strategy Comparison
+
+| Strategy | Speed | Persistence | Multi-Instance | Setup | Use Case |
+|----------|-------|-------------|----------------|-------|----------|
+| **Memory** | ⚡⚡⚡⚡⚡ | ❌ | ❌ | Easy | Single-instance, temporary |
+| **MongoDB** | ⚡⚡⚡ | ✅ | ✅ | Easy | Multi-instance, persistent |
+| **Hybrid** | ⚡⚡⚡⚡⚡ | ✅ | ✅ | Easy | Best performance + persistence |
 
 ## Advanced Scenarios
 
@@ -304,84 +353,66 @@ return s.repo.Get(ctx, id)
 ```go
 // In wire.go
 serviceCache, _ := cacheBuilder.BuildMemoryCache(33554432)     // 32MB fast memory
-apiCache, _ := cacheBuilder.BuildMemcachedCache("api:")        // Distributed for API responses
-externalCache, _ := cacheBuilder.BuildHybridCache(16777216)    // 16MB hybrid for external APIs
+
+cacheCollection := GetCacheCollection(mongoConnMgr)
+apiCache, _ := cacheBuilder.BuildMongoDBCache(cacheCollection, "api:")  // Persistent for API
 
 // Pass to modules
 patientModule.Module(router, &patient.ModuleDependencies{
     ServiceCache:  serviceCache,   // For business logic
     APICache:      apiCache,        // For API responses
-    ExternalCache: externalCache,   // For external API calls
 })
 ```
 
-### Custom Cache Strategy per Use Case
+### Hybrid Cache for Best Performance
 
 ```go
-// Fast in-memory for frequently accessed data
-frequentCache, _ := cacheBuilder.BuildMemoryCache(67108864)
+// Combines ultra-fast memory L1 with persistent MongoDB L2
+hybridCache, _ := cacheBuilder.BuildHybridCache(33554432) // 32MB memory
 
-// Distributed for shared data across instances
-sharedCache, _ := cacheBuilder.BuildMemcachedCache("shared:")
-
-// Hybrid for best of both worlds
-hybridCache, _ := cacheBuilder.BuildHybridCache(33554432)
+// Automatically:
+// - Checks memory first (microseconds)
+// - Falls back to MongoDB (milliseconds)
+// - Backfills memory on MongoDB hits
 ```
 
 ## Troubleshooting
 
-### Cache Not Working
+### Cache not working?
 
-1. **Check Memcached is running**:
-   ```bash
-   podman ps | grep memcached
-   # or
-   telnet localhost 11211
-   ```
+1. **Check MongoDB connection**: Verify MongoDB is running
+2. **Check logs**: Look for cache creation errors
+3. **Check TTL index**: Run `db.cache.getIndexes()`
 
-2. **Check configuration**:
-   ```bash
-   # Verify cache config in app.yaml
-   cat internal/configs/app.yaml | grep -A 10 "cache:"
-   ```
+### Cache growing too large?
 
-3. **Enable debug logging**:
-   ```yaml
-   logging:
-     level: debug
-   ```
+1. **Check TTLs**: Make sure they're appropriate
+2. **Monitor collection size**: `db.cache.stats()`
+3. **Reduce cache size**: Lower TTLs or use more aggressive eviction
 
-### Performance Issues
+### Performance issues?
 
-1. **Monitor cache hit rates**:
-   ```go
-   stats := cache.Stats()
-   log.Info("Cache stats", 
-       zap.Float64("hit_rate", stats.HitRate),
-       zap.Int64("hits", stats.Hits),
-       zap.Int64("misses", stats.Misses))
-   ```
+1. **Use hybrid cache** for better performance
+2. **Optimize MongoDB**: Ensure proper indexes and configuration
+3. **Monitor hit rates**: Adjust TTLs based on hit rates
 
-2. **Adjust TTLs** based on hit rates and data freshness requirements
+## Clean Up Cache
 
-3. **Consider hybrid strategy** for frequently accessed data
+If you want to clear the cache:
 
-## Migration Guide
+```javascript
+db.cache.drop()
+```
 
-### From No Cache to Memcached
+The collection and index will be recreated automatically on next cache operation.
 
-1. **Start Memcached**:
-   ```bash
-   cd podman && podman-compose up -d memcached
-   ```
+## Migration from Memcached/Redis
 
-2. **Add cache configuration** to `app.yaml`
+If you previously used Memcached or Redis, MongoDB cache is a drop-in replacement:
 
-3. **Inject cache into services** via module dependencies
-
-4. **Update service methods** to use cache-aside pattern
-
-5. **Monitor and tune** TTLs based on usage patterns
+1. **Remove Memcached/Redis** from compose.yml (already done)
+2. **Code stays the same** - just the implementation changes
+3. **Benefits**: One less service to manage, persistent cache
 
 ## Dependencies
 
@@ -389,9 +420,8 @@ Add to `go.mod`:
 
 ```go
 require (
-    github.com/bradfitz/gomemcache v0.0.0-20230905024940-24af94b03874
     github.com/dgraph-io/ristretto v0.1.1
-    github.com/go-redis/redis/v8 v8.11.5
+    go.mongodb.org/mongo-driver v1.12.1
 )
 ```
 
@@ -399,13 +429,13 @@ require (
 
 The caching implementation provides:
 
-- ✅ **Flexible strategy selection** (Memcached, Redis, Memory, Hybrid)
-- ✅ **Memcached as primary** distributed cache
+- ✅ **Simple architecture** (MongoDB + Memory only)
+- ✅ **MongoDB as primary** persistent cache
+- ✅ **No additional services** required
 - ✅ **Easy service injection** via builder pattern
 - ✅ **Built-in metrics** and health checks
 - ✅ **Graceful fallbacks** for resilience
 - ✅ **Simple configuration** via YAML
 - ✅ **Production-ready** with proper error handling
 
-The system is designed for maximum flexibility while keeping implementation simple and maintainable.
-
+The system is designed for maximum simplicity while providing excellent performance and persistence.

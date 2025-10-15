@@ -40,17 +40,17 @@ auth:
       httponly: true
       max_age: 3600  # 1 hour in seconds
 cache:
-  # Memcached as primary cache (distributed cache)
-  memcached:
-    addr: "localhost:11211"
-    prefix: "rx:"
-  
-  # Redis as alternative distributed cache
-  redis:
-    addr: "localhost:6379"
-    password: ""
-    db: 0
-    prefix: "rx:"
+  # MongoDB cache configuration (independent from main database)
+  mongodb:
+    uri: "mongodb://admin:admin123@localhost:27017"
+    database: "pharmacy_modernization_cache"  # Separate database for cache
+    collection: "cache"
+    connection:
+      max_pool_size: 50
+      min_pool_size: 5
+      max_idle_time: "30m"
+      connect_timeout: "10s"
+      socket_timeout: "30s"
   
   # In-memory cache configuration (for hybrid or memory-only)
   memory:

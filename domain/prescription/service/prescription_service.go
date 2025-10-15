@@ -3,16 +3,16 @@ package service
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"time"
+
+	"go.uber.org/zap"
 
 	commonmodel "pharmacy-modernization-project-model/domain/common/model"
 	m "pharmacy-modernization-project-model/domain/prescription/contracts/model"
 	repo "pharmacy-modernization-project-model/domain/prescription/repository"
 	irisbilling "pharmacy-modernization-project-model/internal/integrations/iris_billing"
 	irispharmacy "pharmacy-modernization-project-model/internal/integrations/iris_pharmacy"
-
-	"go.uber.org/zap"
+	"pharmacy-modernization-project-model/internal/platform/cache"
 )
 
 type PrescriptionService interface {
@@ -23,30 +23,30 @@ type PrescriptionService interface {
 }
 
 type svc struct {
-	repo     repo.PrescriptionRepository
-	cache    Cache
-	log      *zap.Logger
-	pharmacy irispharmacy.PharmacyClient
-	billing  irisbilling.BillingClient
+	repo      repo.PrescriptionRepository
+	cache     cache.Cache
+	cacheKeys *CacheKeys
+	log       *zap.Logger
+	pharmacy  irispharmacy.PharmacyClient
+	billing   irisbilling.BillingClient
 }
 
-// Cache interface for prescription service
-type Cache interface {
-	Get(ctx context.Context, key string) ([]byte, error)
-	Set(ctx context.Context, key string, value []byte, ttl time.Duration) error
-	Delete(ctx context.Context, key string) error
-	Close() error
-}
-
-func New(r repo.PrescriptionRepository, cache Cache, l *zap.Logger, pharmacy irispharmacy.PharmacyClient, billing irisbilling.BillingClient) PrescriptionService {
-	return &svc{repo: r, cache: cache, log: l, pharmacy: pharmacy, billing: billing}
+func New(r repo.PrescriptionRepository, c cache.Cache, l *zap.Logger, pharmacy irispharmacy.PharmacyClient, billing irisbilling.BillingClient) PrescriptionService {
+	return &svc{
+		repo:      r,
+		cache:     c,
+		cacheKeys: NewCacheKeys(),
+		log:       l,
+		pharmacy:  pharmacy,
+		billing:   billing,
+	}
 }
 
 func (s *svc) List(ctx context.Context, status string, limit, offset int) ([]m.Prescription, error) {
 	return s.repo.List(ctx, status, limit, offset)
 }
 func (s *svc) GetByID(ctx context.Context, id string) (m.Prescription, error) {
-	cacheKey := fmt.Sprintf("prescription:id:%s", id)
+	cacheKey := s.cacheKeys.PrescriptionByID(id)
 
 	// Try cache first
 	if s.cache != nil {
@@ -79,7 +79,7 @@ func (s *svc) GetByID(ctx context.Context, id string) (m.Prescription, error) {
 }
 
 func (s *svc) CountByStatus(ctx context.Context, status string) (int, error) {
-	cacheKey := fmt.Sprintf("prescription:count:status:%s", status)
+	cacheKey := s.cacheKeys.PrescriptionCountByStatus(status)
 
 	// Try cache first
 	if s.cache != nil {

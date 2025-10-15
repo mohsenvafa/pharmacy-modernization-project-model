@@ -3,44 +3,42 @@ package service
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"time"
+
+	"go.uber.org/zap"
 
 	m "pharmacy-modernization-project-model/domain/patient/contracts/model"
 	repo "pharmacy-modernization-project-model/domain/patient/repository"
-
-	"go.uber.org/zap"
+	"pharmacy-modernization-project-model/internal/platform/cache"
 )
 
 type PatientService interface {
-	List(ctx context.Context, q string, limit, offset int) ([]m.Patient, error)
+	List(ctx context.Context, query string, limit, offset int) ([]m.Patient, error)
 	GetByID(ctx context.Context, id string) (m.Patient, error)
-	Count(ctx context.Context, q string) (int, error)
+	Count(ctx context.Context, query string) (int, error)
 }
 
 type patientSvc struct {
-	repo  repo.PatientRepository
-	cache Cache
-	log   *zap.Logger
+	repo      repo.PatientRepository
+	cache     cache.Cache
+	cacheKeys *CacheKeys
+	log       *zap.Logger
 }
 
-// Cache interface for patient service
-type Cache interface {
-	Get(ctx context.Context, key string) ([]byte, error)
-	Set(ctx context.Context, key string, value []byte, ttl time.Duration) error
-	Delete(ctx context.Context, key string) error
-	Close() error
+func New(r repo.PatientRepository, c cache.Cache, l *zap.Logger) PatientService {
+	return &patientSvc{
+		repo:      r,
+		cache:     c,
+		cacheKeys: NewCacheKeys(),
+		log:       l,
+	}
 }
 
-func New(r repo.PatientRepository, cache Cache, l *zap.Logger) PatientService {
-	return &patientSvc{repo: r, cache: cache, log: l}
-}
-
-func (s *patientSvc) List(ctx context.Context, q string, limit, offset int) ([]m.Patient, error) {
-	return s.repo.List(ctx, q, limit, offset)
+func (s *patientSvc) List(ctx context.Context, query string, limit, offset int) ([]m.Patient, error) {
+	return s.repo.List(ctx, query, limit, offset)
 }
 func (s *patientSvc) GetByID(ctx context.Context, id string) (m.Patient, error) {
-	cacheKey := fmt.Sprintf("patient:id:%s", id)
+	cacheKey := s.cacheKeys.PatientByID(id)
 
 	// Try cache first
 	if s.cache != nil {
@@ -76,21 +74,21 @@ func (s *patientSvc) GetByID(ctx context.Context, id string) (m.Patient, error) 
 	return patient, nil
 }
 
-func (s *patientSvc) Count(ctx context.Context, q string) (int, error) {
-	cacheKey := fmt.Sprintf("patient:count:%s", q)
+func (s *patientSvc) Count(ctx context.Context, query string) (int, error) {
+	cacheKey := s.cacheKeys.PatientCount(query)
 
 	// Try cache first
 	if s.cache != nil {
 		if cached, err := s.cache.Get(ctx, cacheKey); err == nil {
 			var count int
 			if err := json.Unmarshal(cached, &count); err == nil {
-				s.log.Debug("Patient count retrieved from cache", zap.String("query", q))
+				s.log.Debug("Patient count retrieved from cache", zap.String("query", query))
 				return count, nil
 			}
 		}
 	}
 
-	count, err := s.repo.Count(ctx, q)
+	count, err := s.repo.Count(ctx, query)
 	if err != nil {
 		return 0, err
 	}
@@ -99,7 +97,7 @@ func (s *patientSvc) Count(ctx context.Context, q string) (int, error) {
 	if s.cache != nil {
 		if data, err := json.Marshal(count); err == nil {
 			if err := s.cache.Set(ctx, cacheKey, data, 5*time.Minute); err != nil {
-				s.log.Warn("Failed to cache patient count", zap.String("query", q), zap.Error(err))
+				s.log.Warn("Failed to cache patient count", zap.String("query", query), zap.Error(err))
 			}
 		}
 	}
