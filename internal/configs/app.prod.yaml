@@ -1,6 +1,6 @@
 # Production Configuration
-# This file is merged with app.yaml when PM_APP_ENV=prod
-# Use environment variables for sensitive values
+# This file is merged with app.yaml when RX_APP_ENV=prod
+# Use environment variables for sensitive values (RX_ prefix, UPPERCASE)
 
 app:
   env: prod
@@ -9,13 +9,14 @@ app:
 logging:
   level: info
   format: json
+  output: both  # Log to both console and file
 
 auth:
   dev_mode: false  # MUST be false in production
   jwt:
-    secret: "${PM_AUTH_JWT_SECRET}"  # REQUIRED: Set via environment variable
-    issuer: "${PM_AUTH_JWT_ISSUER}"
-    audience: "${PM_AUTH_JWT_AUDIENCE}"
+    secret: ""  # REQUIRED: Set via RX_AUTH_JWT_SECRET
+    issuer: "PharmacyModernization"
+    audience: "PharmacyModernization"
     cookie:
       name: "auth_token"
       secure: true  # HTTPS only
@@ -24,8 +25,8 @@ auth:
 
 database:
   mongodb:
-    uri: "${PM_MONGODB_URI}"
-    database: "pharmacy_modernization_prod"
+    uri: ""  # REQUIRED: Set via RX_DATABASE_MONGODB_URI
+    database: "pharmacy_modernization"
     collections:
       patients: "patients"
     connection:
@@ -38,19 +39,18 @@ database:
       retry_writes: true
       retry_reads: true
 
+cache:
+  mongodb:
+    uri: ""  # REQUIRED: Set via RX_CACHE_MONGODB_URI
+    database: "pharmacy_modernization_cache"
+
 external:
   pharmacy:
     use_mock: false
     timeout: "10s"
-    endpoints:
-      get_prescription: "${PM_PHARMACY_BASE_URL}/pharmacy/v1/prescriptions/{prescriptionID}"
+    # Configure endpoints via RX_EXTERNAL_PHARMACY_ENDPOINTS_* if needed
   billing:
     use_mock: false
     timeout: "10s"
-    endpoints:
-      get_invoice: "${PM_BILLING_BASE_URL}/billing/v1/invoices/{prescriptionID}"
-      get_invoices_by_patient: "${PM_BILLING_BASE_URL}/billing/v1/patients/{patientID}/invoices"
-      create_invoice: "${PM_BILLING_BASE_URL}/billing/v1/invoices"
-      acknowledge_invoice: "${PM_BILLING_BASE_URL}/billing/v1/invoices/{invoiceID}/acknowledge"
-      get_invoice_payment: "${PM_BILLING_BASE_URL}/billing/v1/invoices/{invoiceID}/payment"
+    # Configure endpoints via RX_EXTERNAL_BILLING_ENDPOINTS_* if needed
 

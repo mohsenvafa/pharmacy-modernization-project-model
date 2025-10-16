@@ -2,11 +2,15 @@
 
 ## Dev
 - **Install**: Go 1.24, `templ`, Node.js 18+, `npm`
-- **Setup once**: `make setup` (downloads Tailwind binary and installs npm dependencies)
+- **Setup once**: 
+  1. `cp .env.example .env` (copy environment variables and fill in values)
+  2. `make setup` (downloads Tailwind binary and installs npm dependencies)
 - **Install gqlgen**: `make graphql-install` (one-time, for GraphQL code generation)
 - **Run IRIS Mock Server**: `make mock-iris` (runs mock APIs on port 8881 - **start this first!**)
-- **Run server**: `make dev` (runs all watchers)
+- **Run server**: `make dev` (runs all watchers, uses `app.yaml` defaults)
 - **Open**: http://localhost:8080
+
+**Note:** The app uses `app.yaml` for development by default. For production, set `RX_APP_ENV=prod` to load `app.prod.yaml` with secure defaults.
 
 ## IRIS Mock Server (Development APIs)
 The IRIS Mock Server simulates external pharmacy and billing APIs for local development:
@@ -25,12 +29,12 @@ The IRIS Mock Server simulates external pharmacy and billing APIs for local deve
 - **View logs**: `make podman-logs` (shows container logs)
 - **First-time seeding**: `make podman-up && go run ./cmd/seed` (starts containers and seeds with sample data)
 
-**Connection Details:**
+**Connection Details:** (configured in `.env` file)
 - **Host**: localhost:27017
-- **Username**: admin
-- **Password**: admin123
-- **Database**: pharmacy_modernization
-- **Connection String**: `mongodb://admin:admin123@localhost:27017/pharmacy_modernization`
+- **Username**: `admin` (from `MONGO_ROOT_USERNAME`)
+- **Password**: (from `MONGO_ROOT_PASSWORD`)
+- **Database**: (from `MONGO_DATABASE`)
+- **Connection String**: Values from `.env` file are used to construct the MongoDB URI
 
 ### GraphQL Development
 - **Generate code**: `make graphql-generate` (run after schema changes)

@@ -1,5 +1,7 @@
 # Caching Implementation Guide
 
+> ⚠️ **SECURITY NOTE**: All credentials shown in this document (e.g., `admin:admin123`) are **EXAMPLES ONLY** for local development. In production, use secure credentials stored in environment variables via `.env` file or secrets manager.
+
 ## Overview
 
 This project implements a simple, flexible caching layer with **MongoDB** as the primary distributed cache and **Ristretto** for ultra-fast in-memory caching. The system uses your existing MongoDB connection, so no additional services are required.
@@ -40,7 +42,7 @@ internal/app/
 cache:
   # MongoDB cache configuration (independent from main database)
   mongodb:
-    uri: "mongodb://admin:admin123@localhost:27017"
+    uri: ""  # Set via RX_CACHE_MONGODB_URI environment variable
     database: "pharmacy_modernization_cache"  # Separate database for cache
     collection: "cache"
     connection:
@@ -265,7 +267,7 @@ err := healthChecker.Check(ctx)
 ### Verify Cache in MongoDB
 
 ```bash
-mongosh mongodb://admin:admin123@localhost:27017
+mongosh $RX_CACHE_MONGODB_URI  # Or use your MongoDB URI from .env
 
 use pharmacy_modernization
 db.cache.find().pretty()

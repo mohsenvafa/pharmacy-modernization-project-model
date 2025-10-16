@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -45,9 +46,28 @@ type Prescription struct {
 func main() {
 	fmt.Println("🌱 Starting MongoDB seeding...")
 
-	// MongoDB connection string
-	uri := "mongodb://admin:admin123@localhost:27017"
-	dbName := "pharmacy_modernization"
+	// MongoDB connection from environment variables
+	// REQUIRED: Must be set in .env file
+	username := os.Getenv("MONGO_ROOT_USERNAME")
+	password := os.Getenv("MONGO_ROOT_PASSWORD")
+	dbName := os.Getenv("MONGO_DATABASE")
+
+	// Validate required environment variables
+	if username == "" {
+		log.Fatal("❌ ERROR: MONGO_ROOT_USERNAME environment variable is required. Please set it in .env file")
+	}
+	if password == "" {
+		log.Fatal("❌ ERROR: MONGO_ROOT_PASSWORD environment variable is required. Please set it in .env file")
+	}
+	if dbName == "" {
+		log.Fatal("❌ ERROR: MONGO_DATABASE environment variable is required. Please set it in .env file")
+	}
+
+	fmt.Printf("✓ Using MongoDB credentials from environment variables\n")
+	fmt.Printf("  Username: %s\n", username)
+	fmt.Printf("  Database: %s\n", dbName)
+
+	uri := fmt.Sprintf("mongodb://%s:%s@localhost:27017", username, password)
 
 	// Connect to MongoDB
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -81,7 +101,7 @@ func main() {
 	seedPrescriptions(db)
 
 	fmt.Println("\n🎉 Seeding complete! You can view the data at:")
-	fmt.Println("   MongoDB: mongodb://admin:admin123@localhost:27017/pharmacy_modernization")
+	fmt.Printf("   MongoDB: mongodb://%s:%s@localhost:27017/%s\n", username, password, dbName)
 	fmt.Println("   Mongo Express: http://localhost:8081")
 }
 

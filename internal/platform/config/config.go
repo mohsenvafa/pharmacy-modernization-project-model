@@ -189,9 +189,8 @@ func Load() *Config {
 		cfg.Logging.Enabled = true
 	}
 	// Auth defaults
-	if cfg.Auth.JWT.Secret == "" {
-		cfg.Auth.JWT.Secret = "dev-secret-key-change-in-production"
-	}
+	// JWT Secret is REQUIRED via RX_AUTH_JWT_SECRET environment variable
+	// No default provided for security reasons
 	if cfg.Auth.JWT.Issuer == "" {
 		cfg.Auth.JWT.Issuer = "PharmacyModernization"
 	}

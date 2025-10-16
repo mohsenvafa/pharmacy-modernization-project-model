@@ -6,6 +6,10 @@ MAKEFILE_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 # Compose file location (relative to Makefile location)
 COMPOSE_FILE := $(MAKEFILE_DIR)compose.yml
 
+# Load environment variables from .env file
+-include $(MAKEFILE_DIR)../.env
+export
+
 # Always use podman compose (detection commented out)
 # COMPOSE_CMD := $(shell podman compose version >/dev/null 2>&1 && echo "podman compose" || echo "docker compose")
 COMPOSE_CMD := podman compose
@@ -23,10 +27,10 @@ podman-up: ## Start MongoDB container
 	@echo "✅ MongoDB started successfully!"
 	@echo ""
 	@echo "📦 MongoDB is available at: localhost:27017"
-	@echo "   Username: admin"
-	@echo "   Password: admin123"
-	@echo "   Database: pharmacy_modernization"
-	@echo "   Connection: mongodb://admin:admin123@localhost:27017/pharmacy_modernization"
+	@echo "   Username: $(MONGO_ROOT_USERNAME)"
+	@echo "   Password: $(MONGO_ROOT_PASSWORD)"
+	@echo "   Database: $(MONGO_DATABASE)"
+	@echo "   Connection: mongodb://$(MONGO_ROOT_USERNAME):$(MONGO_ROOT_PASSWORD)@localhost:27017/$(MONGO_DATABASE)"
 
 podman-down: ## Stop MongoDB container
 	@echo "Stopping Podman containers..."
@@ -55,7 +59,7 @@ mongo-logs: ## Show MongoDB logs
 	$(COMPOSE_CMD) -f $(COMPOSE_FILE) logs -f mongodb
 
 mongo-shell: ## Connect to MongoDB shell
-	podman exec -it mongodb mongosh -u admin -p admin123 --authenticationDatabase admin
+	podman exec -it mongodb mongosh -u $(MONGO_ROOT_USERNAME) -p $(MONGO_ROOT_PASSWORD) --authenticationDatabase admin
 
 mongo-seed: ## Seed MongoDB with sample data
 	@echo "🌱 Seeding MongoDB with sample patient data..."

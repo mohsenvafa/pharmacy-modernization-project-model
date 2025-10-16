@@ -1,5 +1,7 @@
 # MongoDB Cache Quick Start
 
+> ⚠️ **SECURITY NOTE**: All credentials shown in this document (e.g., `admin:admin123`) are **EXAMPLES ONLY** for local development. In production, use secure credentials stored in environment variables via `.env` file or secrets manager.
+
 If you already have MongoDB running and want to use it for caching without adding Memcached or Redis, here's how:
 
 ## Why Use MongoDB for Caching?
@@ -61,9 +63,10 @@ The MongoDB cache:
 ### Check the cache collection:
 
 ```bash
-mongosh mongodb://admin:admin123@localhost:27017
+# Use the MongoDB URI from your .env file
+mongosh $RX_CACHE_MONGODB_URI
 
-use pharmacy_modernization
+use pharmacy_modernization_cache
 db.cache.find()
 db.cache.stats()
 ```

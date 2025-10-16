@@ -1,5 +1,7 @@
 # Cache MongoDB Separation Guide
 
+> ⚠️ **SECURITY NOTE**: All credentials shown in this document (e.g., `admin:admin123`) are **EXAMPLES ONLY** for local development. In production, use secure credentials stored in environment variables via `.env` file or secrets manager.
+
 ## Overview
 
 The caching system uses a **completely separate MongoDB connection** from your main database. This provides flexibility, independence, and better control over your caching infrastructure.
@@ -9,17 +11,19 @@ The caching system uses a **completely separate MongoDB connection** from your m
 ```
 Application
 ├── Main MongoDB Connection
-│   ├── URI: mongodb://admin:admin123@localhost:27017
+│   ├── URI: Set via RX_DATABASE_MONGODB_URI
 │   ├── Database: pharmacy_modernization
 │   ├── Collections: patients, prescriptions, addresses
 │   └── Purpose: Primary data storage
 │
 └── Cache MongoDB Connection (Independent)
-    ├── URI: mongodb://admin:admin123@localhost:27017 (can be different!)
+    ├── URI: Set via RX_CACHE_MONGODB_URI (can be different!)
     ├── Database: pharmacy_modernization_cache (separate database)
     ├── Collection: cache
     └── Purpose: Distributed caching
 ```
+
+**Note**: In actual configuration, URIs are set via environment variables, not hardcoded.
 
 ## Configuration
 
@@ -29,7 +33,7 @@ Application
 # Main database
 database:
   mongodb:
-    uri: "mongodb://admin:admin123@localhost:27017"
+    uri: ""  # Set via RX_DATABASE_MONGODB_URI
     database: "pharmacy_modernization"
     collections:
       patients: "patients"
@@ -38,9 +42,16 @@ database:
 # Cache database (same server, different database)
 cache:
   mongodb:
-    uri: "mongodb://admin:admin123@localhost:27017"  # Same server
-    database: "pharmacy_modernization_cache"         # Different database
+    uri: ""  # Set via RX_CACHE_MONGODB_URI (can be same URI)
+    database: "pharmacy_modernization_cache"  # Different database
     collection: "cache"
+```
+
+**Example .env file for same server:**
+```bash
+# Same MongoDB server, different databases
+RX_DATABASE_MONGODB_URI=
+RX_CACHE_MONGODB_URI=
 ```
 
 ### Different MongoDB Clusters
@@ -134,7 +145,7 @@ cacheDB.SetWriteConcern(writeconcern.W(1))
 ```yaml
 cache:
   mongodb:
-    uri: "mongodb://admin:admin123@localhost:27017"
+    uri: "mongodb://:@localhost:27017"
     database: "pharmacy_modernization_cache"
 ```
 
@@ -166,7 +177,7 @@ cache:
 # Use main MongoDB for cache initially
 cache:
   mongodb:
-    uri: "mongodb://admin:admin123@localhost:27017"  # Same
+    uri: "mongodb://:@localhost:27017"  # Same
     database: "pharmacy_modernization_cache"          # Separate DB
 ```
 
@@ -185,7 +196,7 @@ cache:
 ### View All Databases
 
 ```bash
-mongosh mongodb://admin:admin123@localhost:27017
+mongosh mongodb://:@localhost:27017
 
 show dbs
 # pharmacy_modernization
@@ -236,7 +247,7 @@ cacheMongoConnMgr, err := CreateCacheMongoDBConnection(config, logger)
 ```yaml
 cache:
   mongodb:
-    uri: "mongodb://admin:admin123@localhost:27017"  # Same server
+    uri: "mongodb://:@localhost:27017"  # Same server
     database: "pharmacy_modernization_cache"         # Different database
 ```
 
@@ -264,7 +275,7 @@ cache:
 The database is created automatically on first cache operation. To verify:
 
 ```bash
-mongosh mongodb://admin:admin123@localhost:27017
+mongosh mongodb://:@localhost:27017
 show dbs
 # Should see: pharmacy_modernization_cache
 ```

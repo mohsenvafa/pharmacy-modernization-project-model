@@ -29,6 +29,15 @@ pip install podman-compose
 
 ## Quick Start
 
+### Environment Setup
+
+1. Copy the `.env.example` file to `.env` in the project root:
+   ```bash
+   cp .env.example .env
+   ```
+
+2. Update the `.env` file with your MongoDB credentials (defaults are already set for local development)
+
 ### Start MongoDB
 
 ```bash
@@ -40,11 +49,11 @@ This will start:
 
 ### Default Credentials
 
-**MongoDB:**
-- Username: `admin`
-- Password: `admin123`
-- Database: `pharmacy_modernization`
-- Connection String: `mongodb://admin:admin123@localhost:27017/pharmacy_modernization`
+**MongoDB:** (defined in `.env` file in project root)
+- Username:  (from `MONGO_ROOT_USERNAME`)
+- Password:  (from `MONGO_ROOT_PASSWORD`)
+- Database:  (from `MONGO_DATABASE`)
+- Connection String: See output from `podman-up` command
 
 ## Available Commands
 
@@ -220,12 +229,12 @@ To modify the configuration, edit `compose.yml` and update:
 
 ## Connection in Your Application
 
-Your application should use this connection string:
-```
-mongodb://admin:admin123@localhost:27017/pharmacy_modernization
-```
+Your application reads MongoDB credentials from the `.env` file. The connection string is automatically constructed from:
+- `MONGO_ROOT_USERNAME`
+- `MONGO_ROOT_PASSWORD`
+- `MONGO_DATABASE`
 
-This is already configured in `internal/configs/app.yaml`.
+The application uses environment variable `RX_DATABASE_MONGODB_URI` which should be set in the `.env` file. See `.env.example` for the format.
 
 ## Future Services
 

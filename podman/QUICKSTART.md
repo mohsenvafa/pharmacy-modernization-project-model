@@ -13,10 +13,10 @@ You'll see:
 ✅ MongoDB started successfully!
 
 📦 MongoDB is available at: localhost:27017
-   Username: admin
-   Password: admin123
-   Database: pharmacy_modernization
-   Connection: mongodb://admin:admin123@localhost:27017/pharmacy_modernization
+   Username:  (from MONGO_ROOT_USERNAME in .env)
+   Password:  (from MONGO_ROOT_PASSWORD in .env)
+   Database: pharmacy_modernization (from MONGO_DATABASE in .env)
+   Connection: See output from podman-up command
 ```
 
 ### 2. Seed the Database
@@ -60,7 +60,7 @@ db.prescriptions.find().pretty()
 
 **Option 3: MongoDB Compass** (GUI - Optional)
 - Download [MongoDB Compass](https://www.mongodb.com/products/compass)
-- Connect to: `mongodb://admin:admin123@localhost:27017/pharmacy_modernization`
+- Connect using credentials from `.env` file (see `MONGO_ROOT_USERNAME` and `MONGO_ROOT_PASSWORD`)
 - Browse collections visually
 
 ## 🛠️ Common Tasks
@@ -95,7 +95,7 @@ make -f podman/Makefile podman-restart
 
 Your app is configured to connect to:
 ```
-mongodb://admin:admin123@localhost:27017/pharmacy_modernization
+mongodb://$MONGO_ROOT_USERNAME:$MONGO_ROOT_PASSWORD@localhost:27017/$MONGO_DATABASE
 ```
 
 This is already set in `internal/configs/app.yaml`.

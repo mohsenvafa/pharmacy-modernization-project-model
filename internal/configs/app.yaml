@@ -1,6 +1,6 @@
 app:
   name: PharmacyModernization
-  env: dev
+  env: dev  # Override with RX_APP_ENV=prod to load app.prod.yaml
   port: 8080
 logging:
   enabled: true  # Set to false to disable logging entirely
@@ -13,7 +13,9 @@ logging:
   file_max_age: 28  # Max days to retain old log files
 database:
   mongodb:
-    uri: "mongodb://admin:admin123@localhost:27017"
+    # REQUIRED: Set via environment variable RX_DATABASE_MONGODB_URI (UPPERCASE)
+    # For local development, set in .env file
+    uri: ""  # Override with RX_DATABASE_MONGODB_URI
     database: "pharmacy_modernization"
     collections:
       patients: "patients"
@@ -31,7 +33,9 @@ database:
 auth:
   dev_mode: true  # ONLY for local development - bypasses JWT with mock users
   jwt:
-    secret: "dev-secret-key-change-in-production"
+    # REQUIRED: Set via RX_AUTH_JWT_SECRET (UPPERCASE)
+    # Even in dev mode, should be set for when dev_mode is disabled
+    secret: ""  # Override with RX_AUTH_JWT_SECRET
     issuer: "PharmacyModernization"
     audience: "PharmacyModernization"
     cookie:
@@ -42,7 +46,9 @@ auth:
 cache:
   # MongoDB cache configuration (independent from main database)
   mongodb:
-    uri: "mongodb://admin:admin123@localhost:27017"
+    # REQUIRED: Set via environment variable RX_CACHE_MONGODB_URI (UPPERCASE)
+    # For local development, set in .env file
+    uri: ""  # Override with RX_CACHE_MONGODB_URI
     database: "pharmacy_modernization_cache"  # Separate database for cache
     collection: "cache"
     connection:

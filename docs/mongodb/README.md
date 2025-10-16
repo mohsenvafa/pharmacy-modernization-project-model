@@ -185,7 +185,7 @@ Solution: Check MongoDB URI and network connectivity
 
 **Authentication Failed**
 ```
-Solution: Verify username/password in connection string
+Solution: Verify credentials in connection string
 ```
 
 **Document Not Found**

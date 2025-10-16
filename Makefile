@@ -14,6 +14,10 @@ endif
 
 TAILWIND_BIN ?= $(DEFAULT_TAILWIND_BIN)
 
+# Load environment variables from .env file if it exists
+-include .env
+export
+
 .PHONY: setup tailwind-watch dev dev-watch mock-iris build-iris-mock check-tools build-ts watch-ts graphql-generate graphql-install podman-up podman-down podman-logs
 
 setup:

@@ -1,4 +1,0 @@
-# Dev overrides
-logging:
-  level: debug
-  format: console
