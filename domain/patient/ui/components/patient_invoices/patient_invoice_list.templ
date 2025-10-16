@@ -89,7 +89,7 @@ templ PlaceHolder(patientID string) {
 }
 
 templ ErrorView(patientID string, errorMessage string) {
-	<section class="card bg-base-100 shadow" data-component="patient.patient-invoices">
+	<section class="card bg-base-100 shadow" data-component="patient.patient-invoices" id={ "patient-invoicescard-" + patientID }>
 		<div class="card-body space-y-4">
 			<div>
 				<h2 class="card-title">Invoices</h2>
@@ -108,14 +108,20 @@ templ ErrorView(patientID string, errorMessage string) {
 				<button
 					class="btn btn-sm btn-primary"
 					hx-get={ "/patients/components/patient-invoices-card?patientId=" + patientID }
-					hx-target="closest section"
+					hx-target={ "#patient-invoicescard-" + patientID }
 					hx-swap="outerHTML"
 					hx-select="section.card"
 				>
+					<!-- Loading state (hidden by default, shown during request) -->
+					<!-- Normal state (shown by default, hidden during request) -->
 					<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
 					</svg>
 					Retry
+					<span class="htmx-indicator">
+						<span class="loading loading-spinner loading-xs mr-1"></span>
+						Loading...
+					</span>
 				</button>
 			</div>
 		</div>
