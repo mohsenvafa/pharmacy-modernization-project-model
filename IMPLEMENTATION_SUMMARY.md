@@ -47,7 +47,7 @@ Successfully added a new API endpoint to the `iris_billing` integration that ret
 external:
   billing:
     endpoints:
-      get_invoices_by_patient: "http://localhost:8081/billing/v1/patients/{patientID}/invoices"
+      get_invoices_by_patient: "http://localhost:8881/billing/v1/patients/{patientID}/invoices"
 ```
 
 #### **app.prod.yaml** (Production)

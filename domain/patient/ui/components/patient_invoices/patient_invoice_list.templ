@@ -1,0 +1,123 @@
+package patientinvoices
+
+import (
+	helper "pharmacy-modernization-project-model/internal/helper"
+	irisbilling "pharmacy-modernization-project-model/internal/integrations/iris_billing"
+)
+
+type InvoiceListParams struct {
+	Title        string
+	EmptyMessage string
+	PatientID    string
+	Invoices     []irisbilling.InvoiceResponse
+	Total        int
+}
+
+templ InvoiceListComponentView(params InvoiceListParams) {
+	<section class="card bg-base-100 shadow" data-component="patient.patient-invoices">
+		<div class="card-body space-y-4">
+			<div>
+				<h2 class="card-title">{ params.Title }</h2>
+				<p class="text-sm opacity-60">Billing history for this patient.</p>
+			</div>
+			if len(params.Invoices) == 0 {
+				<div class="rounded-lg bg-base-200/60 p-4 text-sm opacity-70">
+					{ params.EmptyMessage }
+				</div>
+			} else {
+				<div class="overflow-x-auto">
+					<table class="table">
+						<thead>
+							<tr>
+								<th>Invoice ID</th>
+								<th>Prescription ID</th>
+								<th>Amount</th>
+								<th>Status</th>
+								<th>Created</th>
+							</tr>
+						</thead>
+						<tbody>
+							for _, invoice := range params.Invoices {
+								<tr>
+									<td class="font-mono text-sm">{ invoice.ID }</td>
+									<td class="font-mono text-sm">{ invoice.PrescriptionID }</td>
+									<td class="font-semibold">${ helper.FormatDecimal(invoice.Amount) }</td>
+									<td>
+										if invoice.Status == "paid" {
+											<span class="badge badge-success badge-outline capitalize">{ invoice.Status }</span>
+										} else if invoice.Status == "pending" {
+											<span class="badge badge-warning badge-outline capitalize">{ invoice.Status }</span>
+										} else if invoice.Status == "overdue" {
+											<span class="badge badge-error badge-outline capitalize">{ invoice.Status }</span>
+										} else {
+											<span class="badge badge-outline capitalize">{ invoice.Status }</span>
+										}
+									</td>
+									<td>
+										if invoice.CreatedAt != "" {
+											{ helper.FormatShortDateFromString(invoice.CreatedAt) }
+										} else {
+											-
+										}
+									</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+				<div class="text-sm opacity-60">
+					Total: { helper.FormatInt(params.Total) } invoice(s)
+				</div>
+			}
+		</div>
+	</section>
+}
+
+templ PlaceHolder(patientID string) {
+	<div
+		id={ "patient-invoicescard-" + patientID }
+		hx-get={ "/patients/components/patient-invoices-card?patientId=" + patientID }
+		hx-trigger="revealed once"
+		hx-swap="outerHTML"
+		hx-target="this"
+		hx-select="section.card"
+		hx-indicator={ "#loading-invoices-" + patientID }
+		class="card skeleton"
+	>
+		<div id={ "loading-invoices-" + patientID } class="spinner p-4">Loading Invoices…</div>
+	</div>
+}
+
+templ ErrorView(patientID string, errorMessage string) {
+	<section class="card bg-base-100 shadow" data-component="patient.patient-invoices">
+		<div class="card-body space-y-4">
+			<div>
+				<h2 class="card-title">Invoices</h2>
+				<p class="text-sm opacity-60">Billing history for this patient.</p>
+			</div>
+			<div class="alert alert-error">
+				<svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+				</svg>
+				<div>
+					<div class="font-bold">Failed to load invoices</div>
+					<div class="text-sm">{ errorMessage }</div>
+				</div>
+			</div>
+			<div class="card-actions justify-end">
+				<button
+					class="btn btn-sm btn-primary"
+					hx-get={ "/patients/components/patient-invoices-card?patientId=" + patientID }
+					hx-target="closest section"
+					hx-swap="outerHTML"
+					hx-select="section.card"
+				>
+					<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+					</svg>
+					Retry
+				</button>
+			</div>
+		</div>
+	</section>
+}

@@ -2,6 +2,7 @@ package helper
 
 import (
 	"context"
+	"fmt"
 	"time"
 )
 
@@ -38,4 +39,25 @@ func WaitOrContext(ctx context.Context, seconds int) bool {
 	case <-ctx.Done():
 		return false
 	}
+}
+
+func FormatDecimal(value float64) string {
+	return fmt.Sprintf("%.2f", value)
+}
+
+func FormatInt(value int) string {
+	return fmt.Sprintf("%d", value)
+}
+
+func FormatShortDateFromString(dateStr string) string {
+	if dateStr == "" {
+		return "-"
+	}
+	// Try to parse ISO 8601 format
+	t, err := time.Parse(time.RFC3339, dateStr)
+	if err != nil {
+		// If parsing fails, return the original string
+		return dateStr
+	}
+	return FormatShortDate(t)
 }

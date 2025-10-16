@@ -9,6 +9,7 @@ import (
 
 	patSvc "pharmacy-modernization-project-model/domain/patient/service"
 	addresscomponents "pharmacy-modernization-project-model/domain/patient/ui/components/address_list"
+	patientinvoices "pharmacy-modernization-project-model/domain/patient/ui/components/patient_invoices"
 	patientprescriptions "pharmacy-modernization-project-model/domain/patient/ui/components/patient_prescriptions"
 	contracts "pharmacy-modernization-project-model/domain/patient/ui/contracts"
 	"pharmacy-modernization-project-model/domain/patient/ui/paths"
@@ -19,6 +20,7 @@ type PatientDetailComponent struct {
 	patientsService           patSvc.PatientService
 	addressListComponent      *addresscomponents.AddressListComponent
 	prescriptionListComponent *patientprescriptions.PrescriptionListComponent
+	invoiceListComponent      *patientinvoices.InvoiceListComponent
 	log                       *zap.Logger
 }
 
@@ -26,11 +28,13 @@ func NewPatientDetailComponent(
 	deps *contracts.UiDependencies,
 	addressListComponent *addresscomponents.AddressListComponent,
 	prescriptionListComponent *patientprescriptions.PrescriptionListComponent,
+	invoiceListComponent *patientinvoices.InvoiceListComponent,
 ) *PatientDetailComponent {
 	return &PatientDetailComponent{
 		patientsService:           deps.PatientSvc,
 		addressListComponent:      addressListComponent,
 		prescriptionListComponent: prescriptionListComponent,
+		invoiceListComponent:      invoiceListComponent,
 		log:                       deps.Log,
 	}
 }
@@ -53,7 +57,7 @@ func (h *PatientDetailComponent) Handler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	var addressComponent, prescriptionComponent templ.Component
+	var addressComponent, prescriptionComponent, invoiceComponent templ.Component
 
 	if h.addressListComponent != nil {
 		component, err := h.addressListComponent.View(r.Context(), patientID)
@@ -68,11 +72,16 @@ func (h *PatientDetailComponent) Handler(w http.ResponseWriter, r *http.Request)
 		prescriptionComponent = patientprescriptions.PlaceHolder(patientID)
 	}
 
+	if h.invoiceListComponent != nil {
+		invoiceComponent = patientinvoices.PlaceHolder(patientID)
+	}
+
 	view := PatientDetailPageComponentView(r.Context(), PatientDetailPageParam{
 		Patient:       patient,
 		Age:           tools.CalculateAge(patient.DOB),
 		AddressList:   addressComponent,
 		Prescriptions: prescriptionComponent,
+		Invoices:      invoiceComponent,
 		BackPath:      paths.PatientListURL(),
 		EditPath:      paths.PatientEditURL(patientID),
 	})

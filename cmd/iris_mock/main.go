@@ -101,11 +101,11 @@ func main() {
 		r.Post("/refresh", handleRefreshToken)
 	})
 
-	log.Println("🚀 IRIS Mock Server starting on :8081")
-	log.Println("📍 Pharmacy API: http://localhost:8081/pharmacy/v1")
-	log.Println("📍 Billing API:  http://localhost:8081/billing/v1")
-	log.Println("📍 Stargate Auth: http://localhost:8081/oauth")
-	log.Fatal(http.ListenAndServe(":8081", r))
+	log.Println("🚀 IRIS Mock Server starting on :8881")
+	log.Println("📍 Pharmacy API: http://localhost:8881/pharmacy/v1")
+	log.Println("📍 Billing API:  http://localhost:8881/billing/v1")
+	log.Println("📍 Stargate Auth: http://localhost:8881/oauth")
+	log.Fatal(http.ListenAndServe(":8881", r))
 }
 
 // Custom middleware to log headers

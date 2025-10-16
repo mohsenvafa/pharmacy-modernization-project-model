@@ -4,6 +4,7 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	addresscomponents "pharmacy-modernization-project-model/domain/patient/ui/components/address_list"
+	patientinvoicecomponents "pharmacy-modernization-project-model/domain/patient/ui/components/patient_invoices"
 	patientprescriptioncomponents "pharmacy-modernization-project-model/domain/patient/ui/components/patient_prescriptions"
 	contracts "pharmacy-modernization-project-model/domain/patient/ui/contracts"
 	"pharmacy-modernization-project-model/domain/patient/ui/paths"
@@ -21,7 +22,8 @@ func MountUI(r chi.Router, dep *contracts.UiDependencies) {
 	patientSearchComponent := patientsearch.NewPatientSearchPageComponent(dep)
 	addressListComponent := addresscomponents.NewAddressListComponent(dep)
 	prescriptionListComponent := patientprescriptioncomponents.NewPrescriptionListComponent(dep)
-	patientDetailComponent := patientdetail.NewPatientDetailComponent(dep, addressListComponent, prescriptionListComponent)
+	invoiceListComponent := patientinvoicecomponents.NewInvoiceListComponent(dep)
+	patientDetailComponent := patientdetail.NewPatientDetailComponent(dep, addressListComponent, prescriptionListComponent, invoiceListComponent)
 	patientEditComponent := patientedit.NewPatientEditComponent(dep)
 
 	r.Route(paths.BasePath, func(r chi.Router) {
@@ -35,6 +37,7 @@ func MountUI(r chi.Router, dep *contracts.UiDependencies) {
 		r.Get(paths.ListRoute, patientListComponent.Handler)
 		r.Get(paths.SearchRoute, patientSearchComponent.Handler)
 		r.Get(paths.PatientPrescriptionCardComponentRoute, prescriptionListComponent.Handler)
+		r.Get(paths.PatientInvoiceCardComponentRoute, invoiceListComponent.Handler)
 		r.Get(paths.DetailRoute, patientDetailComponent.Handler)
 		r.Get(paths.EditRoute, patientEditComponent.Handler)
 		r.Post(paths.EditRoute, patientEditComponent.Handler)

@@ -35,7 +35,7 @@ external:
     use_mock: true
     timeout: "10s"
     endpoints:
-      get_invoices_by_patient: "http://localhost:8081/billing/v1/patients/{patientID}/invoices"
+      get_invoices_by_patient: "http://localhost:8881/billing/v1/patients/{patientID}/invoices"
       # ... other endpoints
 ```
 
@@ -132,7 +132,7 @@ go run ./cmd/iris_mock/main.go
 
 ```bash
 # Get invoices for patient PAT-123
-curl http://localhost:8081/billing/v1/patients/PAT-123/invoices | jq .
+curl http://localhost:8881/billing/v1/patients/PAT-123/invoices | jq .
 ```
 
 ### Expected Response

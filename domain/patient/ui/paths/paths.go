@@ -19,6 +19,7 @@ const (
 	DetailRoute                           = "/{patientID}"
 	EditRoute                             = "/{patientID}/edit"
 	PatientPrescriptionCardComponentRoute = "/components/patient-prescriptions-card"
+	PatientInvoiceCardComponentRoute      = "/components/patient-invoices-card"
 
 	// API paths
 	APIPath = "/api/v1/patients"

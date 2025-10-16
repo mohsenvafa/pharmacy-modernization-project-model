@@ -15,6 +15,7 @@ import (
 
 	dashboardModule "pharmacy-modernization-project-model/domain/dashboard"
 	patientModule "pharmacy-modernization-project-model/domain/patient"
+	patientproviders "pharmacy-modernization-project-model/domain/patient/providers"
 	prescriptionModule "pharmacy-modernization-project-model/domain/prescription"
 	"pharmacy-modernization-project-model/internal/graphql"
 )
@@ -66,9 +67,13 @@ func (a *App) wire() error {
 	})
 
 	// Patient Module
+	// Create invoice provider using the billing client from integrations
+	invoiceProvider := patientproviders.NewInvoiceProvider(integration.BillingClient, logger.Base)
+
 	var patientModDeps = &patientModule.ModuleDependencies{
 		Logger:                   logger.Base,
 		PrescriptionProvider:     prescriptionMod.PrescriptionService,
+		InvoiceProvider:          invoiceProvider,
 		PatientsMongoCollection:  builder.GetPatientsCollection(mongoConnMgr),
 		AddressesMongoCollection: builder.GetAddressesCollection(mongoConnMgr),
 		CacheService:             primaryCache,

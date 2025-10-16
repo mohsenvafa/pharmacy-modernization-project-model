@@ -17,6 +17,7 @@ import (
 type ModuleDependencies struct {
 	Logger                   *zap.Logger
 	PrescriptionProvider     patientproviders.PatientPrescriptionProvider
+	InvoiceProvider          patientproviders.PatientInvoiceProvider
 	PatientsMongoCollection  *mongo.Collection
 	AddressesMongoCollection *mongo.Collection
 	CacheService             cache.Cache
@@ -44,6 +45,7 @@ func Module(r chi.Router, deps *ModuleDependencies) ModuleExport {
 		PatientSvc:           patSvc,
 		AddressSvc:           addrSvc,
 		PrescriptionProvider: deps.PrescriptionProvider,
+		InvoiceProvider:      deps.InvoiceProvider,
 		Log:                  deps.Logger,
 	})
 

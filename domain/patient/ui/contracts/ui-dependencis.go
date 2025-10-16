@@ -11,5 +11,6 @@ type UiDependencies struct {
 	PatientSvc           patSvc.PatientService
 	AddressSvc           patSvc.AddressService
 	PrescriptionProvider patientproviders.PatientPrescriptionProvider
+	InvoiceProvider      patientproviders.PatientInvoiceProvider
 	Log                  *zap.Logger
 }
