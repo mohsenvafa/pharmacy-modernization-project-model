@@ -77,10 +77,11 @@ func New(deps Dependencies) Export {
 	// Initialize billing client
 	billing := irisbilling.Module(irisbilling.ModuleDependencies{
 		Config: irisbilling.Config{
-			GetInvoiceURL:         deps.Config.External.Billing.Endpoints.GetInvoice,
-			CreateInvoiceURL:      deps.Config.External.Billing.Endpoints.CreateInvoice,
-			AcknowledgeInvoiceURL: deps.Config.External.Billing.Endpoints.AcknowledgeInvoice,
-			GetInvoicePaymentURL:  deps.Config.External.Billing.Endpoints.GetInvoicePayment,
+			GetInvoiceURL:           deps.Config.External.Billing.Endpoints.GetInvoice,
+			GetInvoicesByPatientURL: deps.Config.External.Billing.Endpoints.GetInvoicesByPatient,
+			CreateInvoiceURL:        deps.Config.External.Billing.Endpoints.CreateInvoice,
+			AcknowledgeInvoiceURL:   deps.Config.External.Billing.Endpoints.AcknowledgeInvoice,
+			GetInvoicePaymentURL:    deps.Config.External.Billing.Endpoints.GetInvoicePayment,
 		},
 		Logger:     logger.With(zap.String("service", "billing")),
 		HTTPClient: sharedHTTPClient, // Use the shared client

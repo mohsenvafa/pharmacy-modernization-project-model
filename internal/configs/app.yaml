@@ -60,13 +60,16 @@ cache:
     default_ttl: "30m"
 external:
   pharmacy:
-    base_url: "http://localhost:9090"
-    path: "api/pharmacy/prescriptions"
     use_mock: true
-    api_key: ""
     timeout: "10s"
+    endpoints:
+      get_prescription: "http://localhost:8081/pharmacy/v1/prescriptions/{prescriptionID}"
   billing:
-    base_url: "http://localhost:9090"
-    path: "api/billing/invoices"
     use_mock: true
     timeout: "10s"
+    endpoints:
+      get_invoice: "http://localhost:8081/billing/v1/invoices/{prescriptionID}"
+      get_invoices_by_patient: "http://localhost:8081/billing/v1/patients/{patientID}/invoices"
+      create_invoice: "http://localhost:8081/billing/v1/invoices"
+      acknowledge_invoice: "http://localhost:8081/billing/v1/invoices/{invoiceID}/acknowledge"
+      get_invoice_payment: "http://localhost:8081/billing/v1/invoices/{invoiceID}/payment"

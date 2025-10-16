@@ -42,3 +42,10 @@ type InvoicePaymentResponse struct {
 	Status        string  `json:"status"`
 	PaidAt        string  `json:"paid_at,omitempty"`
 }
+
+// InvoiceListResponse represents a list of invoices for a patient
+type InvoiceListResponse struct {
+	PatientID string            `json:"patient_id"`
+	Invoices  []InvoiceResponse `json:"invoices"`
+	Total     int               `json:"total"`
+}

@@ -95,10 +95,11 @@ type PharmacyEndpoints struct {
 
 // BillingEndpoints holds the full URLs for billing API endpoints
 type BillingEndpoints struct {
-	GetInvoice         string `mapstructure:"get_invoice"`
-	CreateInvoice      string `mapstructure:"create_invoice"`
-	AcknowledgeInvoice string `mapstructure:"acknowledge_invoice"`
-	GetInvoicePayment  string `mapstructure:"get_invoice_payment"`
+	GetInvoice           string `mapstructure:"get_invoice"`
+	GetInvoicesByPatient string `mapstructure:"get_invoices_by_patient"`
+	CreateInvoice        string `mapstructure:"create_invoice"`
+	AcknowledgeInvoice   string `mapstructure:"acknowledge_invoice"`
+	GetInvoicePayment    string `mapstructure:"get_invoice_payment"`
 }
 
 // CacheConfig holds cache configuration

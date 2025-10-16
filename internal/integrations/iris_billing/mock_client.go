@@ -9,17 +9,19 @@ import (
 
 // MockClient implements BillingClient with in-memory mock data
 type MockClient struct {
-	invoices map[string]InvoiceResponse
-	payments map[string]InvoicePaymentResponse
-	logger   *zap.Logger
+	invoices          map[string]InvoiceResponse
+	invoicesByPatient map[string][]InvoiceResponse
+	payments          map[string]InvoicePaymentResponse
+	logger            *zap.Logger
 }
 
 // NewMockClient creates a new mock billing client
 func NewMockClient(logger *zap.Logger) *MockClient {
 	return &MockClient{
-		invoices: make(map[string]InvoiceResponse),
-		payments: make(map[string]InvoicePaymentResponse),
-		logger:   logger,
+		invoices:          make(map[string]InvoiceResponse),
+		invoicesByPatient: make(map[string][]InvoiceResponse),
+		payments:          make(map[string]InvoicePaymentResponse),
+		logger:            logger,
 	}
 }
 
@@ -56,6 +58,32 @@ func (c *MockClient) GetInvoice(ctx context.Context, prescriptionID string) (*In
 	}
 
 	return defaultInvoice, nil
+}
+
+// GetInvoicesByPatientID retrieves all mock invoices for a given patient ID
+func (c *MockClient) GetInvoicesByPatientID(ctx context.Context, patientID string) (*InvoiceListResponse, error) {
+	if invoices, ok := c.invoicesByPatient[patientID]; ok {
+		c.logger.Debug("mock invoices found for patient",
+			zap.String("patient_id", patientID),
+			zap.Int("count", len(invoices)),
+		)
+		return &InvoiceListResponse{
+			PatientID: patientID,
+			Invoices:  invoices,
+			Total:     len(invoices),
+		}, nil
+	}
+
+	c.logger.Warn("no mock invoices found for patient, returning empty list",
+		zap.String("patient_id", patientID),
+	)
+
+	// Return an empty list for unknown patient IDs
+	return &InvoiceListResponse{
+		PatientID: patientID,
+		Invoices:  []InvoiceResponse{},
+		Total:     0,
+	}, nil
 }
 
 // CreateInvoice creates a mock invoice

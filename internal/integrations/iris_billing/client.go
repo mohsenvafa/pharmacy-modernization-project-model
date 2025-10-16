@@ -6,6 +6,7 @@ import "context"
 type BillingClient interface {
 	// Invoice operations
 	GetInvoice(ctx context.Context, prescriptionID string) (*InvoiceResponse, error)
+	GetInvoicesByPatientID(ctx context.Context, patientID string) (*InvoiceListResponse, error)
 	CreateInvoice(ctx context.Context, req CreateInvoiceRequest) (*CreateInvoiceResponse, error)
 	AcknowledgeInvoice(ctx context.Context, invoiceID string, req AcknowledgeInvoiceRequest) (*AcknowledgeInvoiceResponse, error)
 

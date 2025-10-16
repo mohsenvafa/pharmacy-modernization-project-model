@@ -40,14 +40,17 @@ database:
 
 external:
   pharmacy:
-    base_url: "${PM_PHARMACY_BASE_URL}"
-    path: "api/pharmacy/prescriptions"
     use_mock: false
-    api_key: "${PM_PHARMACY_API_KEY}"
     timeout: "10s"
+    endpoints:
+      get_prescription: "${PM_PHARMACY_BASE_URL}/pharmacy/v1/prescriptions/{prescriptionID}"
   billing:
-    base_url: "${PM_BILLING_BASE_URL}"
-    path: "api/billing/invoices"
     use_mock: false
     timeout: "10s"
+    endpoints:
+      get_invoice: "${PM_BILLING_BASE_URL}/billing/v1/invoices/{prescriptionID}"
+      get_invoices_by_patient: "${PM_BILLING_BASE_URL}/billing/v1/patients/{patientID}/invoices"
+      create_invoice: "${PM_BILLING_BASE_URL}/billing/v1/invoices"
+      acknowledge_invoice: "${PM_BILLING_BASE_URL}/billing/v1/invoices/{invoiceID}/acknowledge"
+      get_invoice_payment: "${PM_BILLING_BASE_URL}/billing/v1/invoices/{invoiceID}/payment"
 

@@ -53,6 +53,12 @@ type InvoicePaymentResponse struct {
 	PaidAt        string  `json:"paid_at,omitempty"`
 }
 
+type InvoiceListResponse struct {
+	PatientID string            `json:"patient_id"`
+	Invoices  []InvoiceResponse `json:"invoices"`
+	Total     int               `json:"total"`
+}
+
 // Stargate auth models
 type TokenRequest struct {
 	GrantType    string `json:"grant_type"`
@@ -83,6 +89,7 @@ func main() {
 	// Billing API routes
 	r.Route("/billing/v1", func(r chi.Router) {
 		r.Get("/invoices/{prescriptionID}", handleGetInvoice)
+		r.Get("/patients/{patientID}/invoices", handleGetInvoicesByPatient)
 		r.Post("/invoices", handleCreateInvoice)
 		r.Post("/invoices/{invoiceID}/acknowledge", handleAcknowledgeInvoice)
 		r.Get("/invoices/{invoiceID}/payment", handleGetInvoicePayment)
@@ -168,6 +175,48 @@ func handleGetInvoice(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
 	log.Printf("✅ Returned invoice for prescription: %s", prescriptionID)
+}
+
+func handleGetInvoicesByPatient(w http.ResponseWriter, r *http.Request) {
+	patientID := chi.URLParam(r, "patientID")
+
+	// Mock data - return a list of invoices for the patient
+	invoices := []InvoiceResponse{
+		{
+			ID:             "INV-001",
+			PrescriptionID: "RX-" + patientID + "-001",
+			Amount:         125.50,
+			Status:         "paid",
+			CreatedAt:      "2025-10-01T10:00:00Z",
+			UpdatedAt:      "2025-10-02T14:30:00Z",
+		},
+		{
+			ID:             "INV-002",
+			PrescriptionID: "RX-" + patientID + "-002",
+			Amount:         89.99,
+			Status:         "pending",
+			CreatedAt:      "2025-10-10T09:15:00Z",
+			UpdatedAt:      "2025-10-10T09:15:00Z",
+		},
+		{
+			ID:             "INV-003",
+			PrescriptionID: "RX-" + patientID + "-003",
+			Amount:         250.00,
+			Status:         "overdue",
+			CreatedAt:      "2025-09-15T11:20:00Z",
+			UpdatedAt:      "2025-09-15T11:20:00Z",
+		},
+	}
+
+	response := InvoiceListResponse{
+		PatientID: patientID,
+		Invoices:  invoices,
+		Total:     len(invoices),
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
+	log.Printf("✅ Returned %d invoices for patient: %s", len(invoices), patientID)
 }
 
 func handleCreateInvoice(w http.ResponseWriter, r *http.Request) {
