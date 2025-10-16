@@ -7,6 +7,19 @@
 - **Run server**: `make dev` (runs all watchers)
 - **Open**: http://localhost:8080
 
+## MongoDB Setup
+- **Start MongoDB**: `make podman-up` (starts MongoDB + Memcached containers)
+- **Stop MongoDB**: `make podman-down` (stops containers)
+- **View logs**: `make podman-logs` (shows container logs)
+- **First-time seeding**: `make podman-up && go run ./cmd/seed` (starts containers and seeds with sample data)
+
+**Connection Details:**
+- **Host**: localhost:27017
+- **Username**: admin
+- **Password**: admin123
+- **Database**: pharmacy_modernization
+- **Connection String**: `mongodb://admin:admin123@localhost:27017/pharmacy_modernization`
+
 ### GraphQL Development
 - **Generate code**: `make graphql-generate` (run after schema changes)
 - GraphQL code is already generated and committed, no need to regenerate unless you modify schemas
