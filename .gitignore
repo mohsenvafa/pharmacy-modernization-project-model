@@ -48,3 +48,9 @@ web/public/vendor/*
 # Built binaries in root
 server
 iris_mock
+
+# Environment variables
+.env
+.env.local
+.env.production
+.env.staging
