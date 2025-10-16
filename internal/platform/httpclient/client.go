@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
+	"strings"
 	"time"
 
 	"go.uber.org/zap"
@@ -72,9 +74,44 @@ type Response struct {
 	Duration   time.Duration
 }
 
+// validateURL performs security validation on the request URL
+func (c *Client) validateURL(requestURL string) error {
+	// Use shared validation logic
+	if err := ValidateURL(requestURL); err != nil {
+		return err
+	}
+
+	// Additional client-specific validation
+	parsedURL, err := url.Parse(requestURL)
+	if err != nil {
+		return fmt.Errorf("invalid URL format: %w", err)
+	}
+
+	// Check for localhost or internal IPs (configurable based on security requirements)
+	// This is a basic check - in production, you might want more sophisticated validation
+	if strings.Contains(parsedURL.Host, "localhost") || strings.Contains(parsedURL.Host, "127.0.0.1") {
+		c.logger.Warn("request to localhost detected",
+			zap.String("url", requestURL),
+			zap.String("service", c.serviceName),
+		)
+	}
+
+	return nil
+}
+
 // Do executes an HTTP request with full observability
 func (c *Client) Do(ctx context.Context, req Request) (*Response, error) {
 	startTime := time.Now()
+
+	// Validate URL for security
+	if err := c.validateURL(req.URL); err != nil {
+		c.logger.Error("URL validation failed",
+			zap.String("service", c.serviceName),
+			zap.String("url", req.URL),
+			zap.Error(err),
+		)
+		return nil, fmt.Errorf("URL validation failed: %w", err)
+	}
 
 	// Create HTTP request
 	httpReq, err := http.NewRequestWithContext(ctx, req.Method, req.URL, req.Body)

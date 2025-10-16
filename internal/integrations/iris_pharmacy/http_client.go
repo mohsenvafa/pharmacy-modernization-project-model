@@ -3,7 +3,6 @@ package iris_pharmacy
 import (
 	"context"
 	"fmt"
-	"strings"
 
 	"pharmacy-modernization-project-model/internal/platform/httpclient"
 
@@ -26,20 +25,14 @@ func NewHTTPClient(cfg Config, client *httpclient.Client, logger *zap.Logger) *H
 	}
 }
 
-// replacePathParams replaces {paramName} in URL with actual values
-func replacePathParams(url string, params map[string]string) string {
-	for key, value := range params {
-		placeholder := "{" + key + "}"
-		url = strings.ReplaceAll(url, placeholder, value)
-	}
-	return url
-}
-
 // GetPrescription retrieves a prescription for a given prescription ID
 func (c *HTTPClient) GetPrescription(ctx context.Context, prescriptionID string) (*PrescriptionResponse, error) {
-	url := replacePathParams(c.endpoints.GetPrescriptionEndpoint(), map[string]string{
+	url, err := httpclient.ReplacePathParams(c.endpoints.GetPrescriptionEndpoint(), map[string]string{
 		"prescriptionID": prescriptionID,
 	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to build URL: %w", err)
+	}
 
 	c.logger.Debug("fetching prescription",
 		zap.String("prescription_id", prescriptionID),
@@ -47,7 +40,7 @@ func (c *HTTPClient) GetPrescription(ctx context.Context, prescriptionID string)
 	)
 
 	var response PrescriptionResponse
-	err := c.client.GetJSON(ctx, url, &response)
+	err = c.client.GetJSON(ctx, url, &response)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get prescription: %w", err)
 	}

@@ -6,7 +6,6 @@ import (
 	"crypto/sha256"
 	"encoding/json"
 	"fmt"
-	"strings"
 
 	"pharmacy-modernization-project-model/internal/platform/httpclient"
 
@@ -29,15 +28,6 @@ func NewHTTPClient(cfg Config, client *httpclient.Client, logger *zap.Logger) *H
 	}
 }
 
-// replacePathParams replaces {paramName} in URL with actual values
-func replacePathParams(url string, params map[string]string) string {
-	for key, value := range params {
-		placeholder := "{" + key + "}"
-		url = strings.ReplaceAll(url, placeholder, value)
-	}
-	return url
-}
-
 // generateIdempotencyKey creates a deterministic idempotency key based on prescription ID
 // This ensures the same invoice creation request always generates the same key
 func generateIdempotencyKey(prescriptionID string) string {
@@ -47,9 +37,12 @@ func generateIdempotencyKey(prescriptionID string) string {
 
 // GetInvoice retrieves an invoice for a given prescription ID
 func (c *HTTPClient) GetInvoice(ctx context.Context, prescriptionID string) (*InvoiceResponse, error) {
-	url := replacePathParams(c.endpoints.GetInvoiceEndpoint(), map[string]string{
+	url, err := httpclient.ReplacePathParams(c.endpoints.GetInvoiceEndpoint(), map[string]string{
 		"prescriptionID": prescriptionID,
 	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to build URL: %w", err)
+	}
 
 	c.logger.Debug("fetching invoice",
 		zap.String("prescription_id", prescriptionID),
@@ -91,9 +84,12 @@ func (c *HTTPClient) GetInvoice(ctx context.Context, prescriptionID string) (*In
 
 // GetInvoicesByPatientID retrieves all invoices for a given patient ID
 func (c *HTTPClient) GetInvoicesByPatientID(ctx context.Context, patientID string) (*InvoiceListResponse, error) {
-	url := replacePathParams(c.endpoints.GetInvoicesByPatientEndpoint(), map[string]string{
+	url, err := httpclient.ReplacePathParams(c.endpoints.GetInvoicesByPatientEndpoint(), map[string]string{
 		"patientID": patientID,
 	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to build URL: %w", err)
+	}
 
 	c.logger.Debug("fetching invoices by patient ID",
 		zap.String("patient_id", patientID),
@@ -183,9 +179,12 @@ func (c *HTTPClient) CreateInvoice(ctx context.Context, req CreateInvoiceRequest
 
 // AcknowledgeInvoice acknowledges an invoice
 func (c *HTTPClient) AcknowledgeInvoice(ctx context.Context, invoiceID string, req AcknowledgeInvoiceRequest) (*AcknowledgeInvoiceResponse, error) {
-	url := replacePathParams(c.endpoints.AcknowledgeInvoiceEndpoint(), map[string]string{
+	url, err := httpclient.ReplacePathParams(c.endpoints.AcknowledgeInvoiceEndpoint(), map[string]string{
 		"invoiceID": invoiceID,
 	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to build URL: %w", err)
+	}
 
 	c.logger.Debug("acknowledging invoice",
 		zap.String("invoice_id", invoiceID),
@@ -194,7 +193,7 @@ func (c *HTTPClient) AcknowledgeInvoice(ctx context.Context, invoiceID string, r
 	)
 
 	var response AcknowledgeInvoiceResponse
-	err := c.client.PostJSON(ctx, url, req, &response)
+	err = c.client.PostJSON(ctx, url, req, &response)
 	if err != nil {
 		return nil, fmt.Errorf("failed to acknowledge invoice: %w", err)
 	}
@@ -208,9 +207,12 @@ func (c *HTTPClient) AcknowledgeInvoice(ctx context.Context, invoiceID string, r
 
 // GetInvoicePayment retrieves payment details for an invoice
 func (c *HTTPClient) GetInvoicePayment(ctx context.Context, invoiceID string) (*InvoicePaymentResponse, error) {
-	url := replacePathParams(c.endpoints.GetInvoicePaymentEndpoint(), map[string]string{
+	url, err := httpclient.ReplacePathParams(c.endpoints.GetInvoicePaymentEndpoint(), map[string]string{
 		"invoiceID": invoiceID,
 	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to build URL: %w", err)
+	}
 
 	c.logger.Debug("fetching invoice payment",
 		zap.String("invoice_id", invoiceID),
@@ -218,7 +220,7 @@ func (c *HTTPClient) GetInvoicePayment(ctx context.Context, invoiceID string) (*
 	)
 
 	var response InvoicePaymentResponse
-	err := c.client.GetJSON(ctx, url, &response)
+	err = c.client.GetJSON(ctx, url, &response)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get invoice payment: %w", err)
 	}
