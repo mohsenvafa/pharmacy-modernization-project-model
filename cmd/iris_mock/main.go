@@ -81,6 +81,9 @@ func main() {
 	r.Use(middleware.Recoverer)
 	r.Use(logHeaders) // Custom middleware to log headers
 
+	// Root welcome handler
+	r.Get("/", handleWelcome)
+
 	// Pharmacy API routes
 	r.Route("/pharmacy/v1", func(r chi.Router) {
 		r.Get("/prescriptions/{prescriptionID}", handleGetPrescription)
@@ -138,6 +141,24 @@ func maskToken(auth string) string {
 		return parts[0] + " " + parts[1][:10] + "..."
 	}
 	return auth
+}
+
+// Welcome handler
+func handleWelcome(w http.ResponseWriter, r *http.Request) {
+	response := map[string]interface{}{
+		"message": "Welcome to IRIS Mock Server",
+		"version": "1.0.0",
+		"endpoints": map[string]string{
+			"pharmacy":      "/pharmacy/v1",
+			"billing":       "/billing/v1",
+			"stargate_auth": "/oauth",
+		},
+		"status": "running",
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
+	log.Printf("✅ Welcome page accessed")
 }
 
 // Pharmacy handlers

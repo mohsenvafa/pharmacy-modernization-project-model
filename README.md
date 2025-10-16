@@ -4,8 +4,20 @@
 - **Install**: Go 1.24, `templ`, Node.js 18+, `npm`
 - **Setup once**: `make setup` (downloads Tailwind binary and installs npm dependencies)
 - **Install gqlgen**: `make graphql-install` (one-time, for GraphQL code generation)
+- **Run IRIS Mock Server**: `make mock-iris` (runs mock APIs on port 8881 - **start this first!**)
 - **Run server**: `make dev` (runs all watchers)
 - **Open**: http://localhost:8080
+
+## IRIS Mock Server (Development APIs)
+The IRIS Mock Server simulates external pharmacy and billing APIs for local development:
+- **Start mock server**: `make mock-iris` (runs on port 8881)
+- **Verify server**: Visit http://localhost:8881/ for welcome page
+- **APIs provided**:
+  - 📍 Pharmacy API: http://localhost:8881/pharmacy/v1
+  - 📍 Billing API: http://localhost:8881/billing/v1
+  - 📍 Stargate Auth: http://localhost:8881/oauth
+
+**Note**: Start the mock server before running the main application for full functionality.
 
 ## MongoDB Setup
 - **Start MongoDB**: `make podman-up` (starts MongoDB + Memcached containers)

@@ -14,7 +14,7 @@ endif
 
 TAILWIND_BIN ?= $(DEFAULT_TAILWIND_BIN)
 
-.PHONY: setup tailwind-watch dev dev-watch mock-iris check-tools build-ts watch-ts graphql-generate graphql-install podman-up podman-down podman-logs
+.PHONY: setup tailwind-watch dev dev-watch mock-iris build-iris-mock check-tools build-ts watch-ts graphql-generate graphql-install podman-up podman-down podman-logs
 
 setup:
 	@make -f .dev/Makefile.setup setup
@@ -47,8 +47,17 @@ dev:
 	echo "🚀 Starting development server..."; \
 	$(MAKE) dev-watch 
 
-mock-iris:
-	go run ./cmd/iris_mock
+mock-iris: ## Run IRIS Mock Server (port 8881)
+	@echo "🚀 Starting IRIS Mock Server on port 8881..."
+	@echo "📍 Pharmacy API: http://localhost:8881/pharmacy/v1"
+	@echo "📍 Billing API:  http://localhost:8881/billing/v1"
+	@echo "📍 Stargate Auth: http://localhost:8881/oauth"
+	@go run ./cmd/iris_mock
+
+build-iris-mock: ## Build IRIS Mock Server
+	@echo "🔨 Building IRIS Mock Server..."
+	@go build -o iris_mock ./cmd/iris_mock
+	@echo "✅ Built: ./iris_mock"
 
 # Build TypeScript
 build-ts:
