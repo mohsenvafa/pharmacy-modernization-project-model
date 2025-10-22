@@ -1,0 +1,27 @@
+name: "CodeQL Configuration"
+
+# This configuration file specifies the queries to run for CodeQL analysis
+# For more information, see: https://docs.github.com/en/code-security/code-scanning/automatically-scanning-your-code-for-vulnerabilities-and-errors/configuring-code-scanning
+
+# Queries to run for Go
+queries:
+  # Use the default queries for Go
+  - uses: security-and-quality
+
+# Paths to exclude from analysis
+paths-ignore:
+  - "**/*.test.go"
+  - "**/vendor/**"
+  - "**/node_modules/**"
+  - "**/web/node_modules/**"
+  - "**/bin/**"
+  - "**/logs/**"
+  - "**/tmp/**"
+  - "**/temp/**"
+
+# Paths to include in analysis
+paths:
+  - "domain/**"
+  - "internal/**"
+  - "cmd/**"
+  - "*.go"
