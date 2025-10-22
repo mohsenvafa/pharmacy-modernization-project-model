@@ -11,6 +11,8 @@ import (
 	"go.uber.org/zap"
 )
 
+type prefixedKey string
+
 type MongoDBCache struct {
 	collection *mongo.Collection
 	prefix     string
@@ -28,9 +30,9 @@ type MongoDBConfig struct {
 
 // cacheDocument represents a cached item in MongoDB
 type cacheDocument struct {
-	Key      string    `bson:"_id"`
-	Value    []byte    `bson:"value"`
-	ExpireAt time.Time `bson:"expireAt"`
+	Key      prefixedKey `bson:"_id"`
+	Value    []byte      `bson:"value"`
+	ExpireAt time.Time   `bson:"expireAt"`
 }
 
 func NewMongoDBCache(config MongoDBConfig, logger *zap.Logger) (Cache, error) {
@@ -72,7 +74,7 @@ func (m *MongoDBCache) createTTLIndex() error {
 }
 
 func (m *MongoDBCache) Get(ctx context.Context, key string) ([]byte, error) {
-	prefixedKey := m.prefix + key
+	prefixedKey := prefixedKey(m.prefix + key)
 
 	var doc cacheDocument
 	err := m.collection.FindOne(ctx, bson.M{"_id": prefixedKey}).Decode(&doc)
@@ -102,7 +104,7 @@ func (m *MongoDBCache) Get(ctx context.Context, key string) ([]byte, error) {
 }
 
 func (m *MongoDBCache) Set(ctx context.Context, key string, value []byte, ttl time.Duration) error {
-	prefixedKey := m.prefix + key
+	prefixedKey := prefixedKey(m.prefix + key)
 	expireAt := time.Now().Add(ttl)
 
 	doc := cacheDocument{
@@ -122,7 +124,7 @@ func (m *MongoDBCache) Set(ctx context.Context, key string, value []byte, ttl ti
 }
 
 func (m *MongoDBCache) Delete(ctx context.Context, key string) error {
-	prefixedKey := m.prefix + key
+	prefixedKey := prefixedKey(m.prefix + key)
 
 	_, err := m.collection.DeleteOne(ctx, bson.M{"_id": prefixedKey})
 	if err != nil {

@@ -23,6 +23,10 @@ type PatientMongoRepository struct {
 	logger     *zap.Logger
 }
 
+type patientID string
+type patientPhone string
+type patientState string
+
 // escapeRegexChars escapes special regex characters in a string to prevent regex injection
 func escapeRegexChars(input string) string {
 	return regexp.QuoteMeta(input)
@@ -115,7 +119,7 @@ func (r *PatientMongoRepository) GetByID(ctx context.Context, id string) (m.Pati
 			zap.Duration("duration", time.Since(start)))
 	}()
 
-	filter := bson.M{"_id": id}
+	filter := bson.M{"_id": patientID(id)}
 
 	var patient m.Patient
 	err := r.collection.FindOne(ctx, filter).Decode(&patient)
@@ -190,7 +194,7 @@ func (r *PatientMongoRepository) Update(ctx context.Context, id string, p m.Pati
 			zap.Duration("duration", time.Since(start)))
 	}()
 
-	filter := bson.M{"_id": id}
+	filter := bson.M{"_id": patientID(id)}
 	update := bson.M{
 		"$set": bson.M{
 			"name":       p.Name,
@@ -377,7 +381,7 @@ func (r *PatientMongoRepository) FindByState(ctx context.Context, state string, 
 		}
 	}
 
-	filter := bson.M{"state": state}
+	filter := bson.M{"state": patientState(state)}
 	opts := options.Find().
 		SetLimit(int64(limit)).
 		SetSkip(int64(offset)).
