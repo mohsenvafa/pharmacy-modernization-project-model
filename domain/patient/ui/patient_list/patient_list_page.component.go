@@ -2,7 +2,6 @@ package patient_list
 
 import (
 	"net/http"
-	"strconv"
 
 	"go.uber.org/zap"
 
@@ -11,6 +10,8 @@ import (
 	patSvc "pharmacy-modernization-project-model/domain/patient/service"
 	contracts "pharmacy-modernization-project-model/domain/patient/ui/contracts"
 	"pharmacy-modernization-project-model/domain/patient/ui/paths"
+	"pharmacy-modernization-project-model/internal/bind"
+	helper "pharmacy-modernization-project-model/internal/helper"
 )
 
 type PatientListComponent struct {
@@ -47,6 +48,21 @@ func paginatePatients(pats []patientmodel.Patient, page int) ([]patientmodel.Pat
 }
 
 func (c *PatientListComponent) Handler(w http.ResponseWriter, r *http.Request) {
+	// Bind and validate query parameters for pagination
+	pageReq, _, err := bind.Query[request.PatientListPageRequest](r)
+	if err != nil {
+		c.log.Error("failed to bind page parameters", zap.Error(err))
+		helper.WriteUIError(w, "Invalid page parameter", http.StatusBadRequest)
+		return
+	}
+
+	// Set default page if not provided or invalid
+	pageNum := pageReq.Page
+	if pageNum < 1 {
+		pageNum = 1
+	}
+
+	// Get all patients for pagination
 	req := request.PatientListQueryRequest{
 		Limit:  1000,
 		Offset: 0,
@@ -56,15 +72,10 @@ func (c *PatientListComponent) Handler(w http.ResponseWriter, r *http.Request) {
 		if c.log != nil {
 			c.log.Error("failed to load patients", zap.Error(err))
 		}
-		http.Error(w, "failed to load patients", http.StatusInternalServerError)
+		helper.WriteUIInternalError(w, "Failed to load patients")
 		return
 	}
 
-	pageParam := r.URL.Query().Get("page")
-	pageNum, err := strconv.Atoi(pageParam)
-	if err != nil {
-		pageNum = 1
-	}
 	patientsPage, totalPages, currentPage := paginatePatients(patients, pageNum)
 
 	view := PatientListPageComponentView(PatientListPageParam{
@@ -79,7 +90,7 @@ func (c *PatientListComponent) Handler(w http.ResponseWriter, r *http.Request) {
 		if c.log != nil {
 			c.log.Error("failed to render patient list", zap.Error(err))
 		}
-		http.Error(w, "failed to render patient list", http.StatusInternalServerError)
+		helper.WriteUIInternalError(w, "Failed to render patient list")
 		return
 	}
 }

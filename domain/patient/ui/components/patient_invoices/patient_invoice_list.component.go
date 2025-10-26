@@ -8,8 +8,10 @@ import (
 	"github.com/a-h/templ"
 	"go.uber.org/zap"
 
+	"pharmacy-modernization-project-model/domain/patient/contracts/request"
 	patientproviders "pharmacy-modernization-project-model/domain/patient/providers"
 	contracts "pharmacy-modernization-project-model/domain/patient/ui/contracts"
+	"pharmacy-modernization-project-model/internal/bind"
 	helper "pharmacy-modernization-project-model/internal/helper"
 )
 
@@ -27,7 +29,15 @@ func NewInvoiceListComponent(deps *contracts.UiDependencies) *InvoiceListCompone
 }
 
 func (h *InvoiceListComponent) Handler(w http.ResponseWriter, r *http.Request) {
-	patientID := r.URL.Query().Get("patientId")
+	// Bind and validate query parameters
+	req, _, err := bind.Query[request.PatientComponentRequest](r)
+	if err != nil {
+		h.log.Error("failed to bind query parameters", zap.Error(err))
+		helper.WriteUIError(w, "Invalid patient ID parameter", http.StatusBadRequest)
+		return
+	}
+
+	patientID := req.PatientID
 
 	// Wait for 3 seconds (simulating loading)
 	if !helper.WaitOrContext(r.Context(), 3) {

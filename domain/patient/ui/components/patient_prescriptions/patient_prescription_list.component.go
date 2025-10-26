@@ -8,8 +8,10 @@ import (
 	"github.com/a-h/templ"
 	"go.uber.org/zap"
 
+	"pharmacy-modernization-project-model/domain/patient/contracts/request"
 	patientproviders "pharmacy-modernization-project-model/domain/patient/providers"
 	contracts "pharmacy-modernization-project-model/domain/patient/ui/contracts"
+	"pharmacy-modernization-project-model/internal/bind"
 	helper "pharmacy-modernization-project-model/internal/helper"
 )
 
@@ -24,18 +26,26 @@ func NewPrescriptionListComponent(deps *contracts.UiDependencies) *PrescriptionL
 }
 
 func (h *PrescriptionListComponent) Handler(w http.ResponseWriter, r *http.Request) {
-	patientID := r.URL.Query().Get("patientId")
+	// Bind and validate query parameters
+	req, _, err := bind.Query[request.PatientComponentRequest](r)
+	if err != nil {
+		h.log.Error("failed to bind query parameters", zap.Error(err))
+		helper.WriteUIError(w, "Invalid patient ID parameter", http.StatusBadRequest)
+		return
+	}
+
+	patientID := req.PatientID
 	view, err := h.componentView(r.Context(), patientID)
 	if err != nil {
-		http.Error(w, "failed to load patient prescriptions", http.StatusInternalServerError)
+		helper.WriteUIInternalError(w, "Failed to load patient prescriptions")
 		return
 	}
 	if !helper.WaitOrContext(r.Context(), 3) {
-		http.Error(w, "request canceled", http.StatusRequestTimeout)
+		helper.WriteUIError(w, "Request canceled", http.StatusRequestTimeout)
 		return
 	}
 	if err := view.Render(r.Context(), w); err != nil {
-		http.Error(w, "failed to render patient prescriptions", http.StatusInternalServerError)
+		helper.WriteUIInternalError(w, "Failed to render patient prescriptions")
 	}
 }
 
