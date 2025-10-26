@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	presSvc "pharmacy-modernization-project-model/domain/prescription/service"
+	helper "pharmacy-modernization-project-model/internal/helper"
 
 	"go.uber.org/zap"
 )
@@ -20,7 +21,8 @@ func NewPrescriptionListHandler(prescriptions presSvc.PrescriptionService, log *
 func (h *PrescriptionListHandler) Handler(w http.ResponseWriter, r *http.Request) {
 	prescriptions, err := h.prescriptionsService.List(r.Context(), "", 1000, 0)
 	if err != nil {
-		http.Error(w, "failed to load prescriptions", http.StatusInternalServerError)
+		h.log.Error("failed to load prescriptions", zap.Error(err))
+		helper.WriteUIInternalError(w, "Failed to load prescriptions")
 		return
 	}
 
@@ -28,7 +30,8 @@ func (h *PrescriptionListHandler) Handler(w http.ResponseWriter, r *http.Request
 		NumberOfPrescriptions: len(prescriptions),
 	})
 	if err := page.Render(r.Context(), w); err != nil {
-		http.Error(w, "failed to render prescription list", http.StatusInternalServerError)
+		h.log.Error("failed to render prescription list", zap.Error(err))
+		helper.WriteUIInternalError(w, "Failed to render prescription list")
 		return
 	}
 }

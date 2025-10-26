@@ -4,13 +4,14 @@ import (
 	"fmt"
 
 	patientsmodel "pharmacy-modernization-project-model/domain/patient/contracts/model"
+	"pharmacy-modernization-project-model/domain/patient/ui/contracts/form_data"
 	commonComponents "pharmacy-modernization-project-model/web/components/elements"
 	layouts "pharmacy-modernization-project-model/web/components/layouts"
 )
 
 type PatientEditPageParam struct {
 	Patient    patientsmodel.Patient
-	FormData   EditFormData
+	FormData   form_data.PatientFormData
 	BackPath   string
 	SubmitPath string
 }
@@ -27,15 +28,6 @@ templ patientEdit(pageParam PatientEditPageParam) {
 				← Back to Patient Details
 			</a>
 		</div>
-		<!-- Success Message -->
-		if pageParam.FormData.Success {
-			<div class="alert alert-success mx-4">
-				<svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
-					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-				</svg>
-				<span>{ pageParam.FormData.SuccessMsg }</span>
-			</div>
-		}
 		<!-- General Error Message -->
 		if pageParam.FormData.Errors["general"] != "" {
 			<div class="alert alert-error mx-4">

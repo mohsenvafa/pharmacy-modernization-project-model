@@ -76,15 +76,40 @@ type Response struct {
 
 // validateURL performs security validation on the request URL
 func (c *Client) validateURL(requestURL string) error {
-	// Use shared validation logic
-	if err := ValidateURL(requestURL); err != nil {
-		return err
-	}
-
-	// Additional client-specific validation
+	// Parse the URL to validate it
 	parsedURL, err := url.Parse(requestURL)
 	if err != nil {
 		return fmt.Errorf("invalid URL format: %w", err)
+	}
+
+	// Ensure the URL has a scheme
+	if parsedURL.Scheme == "" {
+		return fmt.Errorf("URL must have a scheme (http/https)")
+	}
+
+	// Only allow http and https schemes
+	if parsedURL.Scheme != "http" && parsedURL.Scheme != "https" {
+		return fmt.Errorf("unsupported URL scheme: %s", parsedURL.Scheme)
+	}
+
+	// Ensure the URL has a host
+	if parsedURL.Host == "" {
+		return fmt.Errorf("URL must have a host")
+	}
+
+	// Check for dangerous patterns in the URL
+	if strings.Contains(requestURL, "javascript:") || strings.Contains(requestURL, "data:") {
+		return fmt.Errorf("URL contains dangerous protocol")
+	}
+
+	return nil
+}
+
+// Additional client-specific validation
+func (c *Client) additionalValidation(requestURL string) {
+	parsedURL, err := url.Parse(requestURL)
+	if err != nil {
+		return
 	}
 
 	// Check for localhost or internal IPs (configurable based on security requirements)
@@ -95,8 +120,6 @@ func (c *Client) validateURL(requestURL string) error {
 			zap.String("service", c.serviceName),
 		)
 	}
-
-	return nil
 }
 
 // Do executes an HTTP request with full observability

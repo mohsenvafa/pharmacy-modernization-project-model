@@ -39,7 +39,7 @@ func MountUI(r chi.Router, dep *contracts.UiDependencies) {
 		r.Get(paths.PatientPrescriptionCardComponentRoute, prescriptionListComponent.Handler)
 		r.Get(paths.PatientInvoiceCardComponentRoute, invoiceListComponent.Handler)
 		r.Get(paths.DetailRoute, patientDetailComponent.Handler)
-		r.Get(paths.EditRoute, patientEditComponent.Handler)
-		r.Post(paths.EditRoute, patientEditComponent.Handler)
+		r.Get(paths.EditRoute, patientEditComponent.ShowEditForm)
+		r.Post(paths.EditRoute, patientEditComponent.HandleFormSubmission)
 	})
 }

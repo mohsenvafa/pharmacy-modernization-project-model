@@ -173,27 +173,6 @@ func isValidationError(err error) bool {
 	return false
 }
 
-// RetryableError represents an error that can be retried
-type RetryableError struct {
-	*RepositoryError
-	MaxRetries int
-	RetryDelay int // in milliseconds
-}
-
-// NewRetryableError creates a new retryable error
-func NewRetryableError(errorType ErrorType, message string, err error, maxRetries, retryDelay int) *RetryableError {
-	return &RetryableError{
-		RepositoryError: NewRepositoryError(errorType, message, err),
-		MaxRetries:      maxRetries,
-		RetryDelay:      retryDelay,
-	}
-}
-
-// ShouldRetry checks if the error should be retried
-func (e *RetryableError) ShouldRetry(attempt int) bool {
-	return attempt < e.MaxRetries && e.IsRetryable()
-}
-
 // IsNotFoundError checks if the error is a not found error
 func IsNotFoundError(err error) bool {
 	if err == nil {
@@ -211,42 +190,4 @@ func IsNotFoundError(err error) bool {
 	}
 
 	return false
-}
-
-// Generic error handlers for other database types
-
-// HandleDatabaseError is a generic error handler for any database
-func HandleDatabaseError(operation string, err error) *RepositoryError {
-	if err == nil {
-		return nil
-	}
-
-	// Check for common error patterns
-	errStr := strings.ToLower(err.Error())
-
-	switch {
-	case strings.Contains(errStr, "not found") || strings.Contains(errStr, "no rows"):
-		return NewRepositoryError(ErrorTypeNotFound, "Record not found", err).
-			WithContext("operation", operation)
-
-	case strings.Contains(errStr, "duplicate") || strings.Contains(errStr, "unique constraint"):
-		return NewRepositoryError(ErrorTypeDuplicateKey, "Duplicate key error", err).
-			WithContext("operation", operation)
-
-	case strings.Contains(errStr, "timeout") || strings.Contains(errStr, "deadline exceeded"):
-		return NewRepositoryError(ErrorTypeTimeout, "Operation timed out", err).
-			WithContext("operation", operation)
-
-	case strings.Contains(errStr, "connection") || strings.Contains(errStr, "network"):
-		return NewRepositoryError(ErrorTypeNetworkError, "Network error occurred", err).
-			WithContext("operation", operation)
-
-	case strings.Contains(errStr, "validation") || strings.Contains(errStr, "constraint"):
-		return NewRepositoryError(ErrorTypeValidation, "Validation error", err).
-			WithContext("operation", operation)
-
-	default:
-		return NewRepositoryError(ErrorTypeDatabaseError, "Database operation failed", err).
-			WithContext("operation", operation)
-	}
 }

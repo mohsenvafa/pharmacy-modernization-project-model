@@ -25,19 +25,6 @@ func (v *Validator) ValidateRequired(field, value string) error {
 	return nil
 }
 
-// ValidateEmail validates email format
-func (v *Validator) ValidateEmail(field, email string) error {
-	if email == "" {
-		return platformErrors.NewValidationError(field, email, "email is required")
-	}
-
-	emailRegex := regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`)
-	if !emailRegex.MatchString(email) {
-		return platformErrors.NewValidationError(field, email, "invalid email format")
-	}
-	return nil
-}
-
 // ValidatePhone validates phone number format (basic validation)
 func (v *Validator) ValidatePhone(field, phone string) error {
 	if phone == "" {
@@ -129,56 +116,4 @@ func (v *Validator) ValidateRegex(field, value, pattern, message string) error {
 		return platformErrors.NewValidationError(field, value, message)
 	}
 	return nil
-}
-
-// ValidateStruct validates a struct using validation tags (basic implementation)
-func (v *Validator) ValidateStruct(obj interface{}) error {
-	// This is a simplified version. In a real application, you might want to use
-	// a library like github.com/go-playground/validator/v10 for more comprehensive validation
-
-	// For now, we'll return nil as this would require reflection and is beyond the scope
-	// of this simple validation utility
-	return nil
-}
-
-// ValidationResult holds multiple validation errors
-type ValidationResult struct {
-	Errors []error
-}
-
-// NewValidationResult creates a new validation result
-func NewValidationResult() *ValidationResult {
-	return &ValidationResult{
-		Errors: make([]error, 0),
-	}
-}
-
-// AddError adds an error to the validation result
-func (vr *ValidationResult) AddError(err error) {
-	if err != nil {
-		vr.Errors = append(vr.Errors, err)
-	}
-}
-
-// IsValid returns true if there are no validation errors
-func (vr *ValidationResult) IsValid() bool {
-	return len(vr.Errors) == 0
-}
-
-// GetErrors returns all validation errors
-func (vr *ValidationResult) GetErrors() []error {
-	return vr.Errors
-}
-
-// GetFirstError returns the first validation error, or nil if none
-func (vr *ValidationResult) GetFirstError() error {
-	if len(vr.Errors) > 0 {
-		return vr.Errors[0]
-	}
-	return nil
-}
-
-// Combine combines multiple validation results
-func (vr *ValidationResult) Combine(other *ValidationResult) {
-	vr.Errors = append(vr.Errors, other.Errors...)
 }

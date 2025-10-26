@@ -7,10 +7,13 @@ import (
 	"github.com/go-chi/chi/v5"
 	"go.uber.org/zap"
 
+	"pharmacy-modernization-project-model/domain/patient/contracts/request"
 	patSvc "pharmacy-modernization-project-model/domain/patient/service"
 	contracts "pharmacy-modernization-project-model/domain/patient/ui/contracts"
+	"pharmacy-modernization-project-model/domain/patient/ui/contracts/form_data"
 	"pharmacy-modernization-project-model/domain/patient/ui/paths"
-	"pharmacy-modernization-project-model/domain/patient/validation"
+	"pharmacy-modernization-project-model/internal/bind"
+	helper "pharmacy-modernization-project-model/internal/helper"
 )
 
 type PatientEditComponent struct {
@@ -25,31 +28,35 @@ func NewPatientEditComponent(deps *contracts.UiDependencies) *PatientEditCompone
 	}
 }
 
-// EditFormData represents the form data for editing a patient
-type EditFormData struct {
-	validation.PatientFormData
-	Success    bool
-	SuccessMsg string
-}
-
-func (h *PatientEditComponent) Handler(w http.ResponseWriter, r *http.Request) {
-	patientID := chi.URLParam(r, "patientID")
-	if patientID == "" {
-		http.Error(w, "missing patient id", http.StatusBadRequest)
+// ShowEditForm handles GET requests to show the edit form
+func (h *PatientEditComponent) ShowEditForm(w http.ResponseWriter, r *http.Request) {
+	// Bind and validate path parameters
+	pathVars, _, err := bind.ChiPath[request.PatientPathVars](r, chi.URLParam)
+	if err != nil {
+		h.log.Error("failed to bind path parameters", zap.Error(err))
+		helper.WriteUIError(w, "Invalid patient ID", http.StatusBadRequest)
 		return
 	}
 
-	// Handle form submission
-	if r.Method == http.MethodPost {
-		h.handleFormSubmission(w, r, patientID)
+	// Show edit form
+	h.showEditForm(w, r, pathVars.PatientID, form_data.PatientFormData{})
+}
+
+// HandleFormSubmission handles POST requests to process form submission
+func (h *PatientEditComponent) HandleFormSubmission(w http.ResponseWriter, r *http.Request) {
+	// Bind and validate path parameters
+	pathVars, _, err := bind.ChiPath[request.PatientPathVars](r, chi.URLParam)
+	if err != nil {
+		h.log.Error("failed to bind path parameters", zap.Error(err))
+		helper.WriteUIError(w, "Invalid patient ID", http.StatusBadRequest)
 		return
 	}
 
-	// Handle GET request - show edit form
-	h.showEditForm(w, r, patientID, EditFormData{})
+	// Process form submission
+	h.handleFormSubmission(w, r, pathVars.PatientID)
 }
 
-func (h *PatientEditComponent) showEditForm(w http.ResponseWriter, r *http.Request, patientID string, formData EditFormData) {
+func (h *PatientEditComponent) showEditForm(w http.ResponseWriter, r *http.Request, patientID string, formData form_data.PatientFormData) {
 	patient, err := h.patientsService.GetByID(r.Context(), patientID)
 	if err != nil {
 		h.log.Error("failed to fetch patient", zap.Error(err), zap.String("id", patientID))
@@ -63,14 +70,12 @@ func (h *PatientEditComponent) showEditForm(w http.ResponseWriter, r *http.Reque
 
 	// If no form data provided, populate with current patient data
 	if formData.ID == "" {
-		formData = EditFormData{
-			PatientFormData: validation.PatientFormData{
-				ID:    patient.ID,
-				Name:  patient.Name,
-				Phone: patient.Phone,
-				DOB:   patient.DOB.Format("2006-01-02"),
-				State: patient.State,
-			},
+		formData = form_data.PatientFormData{
+			ID:    patient.ID,
+			Name:  patient.Name,
+			Phone: patient.Phone,
+			DOB:   patient.DOB.Format("2006-01-02"),
+			State: patient.State,
 		}
 	}
 
@@ -89,36 +94,30 @@ func (h *PatientEditComponent) showEditForm(w http.ResponseWriter, r *http.Reque
 }
 
 func (h *PatientEditComponent) handleFormSubmission(w http.ResponseWriter, r *http.Request, patientID string) {
-	// Parse form data
-	err := r.ParseForm()
+	// Bind and validate form data
+	formReq, fieldErrors, err := bind.Form[request.PatientEditFormRequest](r)
 	if err != nil {
-		http.Error(w, "failed to parse form", http.StatusBadRequest)
-		return
-	}
-
-	formData := EditFormData{
-		PatientFormData: validation.PatientFormData{
+		h.log.Error("failed to bind form data", zap.Error(err))
+		formData := form_data.PatientFormData{
 			ID:     patientID,
-			Name:   r.FormValue("name"),
-			Phone:  r.FormValue("phone"),
-			DOB:    r.FormValue("dob"),
-			State:  r.FormValue("state"),
-			Errors: make(map[string]string),
-		},
-	}
-
-	// Validate form data
-	validationErrors := validation.ValidatePatientForm(formData.PatientFormData)
-	if len(validationErrors) > 0 {
-		formData.Errors = validationErrors
+			Errors: helper.ConvertFieldErrorsToUIErrors(fieldErrors),
+		}
 		h.showEditForm(w, r, patientID, formData)
 		return
 	}
 
-	// Parse DOB
-	dob, err := time.Parse("2006-01-02", formData.DOB)
+	// Parse DOB (validation already handled by custom validator)
+	dob, err := time.Parse("2006-01-02", formReq.DOB)
 	if err != nil {
-		formData.Errors["dob"] = "Invalid date format"
+		// This should not happen due to validation, but just in case
+		formData := form_data.PatientFormData{
+			ID:     patientID,
+			Name:   formReq.Name,
+			Phone:  formReq.Phone,
+			DOB:    formReq.DOB,
+			State:  formReq.State,
+			Errors: map[string]string{"dob": "Invalid date format"},
+		}
 		h.showEditForm(w, r, patientID, formData)
 		return
 	}
@@ -127,21 +126,28 @@ func (h *PatientEditComponent) handleFormSubmission(w http.ResponseWriter, r *ht
 	existingPatient, err := h.patientsService.GetByID(r.Context(), patientID)
 	if err != nil {
 		h.log.Error("failed to fetch existing patient", zap.Error(err), zap.String("id", patientID))
-		http.Error(w, "failed to load patient", http.StatusInternalServerError)
+		helper.WriteUIInternalError(w, "Failed to load patient")
 		return
 	}
 
 	// Update patient fields
-	existingPatient.Name = formData.Name
-	existingPatient.Phone = formData.Phone
+	existingPatient.Name = formReq.Name
+	existingPatient.Phone = formReq.Phone
 	existingPatient.DOB = dob
-	existingPatient.State = formData.State
+	existingPatient.State = formReq.State
 
 	// Save updated patient
 	err = h.patientsService.Update(r.Context(), existingPatient)
 	if err != nil {
 		h.log.Error("failed to update patient", zap.Error(err), zap.String("id", patientID))
-		formData.Errors["general"] = "Failed to update patient. Please try again."
+		formData := form_data.PatientFormData{
+			ID:     patientID,
+			Name:   formReq.Name,
+			Phone:  formReq.Phone,
+			DOB:    formReq.DOB,
+			State:  formReq.State,
+			Errors: map[string]string{"general": "Failed to update patient. Please try again."},
+		}
 		h.showEditForm(w, r, patientID, formData)
 		return
 	}

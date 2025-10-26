@@ -8,6 +8,8 @@ import (
 	"reflect"
 	"strings"
 
+	"pharmacy-modernization-project-model/internal/validators"
+
 	"github.com/go-playground/validator/v10"
 	"github.com/gorilla/schema"
 )
@@ -21,6 +23,11 @@ var (
 		return d
 	}()
 )
+
+func init() {
+	// Register all custom validators
+	validators.RegisterCustomValidators(validate)
+}
 
 // FieldError is a clean error for clients.
 type FieldError struct {
@@ -122,6 +129,20 @@ func JoinMessages(ferrs []FieldError) string {
 		}
 	}
 	return strings.Join(parts, ", ")
+}
+
+func Form[T any](r *http.Request) (T, []FieldError, error) {
+	var dst T
+	if err := r.ParseForm(); err != nil {
+		return dst, []FieldError{{Tag: "form", Message: err.Error()}}, err
+	}
+	if err := qdec.Decode(&dst, r.PostForm); err != nil {
+		return dst, []FieldError{{Tag: "form", Message: err.Error()}}, err
+	}
+	if err := validate.Struct(dst); err != nil {
+		return dst, toFieldErrors(err), err
+	}
+	return dst, nil, nil
 }
 
 // Expose validator if you need custom tags in main.
