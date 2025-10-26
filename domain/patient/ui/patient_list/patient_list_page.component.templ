@@ -65,13 +65,7 @@ templ patientList(pageParam PatientListPageParam) {
 						<label class="label">
 							<span class="label-text">State</span>
 						</label>
-						<input
-							type="text"
-							name="state"
-							value={ pageParam.SearchForm.State }
-							placeholder="Enter state"
-							class="input input-bordered w-full"
-						/>
+						@commonComponents.StateDropdown("state", pageParam.SearchForm.State, "select select-bordered w-full")
 					</div>
 					<!-- Search and Clear Buttons -->
 					<div class="form-control">
