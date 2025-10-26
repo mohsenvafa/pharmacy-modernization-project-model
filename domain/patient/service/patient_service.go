@@ -63,7 +63,6 @@ func (s *patientSvc) Create(ctx context.Context, patient m.Patient) (m.Patient, 
 
 	s.log.Info("Patient created successfully",
 		zap.String("patient_id", createdPatient.ID),
-		zap.String("name", createdPatient.Name),
 		zap.String("created_by", user.Name))
 
 	return createdPatient, nil
@@ -80,18 +79,17 @@ func (s *patientSvc) GetByID(ctx context.Context, id string) (m.Patient, error) 
 		if cached, err := s.cache.Get(ctx, cacheKey); err == nil {
 			var patient m.Patient
 			if err := json.Unmarshal(cached, &patient); err == nil {
-				s.log.Debug("Patient retrieved from cache", zap.String("patient_id", id))
+				s.log.Debug("Patient retrieved from cache")
 				return patient, nil
 			}
 		}
 	}
 
-	s.log.Info("Getting patient from repository", zap.String("patient_id", id))
+	s.log.Info("Getting patient from repository")
 
 	patient, err := s.repo.GetByID(ctx, id)
 	if err != nil {
 		s.log.Error("Failed to get patient",
-			zap.String("patient_id", id),
 			zap.Error(err))
 		return m.Patient{}, err
 	}
@@ -100,12 +98,12 @@ func (s *patientSvc) GetByID(ctx context.Context, id string) (m.Patient, error) 
 	if s.cache != nil {
 		if data, err := json.Marshal(patient); err == nil {
 			if err := s.cache.Set(ctx, cacheKey, data, 30*time.Minute); err != nil {
-				s.log.Warn("Failed to cache patient", zap.String("patient_id", id), zap.Error(err))
+				s.log.Warn("Failed to cache patient", zap.Error(err))
 			}
 		}
 	}
 
-	s.log.Info("Patient retrieved successfully", zap.String("patient_id", id))
+	s.log.Info("Patient retrieved successfully")
 	return patient, nil
 }
 
@@ -117,7 +115,7 @@ func (s *patientSvc) Update(ctx context.Context, patient m.Patient) error {
 		return err
 	}
 
-	s.log.Info("Updating patient", zap.String("patient_id", patient.ID), zap.String("edit_by", user.Name))
+	s.log.Info("Updating patient", zap.String("edit_by", user.Name))
 
 	// Set edit tracking fields
 	now := time.Now()
@@ -128,7 +126,6 @@ func (s *patientSvc) Update(ctx context.Context, patient m.Patient) error {
 	_, err = s.repo.Update(ctx, patient.ID, patient)
 	if err != nil {
 		s.log.Error("Failed to update patient",
-			zap.String("patient_id", patient.ID),
 			zap.Error(err))
 		return err
 	}
@@ -138,12 +135,11 @@ func (s *patientSvc) Update(ctx context.Context, patient m.Patient) error {
 		cacheKey := s.cacheKeys.PatientByID(patient.ID)
 		if err := s.cache.Delete(ctx, cacheKey); err != nil {
 			s.log.Warn("Failed to invalidate patient cache",
-				zap.String("patient_id", patient.ID),
 				zap.Error(err))
 		}
 	}
 
-	s.log.Info("Patient updated successfully", zap.String("patient_id", patient.ID), zap.String("edit_by", user.Name))
+	s.log.Info("Patient updated successfully", zap.String("edit_by", user.Name))
 	return nil
 }
 

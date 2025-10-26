@@ -45,9 +45,7 @@ func New(r repo.PrescriptionRepository, c cache.Cache, l *zap.Logger, pharmacy i
 }
 
 func (s *svc) Create(ctx context.Context, prescription m.Prescription) (m.Prescription, error) {
-	s.log.Info("Creating prescription",
-		zap.String("patient_id", prescription.PatientID),
-		zap.String("drug", prescription.Drug))
+	s.log.Info("Creating prescription")
 
 	// Set creation timestamp
 	prescription.CreatedAt = time.Now()
@@ -56,30 +54,23 @@ func (s *svc) Create(ctx context.Context, prescription m.Prescription) (m.Prescr
 	createdPrescription, err := s.repo.Create(ctx, prescription)
 	if err != nil {
 		s.log.Error("Failed to create prescription",
-			zap.String("patient_id", prescription.PatientID),
-			zap.String("drug", prescription.Drug),
 			zap.Error(err))
 		return m.Prescription{}, err
 	}
 
 	s.log.Info("Prescription created successfully",
-		zap.String("prescription_id", createdPrescription.ID),
-		zap.String("patient_id", createdPrescription.PatientID),
-		zap.String("drug", createdPrescription.Drug))
+		zap.String("prescription_id", createdPrescription.ID))
 
 	return createdPrescription, nil
 }
 
 func (s *svc) Update(ctx context.Context, prescription m.Prescription) error {
-	s.log.Info("Updating prescription",
-		zap.String("prescription_id", prescription.ID),
-		zap.String("drug", prescription.Drug))
+	s.log.Info("Updating prescription")
 
 	// Update prescription in repository
 	_, err := s.repo.Update(ctx, prescription.ID, prescription)
 	if err != nil {
 		s.log.Error("Failed to update prescription",
-			zap.String("prescription_id", prescription.ID),
 			zap.Error(err))
 		return err
 	}
@@ -89,13 +80,11 @@ func (s *svc) Update(ctx context.Context, prescription m.Prescription) error {
 		cacheKey := s.cacheKeys.PrescriptionByID(prescription.ID)
 		if err := s.cache.Delete(ctx, cacheKey); err != nil {
 			s.log.Warn("Failed to invalidate prescription cache",
-				zap.String("prescription_id", prescription.ID),
 				zap.Error(err))
 		}
 	}
 
-	s.log.Info("Prescription updated successfully",
-		zap.String("prescription_id", prescription.ID))
+	s.log.Info("Prescription updated successfully")
 
 	return nil
 }
@@ -112,7 +101,7 @@ func (s *svc) GetByID(ctx context.Context, id string) (m.Prescription, error) {
 			var prescription m.Prescription
 			if err := json.Unmarshal(cached, &prescription); err == nil {
 				if s.log != nil {
-					s.log.Debug("Prescription retrieved from cache", zap.String("prescription_id", id))
+					s.log.Debug("Prescription retrieved from cache")
 				}
 				return prescription, nil
 			}
@@ -128,7 +117,7 @@ func (s *svc) GetByID(ctx context.Context, id string) (m.Prescription, error) {
 	if s.cache != nil {
 		if data, err := json.Marshal(prescription); err == nil {
 			if err := s.cache.Set(ctx, cacheKey, data, 15*time.Minute); err != nil && s.log != nil {
-				s.log.Warn("Failed to cache prescription", zap.String("prescription_id", id), zap.Error(err))
+				s.log.Warn("Failed to cache prescription", zap.Error(err))
 			}
 		}
 	}
@@ -173,7 +162,7 @@ func (s *svc) PatientPrescriptionListByPatientID(ctx context.Context, patientID 
 	items, err := s.repo.ListByPatientID(ctx, patientID)
 	if err != nil {
 		if s.log != nil {
-			s.log.Error("failed to list prescriptions by patient", zap.Error(err), zap.String("patient_id", patientID))
+			s.log.Error("failed to list prescriptions by patient", zap.Error(err))
 		}
 		return nil, err
 	}

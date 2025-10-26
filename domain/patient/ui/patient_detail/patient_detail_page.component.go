@@ -52,7 +52,7 @@ func (h *PatientDetailComponent) Handler(w http.ResponseWriter, r *http.Request)
 
 	patient, err := h.patientsService.GetByID(r.Context(), pathVars.PatientID)
 	if err != nil {
-		h.log.Error("failed to fetch patient", zap.Error(err), zap.String("id", pathVars.PatientID))
+		h.log.Error("failed to fetch patient", zap.Error(err))
 		helper.WriteUIInternalError(w, "Failed to load patient")
 		return
 	}
@@ -91,7 +91,7 @@ func (h *PatientDetailComponent) Handler(w http.ResponseWriter, r *http.Request)
 	})
 
 	if err := view.Render(r.Context(), w); err != nil {
-		h.log.Error("failed to render patient detail", zap.Error(err), zap.String("id", pathVars.PatientID))
+		h.log.Error("failed to render patient detail", zap.Error(err))
 		helper.WriteUIInternalError(w, "Failed to render patient detail")
 		return
 	}

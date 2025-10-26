@@ -51,7 +51,6 @@ func (r *PatientResolver) Patient(ctx context.Context, id string) (*model.Patien
 	_, validationErrors := validation.ValidateGraphQLInput(idValidation)
 	if validationErrors != nil {
 		r.Logger.Error("Patient ID validation failed",
-			zap.String("patient_id", id),
 			zap.Any("validation_errors", validationErrors.Errors))
 		return nil, validationErrors
 	}
@@ -59,7 +58,6 @@ func (r *PatientResolver) Patient(ctx context.Context, id string) (*model.Patien
 	patient, err := r.PatientService.GetByID(ctx, id)
 	if err != nil {
 		r.Logger.Error("Failed to fetch patient",
-			zap.String("patient_id", id),
 			zap.Error(err))
 
 		if errors.IsNotFoundError(err) {
@@ -148,7 +146,6 @@ func (r *PatientResolver) CreatePatient(ctx context.Context, input generated.Cre
 	createdPatient, err := r.PatientService.Create(ctx, patient)
 	if err != nil {
 		r.Logger.Error("Failed to create patient",
-			zap.String("name", input.Name),
 			zap.Error(err))
 		return nil, err
 	}
@@ -163,7 +160,6 @@ func (r *PatientResolver) UpdatePatient(ctx context.Context, id string, input ge
 	_, validationErrors := validation.ValidateGraphQLInput(idValidation)
 	if validationErrors != nil {
 		r.Logger.Error("Patient ID validation failed",
-			zap.String("patient_id", id),
 			zap.Any("validation_errors", validationErrors.Errors))
 		return nil, validationErrors
 	}
@@ -173,7 +169,6 @@ func (r *PatientResolver) UpdatePatient(ctx context.Context, id string, input ge
 	_, validationErrors = validation.ValidateGraphQLInput(validationInput)
 	if validationErrors != nil {
 		r.Logger.Error("Patient update validation failed",
-			zap.String("patient_id", id),
 			zap.Any("validation_errors", validationErrors.Errors))
 		return nil, validationErrors
 	}
@@ -182,7 +177,6 @@ func (r *PatientResolver) UpdatePatient(ctx context.Context, id string, input ge
 	existingPatient, err := r.PatientService.GetByID(ctx, id)
 	if err != nil {
 		r.Logger.Error("Failed to get existing patient",
-			zap.String("patient_id", id),
 			zap.Error(err))
 		return nil, err
 	}
@@ -205,7 +199,6 @@ func (r *PatientResolver) UpdatePatient(ctx context.Context, id string, input ge
 	err = r.PatientService.Update(ctx, existingPatient)
 	if err != nil {
 		r.Logger.Error("Failed to update patient",
-			zap.String("patient_id", id),
 			zap.Error(err))
 		return nil, err
 	}
@@ -224,7 +217,6 @@ func (r *PatientResolver) Prescriptions(ctx context.Context, obj *model.Patient)
 	prescriptions, err := r.PrescriptionService.List(ctx, "", 100, 0)
 	if err != nil {
 		r.Logger.Error("Failed to fetch prescriptions for patient",
-			zap.String("patient_id", obj.ID),
 			zap.Error(err))
 		return []model1.Prescription{}, nil
 	}

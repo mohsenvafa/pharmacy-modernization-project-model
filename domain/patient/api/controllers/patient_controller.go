@@ -68,7 +68,7 @@ func (c *PatientController) GetByID(w http.ResponseWriter, r *http.Request) {
 
 	item, err := c.patientService.GetByID(r.Context(), pathVars.PatientID)
 	if err != nil {
-		c.log.Error("get patient", zap.Error(err), zap.String("patientID", pathVars.PatientID))
+		c.log.Error("get patient", zap.Error(err))
 		c.handleError(w, r, err)
 		return
 	}

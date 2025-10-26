@@ -143,8 +143,7 @@ func (r *PrescriptionMongoRepository) Create(ctx context.Context, p m.Prescripti
 	}
 
 	r.logger.Info("Successfully created prescription in MongoDB",
-		zap.String("id", p.ID),
-		zap.String("patient_id", p.PatientID))
+		zap.String("id", p.ID))
 
 	return p, nil
 }
@@ -198,8 +197,7 @@ func (r *PrescriptionMongoRepository) Update(ctx context.Context, id string, p m
 	}
 
 	r.logger.Info("Successfully updated prescription in MongoDB",
-		zap.String("id", id),
-		zap.String("patient_id", p.PatientID))
+		zap.String("id", id))
 
 	return updatedPrescription, nil
 }
@@ -209,14 +207,12 @@ func (r *PrescriptionMongoRepository) ListByPatientID(ctx context.Context, patie
 	start := time.Now()
 	defer func() {
 		r.logger.Debug("MongoDB ListByPatientID operation completed",
-			zap.String("patient_id", patientID),
 			zap.Duration("duration", time.Since(start)))
 	}()
 
 	// Validate input to prevent NoSQL injection
 	if err := validation_logic.ValidateID("patient_id", patientID); err != nil {
 		r.logger.Warn("Invalid patient_id provided",
-			zap.String("patient_id", patientID),
 			zap.Error(err))
 		return nil, platformErrors.NewValidationError("patient_id", patientID, "Invalid patient ID format")
 	}

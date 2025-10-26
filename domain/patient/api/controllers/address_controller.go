@@ -46,7 +46,7 @@ func (c *AddressController) ListByPatient(w http.ResponseWriter, r *http.Request
 
 	addr, err := c.addressService.GetByPatientID(r.Context(), pathVars.PatientID)
 	if err != nil {
-		c.log.Error("list addresses", zap.Error(err), zap.String("patientID", pathVars.PatientID))
+		c.log.Error("list addresses", zap.Error(err))
 		helper.WriteInternalError(w, "failed to load addresses")
 		return
 	}
@@ -64,7 +64,7 @@ func (c *AddressController) GetByID(w http.ResponseWriter, r *http.Request) {
 
 	address, err := c.addressService.GetByID(r.Context(), pathVars.PatientID, pathVars.AddressID)
 	if err != nil {
-		c.log.Error("get address", zap.Error(err), zap.String("patientID", pathVars.PatientID), zap.String("addressID", pathVars.AddressID))
+		c.log.Error("get address", zap.Error(err))
 		helper.WriteInternalError(w, "failed to load address")
 		return
 	}
@@ -97,7 +97,7 @@ func (c *AddressController) Create(w http.ResponseWriter, r *http.Request) {
 			})
 			return
 		}
-		c.log.Error("create address", zap.Error(err), zap.String("patientID", pathVars.PatientID))
+		c.log.Error("create address", zap.Error(err))
 		helper.WriteInternalError(w, "failed to create address")
 		return
 	}

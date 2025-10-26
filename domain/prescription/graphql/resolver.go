@@ -45,7 +45,6 @@ func (r *PrescriptionResolver) Prescription(ctx context.Context, id string) (*mo
 	_, validationErrors := validation.ValidateGraphQLInput(idValidation)
 	if validationErrors != nil {
 		r.Logger.Error("Prescription ID validation failed",
-			zap.String("prescription_id", id),
 			zap.Any("validation_errors", validationErrors.Errors))
 		return nil, validationErrors
 	}
@@ -53,7 +52,6 @@ func (r *PrescriptionResolver) Prescription(ctx context.Context, id string) (*mo
 	prescription, err := r.PrescriptionService.GetByID(ctx, id)
 	if err != nil {
 		r.Logger.Error("Failed to fetch prescription",
-			zap.String("prescription_id", id),
 			zap.Error(err))
 
 		if errors.IsNotFoundError(err) {
@@ -155,8 +153,6 @@ func (r *PrescriptionResolver) CreatePrescription(ctx context.Context, input gen
 	createdPrescription, err := r.PrescriptionService.Create(ctx, prescription)
 	if err != nil {
 		r.Logger.Error("Failed to create prescription",
-			zap.String("patient_id", input.PatientID),
-			zap.String("drug", input.Drug),
 			zap.Error(err))
 		return nil, err
 	}
@@ -171,7 +167,6 @@ func (r *PrescriptionResolver) UpdatePrescription(ctx context.Context, id string
 	_, validationErrors := validation.ValidateGraphQLInput(idValidation)
 	if validationErrors != nil {
 		r.Logger.Error("Prescription ID validation failed",
-			zap.String("prescription_id", id),
 			zap.Any("validation_errors", validationErrors.Errors))
 		return nil, validationErrors
 	}
@@ -181,7 +176,6 @@ func (r *PrescriptionResolver) UpdatePrescription(ctx context.Context, id string
 	_, validationErrors = validation.ValidateGraphQLInput(validationInput)
 	if validationErrors != nil {
 		r.Logger.Error("Prescription update validation failed",
-			zap.String("prescription_id", id),
 			zap.Any("validation_errors", validationErrors.Errors))
 		return nil, validationErrors
 	}
@@ -190,7 +184,6 @@ func (r *PrescriptionResolver) UpdatePrescription(ctx context.Context, id string
 	existingPrescription, err := r.PrescriptionService.GetByID(ctx, id)
 	if err != nil {
 		r.Logger.Error("Failed to get existing prescription",
-			zap.String("prescription_id", id),
 			zap.Error(err))
 		return nil, err
 	}
@@ -220,7 +213,6 @@ func (r *PrescriptionResolver) UpdatePrescription(ctx context.Context, id string
 	err = r.PrescriptionService.Update(ctx, existingPrescription)
 	if err != nil {
 		r.Logger.Error("Failed to update prescription",
-			zap.String("prescription_id", id),
 			zap.Error(err))
 		return nil, err
 	}
@@ -233,8 +225,6 @@ func (r *PrescriptionResolver) Patient(ctx context.Context, obj *model.Prescript
 	patient, err := r.PatientService.GetByID(ctx, obj.PatientID)
 	if err != nil {
 		r.Logger.Error("Failed to fetch patient for prescription",
-			zap.String("prescription_id", obj.ID),
-			zap.String("patient_id", obj.PatientID),
 			zap.Error(err))
 		return nil, err
 	}

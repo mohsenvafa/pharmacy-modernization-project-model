@@ -60,7 +60,7 @@ func (h *PrescriptionListComponent) componentView(ctx context.Context, patientID
 	prescriptions, err := h.provider.PatientPrescriptionListByPatientID(ctx, patientID)
 	if err != nil {
 		if h.log != nil {
-			h.log.Error("failed to load patient prescriptions", zap.Error(err), zap.String("patient_id", patientID))
+			h.log.Error("failed to load patient prescriptions", zap.Error(err))
 		}
 		return nil, err
 	}

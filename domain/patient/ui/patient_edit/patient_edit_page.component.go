@@ -59,7 +59,7 @@ func (h *PatientEditComponent) HandleFormSubmission(w http.ResponseWriter, r *ht
 func (h *PatientEditComponent) showEditForm(w http.ResponseWriter, r *http.Request, patientID string, formData form_data.PatientFormData) {
 	patient, err := h.patientsService.GetByID(r.Context(), patientID)
 	if err != nil {
-		h.log.Error("failed to fetch patient", zap.Error(err), zap.String("id", patientID))
+		h.log.Error("failed to fetch patient", zap.Error(err))
 		http.Error(w, "failed to load patient", http.StatusInternalServerError)
 		return
 	}
@@ -87,7 +87,7 @@ func (h *PatientEditComponent) showEditForm(w http.ResponseWriter, r *http.Reque
 	})
 
 	if err := view.Render(r.Context(), w); err != nil {
-		h.log.Error("failed to render patient edit", zap.Error(err), zap.String("id", patientID))
+		h.log.Error("failed to render patient edit", zap.Error(err))
 		http.Error(w, "failed to render patient edit", http.StatusInternalServerError)
 		return
 	}
@@ -125,7 +125,7 @@ func (h *PatientEditComponent) handleFormSubmission(w http.ResponseWriter, r *ht
 	// Get existing patient to preserve other fields
 	existingPatient, err := h.patientsService.GetByID(r.Context(), patientID)
 	if err != nil {
-		h.log.Error("failed to fetch existing patient", zap.Error(err), zap.String("id", patientID))
+		h.log.Error("failed to fetch existing patient", zap.Error(err))
 		helper.WriteUIInternalError(w, "Failed to load patient")
 		return
 	}
@@ -139,7 +139,7 @@ func (h *PatientEditComponent) handleFormSubmission(w http.ResponseWriter, r *ht
 	// Save updated patient
 	err = h.patientsService.Update(r.Context(), existingPatient)
 	if err != nil {
-		h.log.Error("failed to update patient", zap.Error(err), zap.String("id", patientID))
+		h.log.Error("failed to update patient", zap.Error(err))
 		formData := form_data.PatientFormData{
 			ID:     patientID,
 			Name:   formReq.Name,
