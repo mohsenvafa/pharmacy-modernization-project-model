@@ -1,9 +1,11 @@
 package patient_list
 
 import (
+	"net/url"
 	patientsmodel "pharmacy-modernization-project-model/domain/patient/contracts/model"
 	commonComponents "pharmacy-modernization-project-model/web/components/elements"
 	layouts "pharmacy-modernization-project-model/web/components/layouts"
+	"strings"
 )
 
 type PatientListPageParam struct {
@@ -12,6 +14,13 @@ type PatientListPageParam struct {
 	TotalPages  int
 	ListPath    string
 	DetailPath  func(string) string
+	SearchForm  PatientSearchForm
+}
+
+type PatientSearchForm struct {
+	PatientName string
+	BirthDate   string
+	State       string
 }
 
 templ PatientListPageComponentView(pageParam PatientListPageParam) {
@@ -21,6 +30,67 @@ templ PatientListPageComponentView(pageParam PatientListPageParam) {
 templ patientList(pageParam PatientListPageParam) {
 	<div class="flex flex-col gap-4">
 		@commonComponents.PageHeader("Patients")
+		<!-- Search Form -->
+		<section class="card col-span-12 overflow-hidden bg-base-100 shadow-xs">
+			<div class="card-body">
+				<h2 class="card-title">Search Patients</h2>
+				<form method="GET" action={ templ.URL(pageParam.ListPath) } class="grid grid-cols-1 gap-4 md:grid-cols-4">
+					<!-- Patient Name -->
+					<div class="form-control">
+						<label class="label">
+							<span class="label-text">Patient Name</span>
+						</label>
+						<input
+							type="text"
+							name="patientName"
+							value={ pageParam.SearchForm.PatientName }
+							placeholder="Enter patient name"
+							class="input input-bordered w-full"
+						/>
+					</div>
+					<!-- Birth Date -->
+					<div class="form-control">
+						<label class="label">
+							<span class="label-text">Birth Date</span>
+						</label>
+						<input
+							type="date"
+							name="birthDate"
+							value={ pageParam.SearchForm.BirthDate }
+							class="input input-bordered w-full"
+						/>
+					</div>
+					<!-- State -->
+					<div class="form-control">
+						<label class="label">
+							<span class="label-text">State</span>
+						</label>
+						<input
+							type="text"
+							name="state"
+							value={ pageParam.SearchForm.State }
+							placeholder="Enter state"
+							class="input input-bordered w-full"
+						/>
+					</div>
+					<!-- Search and Clear Buttons -->
+					<div class="form-control">
+						<label class="label">
+							<span class="label-text">&nbsp;</span>
+						</label>
+						<div class="flex gap-2">
+							<button type="submit" class="btn btn-primary">
+								Search
+							</button>
+							<a href={ templ.URL(pageParam.ListPath) } class="btn btn-outline">
+								Clear
+							</a>
+						</div>
+					</div>
+				</form>
+			</div>
+		</section>
+		<!-- Patient List -->
 		<section class="card col-span-12 overflow-hidden bg-base-100 shadow-xs xl:col-span-7">
 			<div class="card-body grow-0">
 				<div class="flex justify-between gap-2">
@@ -34,6 +104,7 @@ templ patientList(pageParam PatientListPageParam) {
 				CurrentPage: pageParam.CurrentPage,
 				TotalPages:  pageParam.TotalPages,
 				BasePath:    pageParam.ListPath,
+				Query:       buildSearchQuery(pageParam.SearchForm),
 			})
 		</section>
 	</div>
@@ -57,4 +128,18 @@ templ patientTableRows(pats []patientsmodel.Patient, detailPath func(string) str
 			<td>{ pat.State }</td>
 		</tr>
 	}
+}
+
+func buildSearchQuery(form PatientSearchForm) string {
+	params := url.Values{}
+	if form.PatientName != "" {
+		params.Add("patientName", form.PatientName)
+	}
+	if form.BirthDate != "" {
+		params.Add("birthDate", form.BirthDate)
+	}
+	if form.State != "" {
+		params.Add("state", form.State)
+	}
+	return strings.TrimSuffix(params.Encode(), "&")
 }

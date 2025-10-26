@@ -48,7 +48,7 @@ func paginatePatients(pats []patientmodel.Patient, page int) ([]patientmodel.Pat
 }
 
 func (c *PatientListComponent) Handler(w http.ResponseWriter, r *http.Request) {
-	// Bind and validate query parameters for pagination
+	// Bind and validate query parameters for pagination and search
 	pageReq, _, err := bind.Query[request.PatientListPageRequest](r)
 	if err != nil {
 		c.log.Error("failed to bind page parameters", zap.Error(err))
@@ -62,10 +62,13 @@ func (c *PatientListComponent) Handler(w http.ResponseWriter, r *http.Request) {
 		pageNum = 1
 	}
 
-	// Get all patients for pagination
+	// Get patients with search filters
 	req := request.PatientListQueryRequest{
-		Limit:  1000,
-		Offset: 0,
+		Limit:       1000,
+		Offset:      0,
+		PatientName: pageReq.PatientName,
+		BirthDate:   pageReq.BirthDate,
+		State:       pageReq.State,
 	}
 	patients, err := c.patientsService.List(r.Context(), req)
 	if err != nil {
@@ -78,12 +81,20 @@ func (c *PatientListComponent) Handler(w http.ResponseWriter, r *http.Request) {
 
 	patientsPage, totalPages, currentPage := paginatePatients(patients, pageNum)
 
+	// Create search form with current values
+	searchForm := PatientSearchForm{
+		PatientName: pageReq.PatientName,
+		BirthDate:   pageReq.BirthDate,
+		State:       pageReq.State,
+	}
+
 	view := PatientListPageComponentView(PatientListPageParam{
 		Patients:    patientsPage,
 		CurrentPage: currentPage,
 		TotalPages:  totalPages,
 		ListPath:    paths.PatientListURL(),
 		DetailPath:  paths.PatientDetailURL,
+		SearchForm:  searchForm,
 	})
 
 	if err := view.Render(r.Context(), w); err != nil {

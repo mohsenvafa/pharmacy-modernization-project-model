@@ -67,12 +67,30 @@ func (r *PatientMongoRepository) List(ctx context.Context, req request.PatientLi
 
 	// Build filter with input sanitization to prevent regex injection
 	filter := bson.M{}
+
+	// Filter by patient name
 	if req.PatientName != "" {
 		// Escape special regex characters to prevent regex injection
 		escapedQuery := escapeRegexChars(req.PatientName)
-		filter = bson.M{
-			"name": bson.M{"$regex": escapedQuery, "$options": "i"},
+		filter["name"] = bson.M{"$regex": escapedQuery, "$options": "i"}
+	}
+
+	// Filter by birth date
+	if req.BirthDate != "" {
+		if birthDate, err := time.Parse("2006-01-02", req.BirthDate); err == nil {
+			// Filter for exact date match
+			startOfDay := time.Date(birthDate.Year(), birthDate.Month(), birthDate.Day(), 0, 0, 0, 0, birthDate.Location())
+			endOfDay := startOfDay.Add(24 * time.Hour)
+			filter["dob"] = bson.M{
+				"$gte": startOfDay,
+				"$lt":  endOfDay,
+			}
 		}
+	}
+
+	// Filter by state
+	if req.State != "" {
+		filter["state"] = bson.M{"$regex": escapeRegexChars(req.State), "$options": "i"}
 	}
 
 	// Configure options

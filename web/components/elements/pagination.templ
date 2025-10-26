@@ -20,25 +20,24 @@ func buildPageURL(base string, page int, query string) templ.SafeURL {
 }
 
 templ Pagination(p PaginationParams) {
-	if p.TotalPages <= 1 {
-		return
+	if p.TotalPages > 1 {
+		<div class="flex items-center justify-between border-t border-base-300 bg-base-100 p-4">
+			<div class="text-sm opacity-70">
+				Page { p.CurrentPage } of { p.TotalPages }
+			</div>
+			<div class="join">
+				if p.hasPrev() {
+					<a class="btn btn-sm join-item" href={ buildPageURL(p.BasePath, p.CurrentPage-1, p.Query) }>Previous</a>
+				} else {
+					<span class="btn btn-sm join-item btn-disabled">Previous</span>
+				}
+				<span class="btn btn-sm join-item btn-active">{ p.CurrentPage }</span>
+				if p.hasNext() {
+					<a class="btn btn-sm join-item" href={ buildPageURL(p.BasePath, p.CurrentPage+1, p.Query) }>Next</a>
+				} else {
+					<span class="btn btn-sm join-item btn-disabled">Next</span>
+				}
+			</div>
+		</div>
 	}
-	<div class="flex items-center justify-between border-t border-base-300 bg-base-100 p-4">
-		<div class="text-sm opacity-70">
-			Page { p.CurrentPage } of { p.TotalPages }
-		</div>
-		<div class="join">
-			if p.hasPrev() {
-				<a class="btn btn-sm join-item" href={ buildPageURL(p.BasePath, p.CurrentPage-1, p.Query) }>Previous</a>
-			} else {
-				<span class="btn btn-sm join-item btn-disabled">Previous</span>
-			}
-			<span class="btn btn-sm join-item btn-active">{ p.CurrentPage }</span>
-			if p.hasNext() {
-				<a class="btn btn-sm join-item" href={ buildPageURL(p.BasePath, p.CurrentPage+1, p.Query) }>Next</a>
-			} else {
-				<span class="btn btn-sm join-item btn-disabled">Next</span>
-			}
-		</div>
-	</div>
 }

@@ -57,8 +57,33 @@ func (r *PatientMemoryRepository) List(ctx context.Context, req request.PatientL
 	res := make([]m.Patient, 0, len(keys))
 	for _, k := range keys {
 		v := r.items[k]
+
+		// Apply all filters
+		matches := true
+
 		// Filter by patient name if provided
-		if req.PatientName == "" || strings.Contains(strings.ToLower(v.Name), strings.ToLower(req.PatientName)) {
+		if req.PatientName != "" && !strings.Contains(strings.ToLower(v.Name), strings.ToLower(req.PatientName)) {
+			matches = false
+		}
+
+		// Filter by birth date if provided
+		if req.BirthDate != "" && matches {
+			if birthDate, err := time.Parse("2006-01-02", req.BirthDate); err == nil {
+				// Compare dates (ignoring time)
+				vDate := time.Date(v.DOB.Year(), v.DOB.Month(), v.DOB.Day(), 0, 0, 0, 0, v.DOB.Location())
+				reqDate := time.Date(birthDate.Year(), birthDate.Month(), birthDate.Day(), 0, 0, 0, 0, birthDate.Location())
+				if !vDate.Equal(reqDate) {
+					matches = false
+				}
+			}
+		}
+
+		// Filter by state if provided
+		if req.State != "" && matches && !strings.Contains(strings.ToLower(v.State), strings.ToLower(req.State)) {
+			matches = false
+		}
+
+		if matches {
 			res = append(res, v)
 		}
 	}
@@ -84,13 +109,34 @@ func (r *PatientMemoryRepository) Update(ctx context.Context, id string, p m.Pat
 }
 
 func (r *PatientMemoryRepository) Count(ctx context.Context, req request.PatientListQueryRequest) (int, error) {
-	if req.PatientName == "" {
-		return len(r.items), nil
-	}
-
 	count := 0
 	for _, v := range r.items {
-		if strings.Contains(strings.ToLower(v.Name), strings.ToLower(req.PatientName)) {
+		// Apply all filters (same logic as List function)
+		matches := true
+
+		// Filter by patient name if provided
+		if req.PatientName != "" && !strings.Contains(strings.ToLower(v.Name), strings.ToLower(req.PatientName)) {
+			matches = false
+		}
+
+		// Filter by birth date if provided
+		if req.BirthDate != "" && matches {
+			if birthDate, err := time.Parse("2006-01-02", req.BirthDate); err == nil {
+				// Compare dates (ignoring time)
+				vDate := time.Date(v.DOB.Year(), v.DOB.Month(), v.DOB.Day(), 0, 0, 0, 0, v.DOB.Location())
+				reqDate := time.Date(birthDate.Year(), birthDate.Month(), birthDate.Day(), 0, 0, 0, 0, birthDate.Location())
+				if !vDate.Equal(reqDate) {
+					matches = false
+				}
+			}
+		}
+
+		// Filter by state if provided
+		if req.State != "" && matches && !strings.Contains(strings.ToLower(v.State), strings.ToLower(req.State)) {
+			matches = false
+		}
+
+		if matches {
 			count++
 		}
 	}
