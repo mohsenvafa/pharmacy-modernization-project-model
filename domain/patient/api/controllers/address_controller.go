@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"encoding/json"
 	"errors"
 	"net/http"
 
@@ -11,6 +10,7 @@ import (
 	addressRequest "pharmacy-modernization-project-model/domain/patient/contracts/request"
 	patientsecurity "pharmacy-modernization-project-model/domain/patient/security"
 	service "pharmacy-modernization-project-model/domain/patient/service"
+	"pharmacy-modernization-project-model/internal/bind"
 	helper "pharmacy-modernization-project-model/internal/helper"
 	"pharmacy-modernization-project-model/internal/platform/auth"
 )
@@ -36,81 +36,71 @@ func (c *AddressController) RegisterRoutes(r chi.Router) {
 }
 
 func (c *AddressController) ListByPatient(w http.ResponseWriter, r *http.Request) {
-	patientID := chi.URLParam(r, "patientID")
-	addr, err := c.addressService.GetByPatientID(r.Context(), patientID)
+	// Bind and validate path parameters
+	pathVars, fieldErrors, err := bind.ChiPath[addressRequest.PatientPathVars](r, chi.URLParam)
 	if err != nil {
-		c.log.Error("list addresses", zap.Error(err), zap.String("patientID", patientID))
-		if writeErr := helper.WriteError(w, http.StatusInternalServerError, helper.APIError{
-			Code:    "address_list_error",
-			Message: "failed to load addresses",
-		}); writeErr != nil {
-			c.log.Error("write response", zap.Error(writeErr))
-		}
+		c.log.Error("failed to bind path parameters", zap.Error(err))
+		helper.Respond400(w, fieldErrors)
 		return
 	}
-	if err := helper.WriteJSON(w, http.StatusOK, addr, nil); err != nil {
-		c.log.Error("write response", zap.Error(err))
+
+	addr, err := c.addressService.GetByPatientID(r.Context(), pathVars.PatientID)
+	if err != nil {
+		c.log.Error("list addresses", zap.Error(err), zap.String("patientID", pathVars.PatientID))
+		helper.WriteInternalError(w, "failed to load addresses")
+		return
 	}
+	helper.WriteOK(w, addr)
 }
 
 func (c *AddressController) GetByID(w http.ResponseWriter, r *http.Request) {
-	patientID := chi.URLParam(r, "patientID")
-	addressID := chi.URLParam(r, "addressID")
-
-	address, err := c.addressService.GetByID(r.Context(), patientID, addressID)
+	// Bind and validate path parameters
+	pathVars, fieldErrors, err := bind.ChiPath[addressRequest.AddressPathVars](r, chi.URLParam)
 	if err != nil {
-		c.log.Error("get address", zap.Error(err), zap.String("patientID", patientID), zap.String("addressID", addressID))
-		if writeErr := helper.WriteError(w, http.StatusInternalServerError, helper.APIError{
-			Code:    "address_get_error",
-			Message: "failed to load address",
-		}); writeErr != nil {
-			c.log.Error("write response", zap.Error(writeErr))
-		}
+		c.log.Error("failed to bind path parameters", zap.Error(err))
+		helper.Respond400(w, fieldErrors)
 		return
 	}
-	if err := helper.WriteJSON(w, http.StatusOK, address, nil); err != nil {
-		c.log.Error("write response", zap.Error(err))
+
+	address, err := c.addressService.GetByID(r.Context(), pathVars.PatientID, pathVars.AddressID)
+	if err != nil {
+		c.log.Error("get address", zap.Error(err), zap.String("patientID", pathVars.PatientID), zap.String("addressID", pathVars.AddressID))
+		helper.WriteInternalError(w, "failed to load address")
+		return
 	}
+	helper.WriteOK(w, address)
 }
 
 func (c *AddressController) Create(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-
-	var req addressRequest.AddressCreateRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		c.log.Warn("invalid address payload", zap.Error(err))
-		if writeErr := helper.WriteError(w, http.StatusBadRequest, helper.APIError{
-			Code:    "invalid_request",
-			Message: "invalid address payload",
-		}); writeErr != nil {
-			c.log.Error("write response", zap.Error(writeErr))
-		}
+	// Bind and validate path parameters
+	pathVars, fieldErrors, err := bind.ChiPath[addressRequest.PatientPathVars](r, chi.URLParam)
+	if err != nil {
+		c.log.Error("failed to bind path parameters", zap.Error(err))
+		helper.Respond400(w, fieldErrors)
 		return
 	}
 
-	patientID := chi.URLParam(r, "patientID")
-	created, err := c.addressService.Create(r.Context(), patientID, req)
+	// Bind and validate JSON body
+	req, fieldErrors, err := bind.JSON[addressRequest.AddressCreateRequest](r)
+	if err != nil {
+		c.log.Warn("invalid address payload", zap.Error(err))
+		helper.Respond400(w, fieldErrors)
+		return
+	}
+
+	created, err := c.addressService.Create(r.Context(), pathVars.PatientID, req)
 	if err != nil {
 		if errors.Is(err, service.ErrInvalidAddress) {
-			if writeErr := helper.WriteError(w, http.StatusBadRequest, helper.APIError{
+			helper.WriteError(w, http.StatusBadRequest, helper.APIError{
 				Code:    "invalid_request",
 				Message: err.Error(),
-			}); writeErr != nil {
-				c.log.Error("write response", zap.Error(writeErr))
-			}
+			})
 			return
 		}
-		c.log.Error("create address", zap.Error(err), zap.String("patientID", patientID))
-		if writeErr := helper.WriteError(w, http.StatusInternalServerError, helper.APIError{
-			Code:    "address_create_error",
-			Message: "failed to create address",
-		}); writeErr != nil {
-			c.log.Error("write response", zap.Error(writeErr))
-		}
+		c.log.Error("create address", zap.Error(err), zap.String("patientID", pathVars.PatientID))
+		helper.WriteInternalError(w, "failed to create address")
 		return
 	}
 
-	if err := helper.WriteJSON(w, http.StatusCreated, created, nil); err != nil {
-		c.log.Error("write response", zap.Error(err))
-	}
+	helper.WriteCreated(w, created)
 }

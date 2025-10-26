@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/go-chi/chi/v5"
 	"go.uber.org/zap"
@@ -11,6 +10,7 @@ import (
 	response "pharmacy-modernization-project-model/domain/prescription/contracts/response"
 	prescriptionsecurity "pharmacy-modernization-project-model/domain/prescription/security"
 	"pharmacy-modernization-project-model/domain/prescription/service"
+	"pharmacy-modernization-project-model/internal/bind"
 	helper "pharmacy-modernization-project-model/internal/helper"
 	"pharmacy-modernization-project-model/internal/platform/auth"
 )
@@ -34,53 +34,44 @@ func (c *PrescriptionController) RegisterRoutes(r chi.Router) {
 }
 
 func (c *PrescriptionController) List(w http.ResponseWriter, r *http.Request) {
-	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
-	offset, _ := strconv.Atoi(r.URL.Query().Get("offset"))
-	if limit <= 0 {
-		limit = 20
-	}
-	if offset < 0 {
-		offset = 0
-	}
-
-	query := request.PrescriptionListQueryRequest{
-		Status: r.URL.Query().Get("status"),
-		Limit:  limit,
-		Offset: offset,
-	}
-
-	items, err := c.svc.List(r.Context(), query.Status, query.Limit, query.Offset)
+	// Bind and validate query parameters
+	req, fieldErrors, err := bind.Query[request.PrescriptionListQueryRequest](r)
 	if err != nil {
-		c.log.Error("list prescriptions", zap.Error(err))
-		if writeErr := helper.WriteError(w, http.StatusInternalServerError, helper.APIError{
-			Code:    "prescription_list_error",
-			Message: "failed to list prescriptions",
-		}); writeErr != nil {
-			c.log.Error("write response", zap.Error(writeErr))
-		}
+		c.log.Error("failed to bind query parameters", zap.Error(err))
+		helper.Respond400(w, fieldErrors)
 		return
 	}
 
-	if err := helper.WriteJSON(w, http.StatusOK, response.FromModels(items), nil); err != nil {
-		c.log.Error("write response", zap.Error(err))
+	// Set default limit if not provided
+	if req.Limit == 0 {
+		req.Limit = 20
 	}
+
+	items, err := c.svc.List(r.Context(), req.Status, req.Limit, req.Offset)
+	if err != nil {
+		c.log.Error("list prescriptions", zap.Error(err))
+		helper.WriteInternalError(w, "failed to list prescriptions")
+		return
+	}
+
+	helper.WriteOK(w, response.FromModels(items))
 }
 
 func (c *PrescriptionController) GetByID(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "prescriptionID")
-	item, err := c.svc.GetByID(r.Context(), id)
+	// Bind and validate path parameters
+	pathVars, fieldErrors, err := bind.ChiPath[request.PrescriptionPathVars](r, chi.URLParam)
 	if err != nil {
-		c.log.Error("get prescription", zap.Error(err), zap.String("prescriptionID", id))
-		if writeErr := helper.WriteError(w, http.StatusInternalServerError, helper.APIError{
-			Code:    "prescription_get_error",
-			Message: "failed to fetch prescription",
-		}); writeErr != nil {
-			c.log.Error("write response", zap.Error(writeErr))
-		}
+		c.log.Error("failed to bind path parameters", zap.Error(err))
+		helper.Respond400(w, fieldErrors)
 		return
 	}
 
-	if err := helper.WriteJSON(w, http.StatusOK, response.FromModel(item), nil); err != nil {
-		c.log.Error("write response", zap.Error(err))
+	item, err := c.svc.GetByID(r.Context(), pathVars.PrescriptionID)
+	if err != nil {
+		c.log.Error("get prescription", zap.Error(err), zap.String("prescriptionID", pathVars.PrescriptionID))
+		helper.WriteInternalError(w, "failed to fetch prescription")
+		return
 	}
+
+	helper.WriteOK(w, response.FromModel(item))
 }

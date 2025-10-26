@@ -58,11 +58,17 @@ func (c *PatientController) List(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *PatientController) GetByID(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "patientID")
-
-	item, err := c.patientService.GetByID(r.Context(), id)
+	// Bind and validate path parameters
+	pathVars, fieldErrors, err := bind.ChiPath[request.PatientPathVars](r, chi.URLParam)
 	if err != nil {
-		c.log.Error("get patient", zap.Error(err), zap.String("patientID", id))
+		c.log.Error("failed to bind path parameters", zap.Error(err))
+		helper.Respond400(w, fieldErrors)
+		return
+	}
+
+	item, err := c.patientService.GetByID(r.Context(), pathVars.PatientID)
+	if err != nil {
+		c.log.Error("get patient", zap.Error(err), zap.String("patientID", pathVars.PatientID))
 		c.handleError(w, r, err)
 		return
 	}
