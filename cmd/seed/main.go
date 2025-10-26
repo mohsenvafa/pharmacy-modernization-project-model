@@ -101,7 +101,7 @@ func main() {
 	seedPrescriptions(db)
 
 	fmt.Println("\n🎉 Seeding complete! You can view the data at:")
-	fmt.Printf("   MongoDB: mongodb://%s:%s@localhost:27017/%s\n", username, password, dbName)
+	fmt.Printf("   MongoDB: mongodb://%s:***@localhost:27017/%s\n", username, dbName)
 	fmt.Println("   Mongo Express: http://localhost:8081")
 }
 
