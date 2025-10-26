@@ -74,6 +74,15 @@ func (m *MongoDBCache) createTTLIndex() error {
 }
 
 func (m *MongoDBCache) Get(ctx context.Context, key string) ([]byte, error) {
+	// Validate key format before processing to prevent injection attacks
+	if valid, reason := ValidateIDWithReason(key); !valid {
+		m.errors.Add(1)
+		m.logger.Warn("Get: rejected invalid cache key",
+			zap.String("key", key),
+			zap.String("reason", reason))
+		return nil, ErrNotFound
+	}
+
 	// Sanitize the key before using it in database queries
 	sanitizedKey := SanitizeKey(key)
 	prefixedKey := prefixedKey(m.prefix + sanitizedKey)
@@ -92,8 +101,14 @@ func (m *MongoDBCache) Get(ctx context.Context, key string) ([]byte, error) {
 	// Check if expired (in case TTL index hasn't processed yet)
 	if time.Now().After(doc.ExpireAt) {
 		m.misses.Add(1)
-		// Delete expired document
+		// Delete expired document asynchronously (validate key again to prevent bypass)
 		go func() {
+			if valid, reason := ValidateIDWithReason(key); !valid {
+				m.logger.Warn("DeleteOne: rejected invalid cache key in async deletion",
+					zap.String("key", key),
+					zap.String("reason", reason))
+				return
+			}
 			deleteCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 			defer cancel()
 			m.collection.DeleteOne(deleteCtx, bson.M{"_id": prefixedKey})
@@ -106,6 +121,15 @@ func (m *MongoDBCache) Get(ctx context.Context, key string) ([]byte, error) {
 }
 
 func (m *MongoDBCache) Set(ctx context.Context, key string, value []byte, ttl time.Duration) error {
+	// Validate key format before processing to prevent injection attacks
+	if valid, reason := ValidateIDWithReason(key); !valid {
+		m.errors.Add(1)
+		m.logger.Warn("Set: rejected invalid cache key",
+			zap.String("key", key),
+			zap.String("reason", reason))
+		return ErrInvalidKey
+	}
+
 	// Sanitize the key before using it in database queries
 	sanitizedKey := SanitizeKey(key)
 	prefixedKey := prefixedKey(m.prefix + sanitizedKey)
@@ -128,6 +152,15 @@ func (m *MongoDBCache) Set(ctx context.Context, key string, value []byte, ttl ti
 }
 
 func (m *MongoDBCache) Delete(ctx context.Context, key string) error {
+	// Validate key format before processing to prevent injection attacks
+	if valid, reason := ValidateIDWithReason(key); !valid {
+		m.errors.Add(1)
+		m.logger.Warn("Delete: rejected invalid cache key",
+			zap.String("key", key),
+			zap.String("reason", reason))
+		return ErrInvalidKey
+	}
+
 	// Sanitize the key before using it in database queries
 	sanitizedKey := SanitizeKey(key)
 	prefixedKey := prefixedKey(m.prefix + sanitizedKey)

@@ -1,6 +1,7 @@
 package cache
 
 import (
+	"fmt"
 	"regexp"
 	"strings"
 )
@@ -33,14 +34,62 @@ func SanitizeKey(key string) string {
 }
 
 // ValidateID validates that an ID matches expected format patterns
-// This helps prevent injection by ensuring IDs follow expected patterns
+// This helps prevent injection by ensuring IDs follow expected patterns.
+// The validation is strict to ensure only safe alphanumeric characters, hyphens, and underscores are allowed.
 func ValidateID(id string) bool {
 	if id == "" {
 		return false
 	}
 
-	// Allow alphanumeric characters, hyphens, and underscores
-	// This covers most common ID formats (UUIDs, MongoDB ObjectIds, etc.)
+	// Reject keys that are too short (less than 1 character) or too long (over 200 characters)
+	// This prevents both empty keys and excessively long keys that could be used for DoS
+	if len(id) < 1 || len(id) > 200 {
+		return false
+	}
+
+	// Allow alphanumeric characters, hyphens, and underscores only
+	// This covers most common ID formats (UUIDs, MongoDB ObjectIds, slugs, etc.)
+	// The pattern must match the entire string (^...$) to prevent partial matches
 	validIDPattern := regexp.MustCompile(`^[a-zA-Z0-9_-]+$`)
-	return validIDPattern.MatchString(id)
+
+	if !validIDPattern.MatchString(id) {
+		return false
+	}
+
+	// Additional validation: ensure the key doesn't contain MongoDB operators
+	// This is a defense-in-depth measure even though the regex above should catch these
+	mongoOperators := []string{"$", ".", "(", ")", "[", "]", "{", "}", "*", "+", "?", "|", "^", "\\"}
+	for _, op := range mongoOperators {
+		if strings.Contains(id, op) {
+			return false
+		}
+	}
+
+	return true
+}
+
+// ValidateIDWithReason performs validation and returns a detailed reason for failure
+// This is useful for logging and debugging purposes
+func ValidateIDWithReason(id string) (bool, string) {
+	if id == "" {
+		return false, "key is empty"
+	}
+
+	if len(id) < 1 || len(id) > 200 {
+		return false, fmt.Sprintf("key length invalid: %d (must be 1-200 characters)", len(id))
+	}
+
+	validIDPattern := regexp.MustCompile(`^[a-zA-Z0-9_-]+$`)
+	if !validIDPattern.MatchString(id) {
+		return false, "key contains invalid characters (only alphanumeric, hyphens, and underscores allowed)"
+	}
+
+	mongoOperators := []string{"$", ".", "(", ")", "[", "]", "{", "}", "*", "+", "?", "|", "^", "\\"}
+	for _, op := range mongoOperators {
+		if strings.Contains(id, op) {
+			return false, fmt.Sprintf("key contains forbidden MongoDB operator: %s", op)
+		}
+	}
+
+	return true, ""
 }

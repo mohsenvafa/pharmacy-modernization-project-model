@@ -27,6 +27,7 @@ type CacheStats struct {
 }
 
 var (
-	ErrNotFound = errors.New("cache: key not found")
-	ErrClosed   = errors.New("cache: cache is closed")
+	ErrNotFound   = errors.New("cache: key not found")
+	ErrClosed     = errors.New("cache: cache is closed")
+	ErrInvalidKey = errors.New("cache: invalid key format")
 )
