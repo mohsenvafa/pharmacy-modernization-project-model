@@ -1,9 +1,13 @@
 package providers
 
-import "context"
+import (
+	"context"
+
+	"pharmacy-modernization-project-model/domain/patient/contracts/request"
+)
 
 type PatientStatsProvider interface {
-	Count(ctx context.Context, query string) (int, error)
+	Count(ctx context.Context, req request.PatientListQueryRequest) (int, error)
 }
 
 type PrescriptionStatsProvider interface {

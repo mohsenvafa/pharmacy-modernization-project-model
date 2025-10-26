@@ -5,6 +5,7 @@ import (
 
 	model "pharmacy-modernization-project-model/domain/dashboard/contracts/model"
 	"pharmacy-modernization-project-model/domain/dashboard/providers"
+	"pharmacy-modernization-project-model/domain/patient/contracts/request"
 )
 
 type IDashboardService interface {
@@ -21,7 +22,11 @@ func New(patients providers.PatientStatsProvider, prescriptions providers.Prescr
 }
 
 func (s *dashboardService) Summary(ctx context.Context) (model.DashboardSummary, error) {
-	total, err := s.patients.Count(ctx, "")
+	req := request.PatientListQueryRequest{
+		Limit:  0, // Get all patients for count
+		Offset: 0,
+	}
+	total, err := s.patients.Count(ctx, req)
 	if err != nil {
 		return model.DashboardSummary{}, err
 	}

@@ -2,13 +2,14 @@ package controllers
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/go-chi/chi/v5"
 	"go.uber.org/zap"
 
+	"pharmacy-modernization-project-model/domain/patient/contracts/request"
 	patientsecurity "pharmacy-modernization-project-model/domain/patient/security"
 	service "pharmacy-modernization-project-model/domain/patient/service"
+	"pharmacy-modernization-project-model/internal/bind"
 	helper "pharmacy-modernization-project-model/internal/helper"
 	"pharmacy-modernization-project-model/internal/platform/auth"
 	"pharmacy-modernization-project-model/internal/platform/httpx"
@@ -33,28 +34,27 @@ func (c *PatientController) RegisterRoutes(r chi.Router) {
 }
 
 func (c *PatientController) List(w http.ResponseWriter, r *http.Request) {
-	q := r.URL.Query().Get("q")
-	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
-	offset, _ := strconv.Atoi(r.URL.Query().Get("offset"))
-	if limit == 0 {
-		limit = 20
-	}
-
-	items, err := c.patientService.List(r.Context(), q, limit, offset)
+	// Bind and validate query parameters
+	req, fieldErrors, err := bind.Query[request.PatientListQueryRequest](r)
 	if err != nil {
-		c.log.Error("list patients", zap.Error(err))
-		if writeErr := helper.WriteError(w, http.StatusInternalServerError, helper.APIError{
-			Code:    "patient_list_error",
-			Message: "failed to list patients",
-		}); writeErr != nil {
-			c.log.Error("write response", zap.Error(writeErr))
-		}
+		c.log.Error("failed to bind query parameters", zap.Error(err))
+		helper.Respond400(w, fieldErrors)
 		return
 	}
 
-	if err := helper.WriteJSON(w, http.StatusOK, items, nil); err != nil {
-		c.log.Error("write response", zap.Error(err))
+	// Set default limit if not provided
+	if req.Limit == 0 {
+		req.Limit = 20
 	}
+
+	items, err := c.patientService.List(r.Context(), req)
+	if err != nil {
+		c.log.Error("list patients", zap.Error(err))
+		helper.WriteInternalError(w, "failed to list patients")
+		return
+	}
+
+	helper.WriteOK(w, items)
 }
 
 func (c *PatientController) GetByID(w http.ResponseWriter, r *http.Request) {
@@ -67,9 +67,7 @@ func (c *PatientController) GetByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := helper.WriteJSON(w, http.StatusOK, item, nil); err != nil {
-		c.log.Error("write response", zap.Error(err))
-	}
+	helper.WriteOK(w, item)
 }
 
 // handleError handles different types of errors and returns appropriate HTTP responses

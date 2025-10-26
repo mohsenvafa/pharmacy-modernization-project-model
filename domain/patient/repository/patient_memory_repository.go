@@ -3,9 +3,11 @@ package repository
 import (
 	"context"
 	"sort"
+	"strings"
 	"time"
 
 	m "pharmacy-modernization-project-model/domain/patient/contracts/model"
+	"pharmacy-modernization-project-model/domain/patient/contracts/request"
 )
 
 type PatientMemoryRepository struct{ items map[string]m.Patient }
@@ -45,7 +47,7 @@ func NewPatientMemoryRepository() PatientRepository {
 	return r
 }
 
-func (r *PatientMemoryRepository) List(ctx context.Context, query string, limit, offset int) ([]m.Patient, error) {
+func (r *PatientMemoryRepository) List(ctx context.Context, req request.PatientListQueryRequest) ([]m.Patient, error) {
 	keys := make([]string, 0, len(r.items))
 	for k := range r.items {
 		keys = append(keys, k)
@@ -55,16 +57,19 @@ func (r *PatientMemoryRepository) List(ctx context.Context, query string, limit,
 	res := make([]m.Patient, 0, len(keys))
 	for _, k := range keys {
 		v := r.items[k]
-		res = append(res, v)
+		// Filter by patient name if provided
+		if req.PatientName == "" || strings.Contains(strings.ToLower(v.Name), strings.ToLower(req.PatientName)) {
+			res = append(res, v)
+		}
 	}
-	if offset >= len(res) {
+	if req.Offset >= len(res) {
 		return []m.Patient{}, nil
 	}
-	end := offset + limit
+	end := req.Offset + req.Limit
 	if end > len(res) {
 		end = len(res)
 	}
-	return res[offset:end], nil
+	return res[req.Offset:end], nil
 }
 func (r *PatientMemoryRepository) GetByID(ctx context.Context, id string) (m.Patient, error) {
 	return r.items[id], nil
@@ -78,6 +83,16 @@ func (r *PatientMemoryRepository) Update(ctx context.Context, id string, p m.Pat
 	return p, nil
 }
 
-func (r *PatientMemoryRepository) Count(ctx context.Context, query string) (int, error) {
-	return len(r.items), nil
+func (r *PatientMemoryRepository) Count(ctx context.Context, req request.PatientListQueryRequest) (int, error) {
+	if req.PatientName == "" {
+		return len(r.items), nil
+	}
+
+	count := 0
+	for _, v := range r.items {
+		if strings.Contains(strings.ToLower(v.Name), strings.ToLower(req.PatientName)) {
+			count++
+		}
+	}
+	return count, nil
 }

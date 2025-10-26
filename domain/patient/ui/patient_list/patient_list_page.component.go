@@ -7,6 +7,7 @@ import (
 	"go.uber.org/zap"
 
 	patientmodel "pharmacy-modernization-project-model/domain/patient/contracts/model"
+	"pharmacy-modernization-project-model/domain/patient/contracts/request"
 	patSvc "pharmacy-modernization-project-model/domain/patient/service"
 	contracts "pharmacy-modernization-project-model/domain/patient/ui/contracts"
 	"pharmacy-modernization-project-model/domain/patient/ui/paths"
@@ -46,7 +47,11 @@ func paginatePatients(pats []patientmodel.Patient, page int) ([]patientmodel.Pat
 }
 
 func (c *PatientListComponent) Handler(w http.ResponseWriter, r *http.Request) {
-	patients, err := c.patientsService.List(r.Context(), "", 1000, 0)
+	req := request.PatientListQueryRequest{
+		Limit:  1000,
+		Offset: 0,
+	}
+	patients, err := c.patientsService.List(r.Context(), req)
 	if err != nil {
 		if c.log != nil {
 			c.log.Error("failed to load patients", zap.Error(err))

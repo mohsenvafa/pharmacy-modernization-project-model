@@ -6,6 +6,7 @@ import (
 	"go.uber.org/zap"
 
 	"pharmacy-modernization-project-model/domain/patient/contracts/model"
+	"pharmacy-modernization-project-model/domain/patient/contracts/request"
 	patientservice "pharmacy-modernization-project-model/domain/patient/service"
 	model1 "pharmacy-modernization-project-model/domain/prescription/contracts/model"
 	prescriptionservice "pharmacy-modernization-project-model/domain/prescription/service"
@@ -59,27 +60,29 @@ func (r *PatientResolver) Patient(ctx context.Context, id string) (*model.Patien
 
 // Patients resolves the patients query
 func (r *PatientResolver) Patients(ctx context.Context, query *string, limit *int, offset *int) ([]model.Patient, error) {
-	q := ""
+	req := request.PatientListQueryRequest{
+		Limit:  50, // default limit
+		Offset: 0,
+	}
+
 	if query != nil {
-		q = *query
+		req.PatientName = *query
 	}
 
-	lim := 50 // default limit
 	if limit != nil {
-		lim = *limit
+		req.Limit = *limit
 	}
 
-	off := 0
 	if offset != nil {
-		off = *offset
+		req.Offset = *offset
 	}
 
-	patients, err := r.PatientService.List(ctx, q, lim, off)
+	patients, err := r.PatientService.List(ctx, req)
 	if err != nil {
 		r.Logger.Error("Failed to list patients",
-			zap.String("query", q),
-			zap.Int("limit", lim),
-			zap.Int("offset", off),
+			zap.String("patientName", req.PatientName),
+			zap.Int("limit", req.Limit),
+			zap.Int("offset", req.Offset),
 			zap.Error(err))
 		return nil, err
 	}

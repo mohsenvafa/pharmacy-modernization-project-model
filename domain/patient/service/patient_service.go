@@ -8,16 +8,17 @@ import (
 	"go.uber.org/zap"
 
 	m "pharmacy-modernization-project-model/domain/patient/contracts/model"
+	"pharmacy-modernization-project-model/domain/patient/contracts/request"
 	repo "pharmacy-modernization-project-model/domain/patient/repository"
 	"pharmacy-modernization-project-model/internal/platform/auth"
 	"pharmacy-modernization-project-model/internal/platform/cache"
 )
 
 type PatientService interface {
-	List(ctx context.Context, query string, limit, offset int) ([]m.Patient, error)
+	List(ctx context.Context, req request.PatientListQueryRequest) ([]m.Patient, error)
 	GetByID(ctx context.Context, id string) (m.Patient, error)
 	Update(ctx context.Context, patient m.Patient) error
-	Count(ctx context.Context, query string) (int, error)
+	Count(ctx context.Context, req request.PatientListQueryRequest) (int, error)
 }
 
 type patientSvc struct {
@@ -36,8 +37,8 @@ func New(r repo.PatientRepository, c cache.Cache, l *zap.Logger) PatientService 
 	}
 }
 
-func (s *patientSvc) List(ctx context.Context, query string, limit, offset int) ([]m.Patient, error) {
-	return s.repo.List(ctx, query, limit, offset)
+func (s *patientSvc) List(ctx context.Context, req request.PatientListQueryRequest) ([]m.Patient, error) {
+	return s.repo.List(ctx, req)
 }
 func (s *patientSvc) GetByID(ctx context.Context, id string) (m.Patient, error) {
 	cacheKey := s.cacheKeys.PatientByID(id)
@@ -114,21 +115,21 @@ func (s *patientSvc) Update(ctx context.Context, patient m.Patient) error {
 	return nil
 }
 
-func (s *patientSvc) Count(ctx context.Context, query string) (int, error) {
-	cacheKey := s.cacheKeys.PatientCount(query)
+func (s *patientSvc) Count(ctx context.Context, req request.PatientListQueryRequest) (int, error) {
+	cacheKey := s.cacheKeys.PatientCount(req.PatientName)
 
 	// Try cache first
 	if s.cache != nil {
 		if cached, err := s.cache.Get(ctx, cacheKey); err == nil {
 			var count int
 			if err := json.Unmarshal(cached, &count); err == nil {
-				s.log.Debug("Patient count retrieved from cache", zap.String("query", query))
+				s.log.Debug("Patient count retrieved from cache", zap.String("patientName", req.PatientName))
 				return count, nil
 			}
 		}
 	}
 
-	count, err := s.repo.Count(ctx, query)
+	count, err := s.repo.Count(ctx, req)
 	if err != nil {
 		return 0, err
 	}
@@ -137,7 +138,7 @@ func (s *patientSvc) Count(ctx context.Context, query string) (int, error) {
 	if s.cache != nil {
 		if data, err := json.Marshal(count); err == nil {
 			if err := s.cache.Set(ctx, cacheKey, data, 5*time.Minute); err != nil {
-				s.log.Warn("Failed to cache patient count", zap.String("query", query), zap.Error(err))
+				s.log.Warn("Failed to cache patient count", zap.String("patientName", req.PatientName), zap.Error(err))
 			}
 		}
 	}

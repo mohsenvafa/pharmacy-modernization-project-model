@@ -12,6 +12,7 @@ import (
 	"go.uber.org/zap"
 
 	m "pharmacy-modernization-project-model/domain/patient/contracts/model"
+	"pharmacy-modernization-project-model/domain/patient/contracts/request"
 	patientErrors "pharmacy-modernization-project-model/domain/patient/errors"
 	platformErrors "pharmacy-modernization-project-model/internal/platform/errors"
 	"pharmacy-modernization-project-model/internal/platform/validation"
@@ -55,34 +56,30 @@ func (r *PatientMongoRepository) handleError(operation string, err error) error 
 }
 
 // List retrieves patients with pagination and optional search
-func (r *PatientMongoRepository) List(ctx context.Context, query string, limit, offset int) ([]m.Patient, error) {
+func (r *PatientMongoRepository) List(ctx context.Context, req request.PatientListQueryRequest) ([]m.Patient, error) {
 	start := time.Now()
 	defer func() {
 		r.logger.Debug("MongoDB List operation completed",
-			zap.String("query", query),
-			zap.Int("limit", limit),
-			zap.Int("offset", offset),
+			zap.String("patientName", req.PatientName),
+			zap.Int("limit", req.Limit),
+			zap.Int("offset", req.Offset),
 			zap.Duration("duration", time.Since(start)))
 	}()
 
 	// Build filter with input sanitization to prevent regex injection
 	filter := bson.M{}
-	if query != "" {
+	if req.PatientName != "" {
 		// Escape special regex characters to prevent regex injection
-		escapedQuery := escapeRegexChars(query)
+		escapedQuery := escapeRegexChars(req.PatientName)
 		filter = bson.M{
-			"$or": []bson.M{
-				{"name": bson.M{"$regex": escapedQuery, "$options": "i"}},
-				{"phone": bson.M{"$regex": escapedQuery, "$options": "i"}},
-				{"state": bson.M{"$regex": escapedQuery, "$options": "i"}},
-			},
+			"name": bson.M{"$regex": escapedQuery, "$options": "i"},
 		}
 	}
 
 	// Configure options
 	opts := options.Find().
-		SetLimit(int64(limit)).
-		SetSkip(int64(offset)).
+		SetLimit(int64(req.Limit)).
+		SetSkip(int64(req.Offset)).
 		SetSort(bson.D{{Key: "created_at", Value: -1}}) // Sort by creation date descending
 
 	// Execute query
@@ -241,25 +238,21 @@ func (r *PatientMongoRepository) Update(ctx context.Context, id string, p m.Pati
 }
 
 // Count returns the total number of patients matching the query
-func (r *PatientMongoRepository) Count(ctx context.Context, query string) (int, error) {
+func (r *PatientMongoRepository) Count(ctx context.Context, req request.PatientListQueryRequest) (int, error) {
 	start := time.Now()
 	defer func() {
 		r.logger.Debug("MongoDB Count operation completed",
-			zap.String("query", query),
+			zap.String("patientName", req.PatientName),
 			zap.Duration("duration", time.Since(start)))
 	}()
 
 	// Build filter with input sanitization to prevent regex injection
 	filter := bson.M{}
-	if query != "" {
+	if req.PatientName != "" {
 		// Escape special regex characters to prevent regex injection
-		escapedQuery := escapeRegexChars(query)
+		escapedQuery := escapeRegexChars(req.PatientName)
 		filter = bson.M{
-			"$or": []bson.M{
-				{"name": bson.M{"$regex": escapedQuery, "$options": "i"}},
-				{"phone": bson.M{"$regex": escapedQuery, "$options": "i"}},
-				{"state": bson.M{"$regex": escapedQuery, "$options": "i"}},
-			},
+			"name": bson.M{"$regex": escapedQuery, "$options": "i"},
 		}
 	}
 
