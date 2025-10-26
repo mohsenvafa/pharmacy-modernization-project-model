@@ -130,7 +130,6 @@ func (c *Client) Do(ctx context.Context, req Request) (*Response, error) {
 	if err := c.validateURL(req.URL); err != nil {
 		c.logger.Error("URL validation failed",
 			zap.String("service", c.serviceName),
-			zap.String("url", req.URL),
 			zap.Error(err),
 		)
 		return nil, fmt.Errorf("URL validation failed: %w", err)
@@ -142,7 +141,6 @@ func (c *Client) Do(ctx context.Context, req Request) (*Response, error) {
 		c.logger.Error("failed to create request",
 			zap.String("service", c.serviceName),
 			zap.String("method", req.Method),
-			zap.String("url", req.URL),
 			zap.Error(err),
 		)
 		return nil, fmt.Errorf("failed to create request: %w", err)
@@ -179,7 +177,6 @@ func (c *Client) Do(ctx context.Context, req Request) (*Response, error) {
 	c.logger.Info("http request initiated",
 		zap.String("service", c.serviceName),
 		zap.String("method", req.Method),
-		zap.String("url", req.URL),
 	)
 
 	// Execute request
@@ -190,7 +187,6 @@ func (c *Client) Do(ctx context.Context, req Request) (*Response, error) {
 		c.logger.Error("http request failed",
 			zap.String("service", c.serviceName),
 			zap.String("method", req.Method),
-			zap.String("url", req.URL),
 			zap.Duration("duration", duration),
 			zap.Error(err),
 		)
@@ -204,7 +200,6 @@ func (c *Client) Do(ctx context.Context, req Request) (*Response, error) {
 		c.logger.Error("failed to read response body",
 			zap.String("service", c.serviceName),
 			zap.String("method", req.Method),
-			zap.String("url", req.URL),
 			zap.Duration("duration", duration),
 			zap.Error(err),
 		)
@@ -237,7 +232,6 @@ func (c *Client) Do(ctx context.Context, req Request) (*Response, error) {
 	c.logger.Log(logLevel, "http request completed",
 		zap.String("service", c.serviceName),
 		zap.String("method", req.Method),
-		zap.String("url", req.URL),
 		zap.Int("status_code", httpResp.StatusCode),
 		zap.Duration("duration", duration),
 		zap.Int("response_size", len(body)),

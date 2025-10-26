@@ -29,7 +29,7 @@ func (c *AddressListComponent) View(ctx context.Context, patientID string) (temp
 	addresses, err := c.service.GetByPatientID(ctx, patientID)
 	if err != nil {
 		if c.log != nil {
-			c.log.Error("failed to load patient addresses", zap.Error(err), zap.String("patient_id", patientID))
+			c.log.Error("failed to load patient addresses", zap.Error(err))
 		}
 		return nil, err
 	}

@@ -68,7 +68,7 @@ func (c *PrescriptionController) GetByID(w http.ResponseWriter, r *http.Request)
 
 	item, err := c.svc.GetByID(r.Context(), pathVars.PrescriptionID)
 	if err != nil {
-		c.log.Error("get prescription", zap.Error(err), zap.String("prescriptionID", pathVars.PrescriptionID))
+		c.log.Error("get prescription", zap.Error(err))
 		helper.WriteInternalError(w, "failed to fetch prescription")
 		return
 	}

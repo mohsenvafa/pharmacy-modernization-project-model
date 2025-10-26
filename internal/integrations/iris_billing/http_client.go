@@ -44,10 +44,7 @@ func (c *HTTPClient) GetInvoice(ctx context.Context, prescriptionID string) (*In
 		return nil, fmt.Errorf("failed to build URL: %w", err)
 	}
 
-	c.logger.Debug("fetching invoice",
-		zap.String("prescription_id", prescriptionID),
-		zap.String("url", url),
-	)
+	c.logger.Debug("fetching invoice")
 
 	// ✅ Example: Add endpoint-specific header for THIS endpoint only
 	resp, err := c.client.Get(ctx, url, map[string]string{
@@ -66,18 +63,12 @@ func (c *HTTPClient) GetInvoice(ctx context.Context, prescriptionID string) (*In
 	var response InvoiceResponse
 	if err := json.Unmarshal(resp.Body, &response); err != nil {
 		c.logger.Error("failed to decode invoice response",
-			zap.String("prescription_id", prescriptionID),
 			zap.Error(err),
 		)
 		return nil, fmt.Errorf("failed to decode invoice response: %w", err)
 	}
 
-	c.logger.Debug("invoice retrieved successfully",
-		zap.String("prescription_id", prescriptionID),
-		zap.String("invoice_id", response.ID),
-		zap.Float64("amount", response.Amount),
-		zap.String("status", response.Status),
-	)
+	c.logger.Debug("invoice retrieved successfully")
 
 	return &response, nil
 }
@@ -133,7 +124,6 @@ func (c *HTTPClient) CreateInvoice(ctx context.Context, req CreateInvoiceRequest
 	idempotencyKey := generateIdempotencyKey(req.PrescriptionID)
 
 	c.logger.Debug("creating invoice",
-		zap.String("prescription_id", req.PrescriptionID),
 		zap.Float64("amount", req.Amount),
 		zap.String("url", url),
 		zap.String("idempotency_key", idempotencyKey),
@@ -162,7 +152,6 @@ func (c *HTTPClient) CreateInvoice(ctx context.Context, req CreateInvoiceRequest
 	var response CreateInvoiceResponse
 	if err := json.Unmarshal(resp.Body, &response); err != nil {
 		c.logger.Error("failed to decode create invoice response",
-			zap.String("prescription_id", req.PrescriptionID),
 			zap.Error(err),
 		)
 		return nil, fmt.Errorf("failed to decode response: %w", err)
@@ -170,7 +159,6 @@ func (c *HTTPClient) CreateInvoice(ctx context.Context, req CreateInvoiceRequest
 
 	c.logger.Info("invoice created successfully",
 		zap.String("invoice_id", response.ID),
-		zap.String("prescription_id", response.PrescriptionID),
 		zap.Float64("amount", response.Amount),
 	)
 
@@ -188,7 +176,6 @@ func (c *HTTPClient) AcknowledgeInvoice(ctx context.Context, invoiceID string, r
 
 	c.logger.Debug("acknowledging invoice",
 		zap.String("invoice_id", invoiceID),
-		zap.String("acknowledged_by", req.AcknowledgedBy),
 		zap.String("url", url),
 	)
 

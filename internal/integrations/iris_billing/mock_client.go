@@ -39,16 +39,13 @@ func (c *MockClient) SeedPayment(payment InvoicePaymentResponse) {
 func (c *MockClient) GetInvoice(ctx context.Context, prescriptionID string) (*InvoiceResponse, error) {
 	if invoice, ok := c.invoices[prescriptionID]; ok {
 		c.logger.Debug("mock invoice found",
-			zap.String("prescription_id", prescriptionID),
 			zap.String("invoice_id", invoice.ID),
 			zap.String("status", invoice.Status),
 		)
 		return &invoice, nil
 	}
 
-	c.logger.Warn("mock invoice not found, returning default",
-		zap.String("prescription_id", prescriptionID),
-	)
+	c.logger.Warn("mock invoice not found, returning default")
 
 	// Return a default invoice for unknown prescription IDs
 	defaultInvoice := &InvoiceResponse{
@@ -64,7 +61,6 @@ func (c *MockClient) GetInvoice(ctx context.Context, prescriptionID string) (*In
 func (c *MockClient) GetInvoicesByPatientID(ctx context.Context, patientID string) (*InvoiceListResponse, error) {
 	if invoices, ok := c.invoicesByPatient[patientID]; ok {
 		c.logger.Debug("mock invoices found for patient",
-			zap.String("patient_id", patientID),
 			zap.Int("count", len(invoices)),
 		)
 		return &InvoiceListResponse{
@@ -74,9 +70,7 @@ func (c *MockClient) GetInvoicesByPatientID(ctx context.Context, patientID strin
 		}, nil
 	}
 
-	c.logger.Warn("no mock invoices found for patient, returning empty list",
-		zap.String("patient_id", patientID),
-	)
+	c.logger.Warn("no mock invoices found for patient, returning empty list")
 
 	// Return an empty list for unknown patient IDs
 	return &InvoiceListResponse{
@@ -99,7 +93,6 @@ func (c *MockClient) CreateInvoice(ctx context.Context, req CreateInvoiceRequest
 
 	c.logger.Debug("mock invoice created",
 		zap.String("invoice_id", invoice.ID),
-		zap.String("prescription_id", req.PrescriptionID),
 		zap.Float64("amount", req.Amount),
 	)
 
@@ -120,7 +113,6 @@ func (c *MockClient) AcknowledgeInvoice(ctx context.Context, invoiceID string, r
 
 			c.logger.Debug("mock invoice acknowledged",
 				zap.String("invoice_id", invoiceID),
-				zap.String("acknowledged_by", req.AcknowledgedBy),
 			)
 
 			response := &AcknowledgeInvoiceResponse{
@@ -131,9 +123,7 @@ func (c *MockClient) AcknowledgeInvoice(ctx context.Context, invoiceID string, r
 		}
 	}
 
-	c.logger.Warn("mock invoice not found for acknowledgement",
-		zap.String("invoice_id", invoiceID),
-	)
+	c.logger.Warn("mock invoice not found for acknowledgement")
 
 	return nil, fmt.Errorf("invoice not found: %s", invoiceID)
 }
@@ -142,15 +132,12 @@ func (c *MockClient) AcknowledgeInvoice(ctx context.Context, invoiceID string, r
 func (c *MockClient) GetInvoicePayment(ctx context.Context, invoiceID string) (*InvoicePaymentResponse, error) {
 	if payment, ok := c.payments[invoiceID]; ok {
 		c.logger.Debug("mock payment found",
-			zap.String("invoice_id", invoiceID),
 			zap.String("payment_id", payment.PaymentID),
 		)
 		return &payment, nil
 	}
 
-	c.logger.Warn("mock payment not found, returning default",
-		zap.String("invoice_id", invoiceID),
-	)
+	c.logger.Warn("mock payment not found, returning default")
 
 	// Return default payment
 	defaultPayment := &InvoicePaymentResponse{

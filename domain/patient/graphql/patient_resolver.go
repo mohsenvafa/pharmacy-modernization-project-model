@@ -109,7 +109,6 @@ func (r *PatientResolver) Patients(ctx context.Context, query *string, limit *in
 	patients, err := r.PatientService.List(ctx, req)
 	if err != nil {
 		r.Logger.Error("Failed to list patients",
-			zap.String("patientName", req.PatientName),
 			zap.Int("limit", req.Limit),
 			zap.Int("offset", req.Offset),
 			zap.Error(err))

@@ -60,7 +60,6 @@ func (r *PatientMongoRepository) List(ctx context.Context, req request.PatientLi
 	start := time.Now()
 	defer func() {
 		r.logger.Debug("MongoDB List operation completed",
-			zap.String("patientName", req.PatientName),
 			zap.Int("limit", req.Limit),
 			zap.Int("offset", req.Offset),
 			zap.Duration("duration", time.Since(start)))
@@ -111,7 +110,6 @@ func (r *PatientMongoRepository) GetByID(ctx context.Context, id string) (m.Pati
 	start := time.Now()
 	defer func() {
 		r.logger.Debug("MongoDB GetByID operation completed",
-			zap.String("id", id),
 			zap.Duration("duration", time.Since(start)))
 	}()
 
@@ -126,8 +124,7 @@ func (r *PatientMongoRepository) GetByID(ctx context.Context, id string) (m.Pati
 		return m.Patient{}, fmt.Errorf("failed to get patient %s: %w", id, err)
 	}
 
-	r.logger.Debug("Successfully retrieved patient from MongoDB",
-		zap.String("id", id))
+	r.logger.Debug("Successfully retrieved patient from MongoDB")
 
 	return patient, nil
 }
@@ -171,9 +168,7 @@ func (r *PatientMongoRepository) Create(ctx context.Context, p m.Patient) (m.Pat
 		return m.Patient{}, fmt.Errorf("failed to create patient %s: %w", p.ID, err)
 	}
 
-	r.logger.Info("Successfully created patient in MongoDB",
-		zap.String("id", p.ID),
-		zap.String("name", p.Name))
+	r.logger.Info("Successfully created patient in MongoDB")
 
 	return p, nil
 }
@@ -226,9 +221,7 @@ func (r *PatientMongoRepository) Update(ctx context.Context, id string, p m.Pati
 		return m.Patient{}, r.handleError("Update", err)
 	}
 
-	r.logger.Info("Successfully updated patient in MongoDB",
-		zap.String("id", id),
-		zap.String("name", p.Name))
+	r.logger.Info("Successfully updated patient in MongoDB")
 
 	return updatedPatient, nil
 }
@@ -238,7 +231,6 @@ func (r *PatientMongoRepository) Count(ctx context.Context, req request.PatientL
 	start := time.Now()
 	defer func() {
 		r.logger.Debug("MongoDB Count operation completed",
-			zap.String("patientName", req.PatientName),
 			zap.Duration("duration", time.Since(start)))
 	}()
 
@@ -353,7 +345,6 @@ func (r *PatientMongoRepository) FindByState(ctx context.Context, state string, 
 	start := time.Now()
 	defer func() {
 		r.logger.Debug("MongoDB FindByState operation completed",
-			zap.String("state", state),
 			zap.Int("limit", limit),
 			zap.Int("offset", offset),
 			zap.Duration("duration", time.Since(start)))
@@ -387,7 +378,6 @@ func (r *PatientMongoRepository) FindByState(ctx context.Context, state string, 
 	}
 
 	r.logger.Debug("Successfully retrieved patients by state from MongoDB",
-		zap.String("state", state),
 		zap.Int("count", len(patients)))
 
 	return patients, nil
