@@ -56,7 +56,7 @@ func (b *Builder) Build() error {
 
 	// Safety check: prevent dev mode in production
 	if b.env == "prod" && b.devMode {
-		return fmt.Errorf("FATAL: Dev mode cannot be enabled in production environment (env=%s, dev_mode=%t)", b.env, b.devMode)
+		return fmt.Errorf("FATAL: Dev mode cannot be enabled in production environment")
 	}
 
 	// Initialize dev mode

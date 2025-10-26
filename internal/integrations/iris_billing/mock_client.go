@@ -125,7 +125,7 @@ func (c *MockClient) AcknowledgeInvoice(ctx context.Context, invoiceID string, r
 
 	c.logger.Warn("mock invoice not found for acknowledgement")
 
-	return nil, fmt.Errorf("invoice not found: %s", invoiceID)
+	return nil, fmt.Errorf("invoice not found")
 }
 
 // GetInvoicePayment retrieves mock payment details

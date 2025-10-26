@@ -121,7 +121,7 @@ func (r *PatientMongoRepository) GetByID(ctx context.Context, id string) (m.Pati
 		if err == mongo.ErrNoDocuments {
 			return m.Patient{}, patientErrors.NewRecordNotFoundError("Patient", id)
 		}
-		return m.Patient{}, fmt.Errorf("failed to get patient %s: %w", id, err)
+		return m.Patient{}, fmt.Errorf("failed to get patient: %w", err)
 	}
 
 	r.logger.Debug("Successfully retrieved patient from MongoDB")
@@ -165,7 +165,7 @@ func (r *PatientMongoRepository) Create(ctx context.Context, p m.Patient) (m.Pat
 		if mongo.IsDuplicateKeyError(err) {
 			return m.Patient{}, patientErrors.NewDuplicateRecordError("Patient", p.ID)
 		}
-		return m.Patient{}, fmt.Errorf("failed to create patient %s: %w", p.ID, err)
+		return m.Patient{}, fmt.Errorf("failed to create patient: %w", err)
 	}
 
 	r.logger.Info("Successfully created patient in MongoDB")

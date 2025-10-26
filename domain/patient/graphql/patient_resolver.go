@@ -175,8 +175,7 @@ func (r *PatientResolver) UpdatePatient(ctx context.Context, id string, input ge
 	// Get existing patient first
 	existingPatient, err := r.PatientService.GetByID(ctx, id)
 	if err != nil {
-		r.Logger.Error("Failed to get existing patient",
-			zap.Error(err))
+		r.Logger.Error("Failed to get existing patient")
 		return nil, err
 	}
 

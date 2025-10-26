@@ -89,7 +89,7 @@ func (c *Client) validateURL(requestURL string) error {
 
 	// Only allow http and https schemes
 	if parsedURL.Scheme != "http" && parsedURL.Scheme != "https" {
-		return fmt.Errorf("unsupported URL scheme: %s", parsedURL.Scheme)
+		return fmt.Errorf("unsupported URL scheme")
 	}
 
 	// Ensure the URL has a host
