@@ -74,7 +74,9 @@ func (m *MongoDBCache) createTTLIndex() error {
 }
 
 func (m *MongoDBCache) Get(ctx context.Context, key string) ([]byte, error) {
-	prefixedKey := prefixedKey(m.prefix + key)
+	// Sanitize the key before using it in database queries
+	sanitizedKey := SanitizeKey(key)
+	prefixedKey := prefixedKey(m.prefix + sanitizedKey)
 
 	var doc cacheDocument
 	err := m.collection.FindOne(ctx, bson.M{"_id": prefixedKey}).Decode(&doc)
@@ -104,7 +106,9 @@ func (m *MongoDBCache) Get(ctx context.Context, key string) ([]byte, error) {
 }
 
 func (m *MongoDBCache) Set(ctx context.Context, key string, value []byte, ttl time.Duration) error {
-	prefixedKey := prefixedKey(m.prefix + key)
+	// Sanitize the key before using it in database queries
+	sanitizedKey := SanitizeKey(key)
+	prefixedKey := prefixedKey(m.prefix + sanitizedKey)
 	expireAt := time.Now().Add(ttl)
 
 	doc := cacheDocument{
@@ -124,7 +128,9 @@ func (m *MongoDBCache) Set(ctx context.Context, key string, value []byte, ttl ti
 }
 
 func (m *MongoDBCache) Delete(ctx context.Context, key string) error {
-	prefixedKey := prefixedKey(m.prefix + key)
+	// Sanitize the key before using it in database queries
+	sanitizedKey := SanitizeKey(key)
+	prefixedKey := prefixedKey(m.prefix + sanitizedKey)
 
 	_, err := m.collection.DeleteOne(ctx, bson.M{"_id": prefixedKey})
 	if err != nil {
