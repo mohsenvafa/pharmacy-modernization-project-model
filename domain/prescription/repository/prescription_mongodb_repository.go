@@ -47,7 +47,6 @@ func (r *PrescriptionMongoRepository) List(ctx context.Context, status string, l
 	start := time.Now()
 	defer func() {
 		r.logger.Debug("MongoDB List operation completed",
-			zap.String("status", status),
 			zap.Int("limit", limit),
 			zap.Int("offset", offset),
 			zap.Duration("duration", time.Since(start)))
@@ -59,7 +58,6 @@ func (r *PrescriptionMongoRepository) List(ctx context.Context, status string, l
 		// Validate status input to prevent NoSQL injection
 		if err := validation_logic.ValidateOneOf("status", status, "Draft", "Active", "Paused", "Completed"); err != nil {
 			r.logger.Warn("Invalid status provided",
-				zap.String("status", status),
 				zap.Error(err))
 			return nil, platformErrors.NewValidationError("status", status, "Invalid status value")
 		}
@@ -244,7 +242,6 @@ func (r *PrescriptionMongoRepository) CountByStatus(ctx context.Context, status 
 	start := time.Now()
 	defer func() {
 		r.logger.Debug("MongoDB CountByStatus operation completed",
-			zap.String("status", status),
 			zap.Duration("duration", time.Since(start)))
 	}()
 
@@ -254,7 +251,6 @@ func (r *PrescriptionMongoRepository) CountByStatus(ctx context.Context, status 
 		// Validate status input to prevent NoSQL injection
 		if err := validation_logic.ValidateOneOf("status", status, "Draft", "Active", "Paused", "Completed"); err != nil {
 			r.logger.Warn("Invalid status provided for count",
-				zap.String("status", status),
 				zap.Error(err))
 			return 0, platformErrors.NewValidationError("status", status, "Invalid status value")
 		}
@@ -267,7 +263,6 @@ func (r *PrescriptionMongoRepository) CountByStatus(ctx context.Context, status 
 	}
 
 	r.logger.Debug("Successfully counted prescriptions in MongoDB",
-		zap.String("status", status),
 		zap.Int64("count", count))
 
 	return int(count), nil

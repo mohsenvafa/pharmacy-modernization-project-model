@@ -134,7 +134,7 @@ func (s *svc) CountByStatus(ctx context.Context, status string) (int, error) {
 			var count int
 			if err := json.Unmarshal(cached, &count); err == nil {
 				if s.log != nil {
-					s.log.Debug("Prescription count retrieved from cache", zap.String("status", status))
+					s.log.Debug("Prescription count retrieved from cache")
 				}
 				return count, nil
 			}
@@ -150,7 +150,7 @@ func (s *svc) CountByStatus(ctx context.Context, status string) (int, error) {
 	if s.cache != nil {
 		if data, err := json.Marshal(count); err == nil {
 			if err := s.cache.Set(ctx, cacheKey, data, 5*time.Minute); err != nil && s.log != nil {
-				s.log.Warn("Failed to cache prescription count", zap.String("status", status), zap.Error(err))
+				s.log.Warn("Failed to cache prescription count", zap.Error(err))
 			}
 		}
 	}

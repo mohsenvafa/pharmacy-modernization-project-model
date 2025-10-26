@@ -101,7 +101,6 @@ func (r *PrescriptionResolver) Prescriptions(ctx context.Context, status *string
 	prescriptions, err := r.PrescriptionService.List(ctx, statusFilter, lim, off)
 	if err != nil {
 		r.Logger.Error("Failed to list prescriptions",
-			zap.String("status", statusFilter),
 			zap.Int("limit", lim),
 			zap.Int("offset", off),
 			zap.Error(err))
