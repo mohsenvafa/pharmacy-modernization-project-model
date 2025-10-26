@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"pharmacy-modernization-project-model/internal/validators"
+	"pharmacy-modernization-project-model/internal/validators/validation_logic"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gorilla/schema"
@@ -30,12 +31,7 @@ func init() {
 }
 
 // FieldError is a clean error for clients.
-type FieldError struct {
-	Field   string `json:"field"`
-	Tag     string `json:"tag"`
-	Param   string `json:"param,omitempty"`
-	Message string `json:"message,omitempty"`
-}
+type FieldError = validation_logic.FieldError
 
 func toFieldErrors(err error) []FieldError {
 	var ferrs []FieldError

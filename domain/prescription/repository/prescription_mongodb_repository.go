@@ -11,7 +11,7 @@ import (
 
 	m "pharmacy-modernization-project-model/domain/prescription/contracts/model"
 	platformErrors "pharmacy-modernization-project-model/internal/platform/errors"
-	"pharmacy-modernization-project-model/internal/platform/validation"
+	"pharmacy-modernization-project-model/internal/validators/validation_logic"
 )
 
 // PrescriptionMongoRepository implements PrescriptionRepository interface using MongoDB
@@ -57,8 +57,7 @@ func (r *PrescriptionMongoRepository) List(ctx context.Context, status string, l
 	filter := bson.M{}
 	if status != "" {
 		// Validate status input to prevent NoSQL injection
-		validator := validation.NewValidator()
-		if err := validator.ValidateOneOf("status", status, "Draft", "Active", "Paused", "Completed"); err != nil {
+		if err := validation_logic.ValidateOneOf("status", status, "Draft", "Active", "Paused", "Completed"); err != nil {
 			r.logger.Warn("Invalid status provided",
 				zap.String("status", status),
 				zap.Error(err))
@@ -102,8 +101,7 @@ func (r *PrescriptionMongoRepository) GetByID(ctx context.Context, id string) (m
 	}()
 
 	// Validate input to prevent NoSQL injection
-	validator := validation.NewValidator()
-	if err := validator.ValidateID("id", id); err != nil {
+	if err := validation_logic.ValidateID("id", id); err != nil {
 		r.logger.Warn("Invalid prescription ID provided",
 			zap.String("id", id),
 			zap.Error(err))
@@ -161,8 +159,7 @@ func (r *PrescriptionMongoRepository) Update(ctx context.Context, id string, p m
 	}()
 
 	// Validate input to prevent NoSQL injection
-	validator := validation.NewValidator()
-	if err := validator.ValidateID("id", id); err != nil {
+	if err := validation_logic.ValidateID("id", id); err != nil {
 		r.logger.Warn("Invalid prescription ID provided for update",
 			zap.String("id", id),
 			zap.Error(err))
@@ -217,8 +214,7 @@ func (r *PrescriptionMongoRepository) ListByPatientID(ctx context.Context, patie
 	}()
 
 	// Validate input to prevent NoSQL injection
-	validator := validation.NewValidator()
-	if err := validator.ValidateID("patient_id", patientID); err != nil {
+	if err := validation_logic.ValidateID("patient_id", patientID); err != nil {
 		r.logger.Warn("Invalid patient_id provided",
 			zap.String("patient_id", patientID),
 			zap.Error(err))
@@ -260,8 +256,7 @@ func (r *PrescriptionMongoRepository) CountByStatus(ctx context.Context, status 
 	filter := bson.M{}
 	if status != "" {
 		// Validate status input to prevent NoSQL injection
-		validator := validation.NewValidator()
-		if err := validator.ValidateOneOf("status", status, "Draft", "Active", "Paused", "Completed"); err != nil {
+		if err := validation_logic.ValidateOneOf("status", status, "Draft", "Active", "Paused", "Completed"); err != nil {
 			r.logger.Warn("Invalid status provided for count",
 				zap.String("status", status),
 				zap.Error(err))

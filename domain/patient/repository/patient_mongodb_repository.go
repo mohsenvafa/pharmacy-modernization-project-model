@@ -15,7 +15,7 @@ import (
 	"pharmacy-modernization-project-model/domain/patient/contracts/request"
 	patientErrors "pharmacy-modernization-project-model/domain/patient/errors"
 	platformErrors "pharmacy-modernization-project-model/internal/platform/errors"
-	"pharmacy-modernization-project-model/internal/platform/validation"
+	"pharmacy-modernization-project-model/internal/validators/validation_logic"
 )
 
 // PatientMongoRepository implements PatientRepository interface using MongoDB
@@ -103,9 +103,8 @@ func (r *PatientMongoRepository) List(ctx context.Context, req request.PatientLi
 
 // GetByID retrieves a patient by ID
 func (r *PatientMongoRepository) GetByID(ctx context.Context, id string) (m.Patient, error) {
-	// Input validation using shared validator
-	validator := validation.NewValidator()
-	if err := validator.ValidateID("id", id); err != nil {
+	// Input validation using bind package
+	if err := validation_logic.ValidateID("id", id); err != nil {
 		return m.Patient{}, err
 	}
 
@@ -135,22 +134,19 @@ func (r *PatientMongoRepository) GetByID(ctx context.Context, id string) (m.Pati
 
 // Create creates a new patient
 func (r *PatientMongoRepository) Create(ctx context.Context, p m.Patient) (m.Patient, error) {
-	// Input validation using shared validator
-	validator := validation.NewValidator()
-
-	// Validate required fields
-	if err := validator.ValidateID("id", p.ID); err != nil {
+	// Input validation using bind package
+	if err := validation_logic.ValidateID("id", p.ID); err != nil {
 		return m.Patient{}, err
 	}
-	if err := validator.ValidateRequired("name", p.Name); err != nil {
+	if err := validation_logic.ValidateRequired("name", p.Name); err != nil {
 		return m.Patient{}, err
 	}
-	if err := validator.ValidatePhone("phone", p.Phone); err != nil {
+	if err := validation_logic.ValidatePhone("phone", p.Phone); err != nil {
 		return m.Patient{}, err
 	}
 
 	// Validate name length
-	if err := validator.ValidateLength("name", p.Name, 2, 100); err != nil {
+	if err := validation_logic.ValidateLength("name", p.Name, 2, 100); err != nil {
 		return m.Patient{}, err
 	}
 
@@ -365,8 +361,7 @@ func (r *PatientMongoRepository) FindByState(ctx context.Context, state string, 
 
 	// Validate state input to prevent NoSQL injection
 	if state != "" {
-		validator := validation.NewValidator()
-		if err := validator.ValidateLength("state", state, 2, 50); err != nil {
+		if err := validation_logic.ValidateLength("state", state, 2, 50); err != nil {
 			r.logger.Warn("Invalid state provided",
 				zap.String("state", state),
 				zap.Error(err))
