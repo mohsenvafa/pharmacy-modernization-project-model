@@ -69,7 +69,11 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		Empty func(childComplexity int) int
+		CreatePatient      func(childComplexity int, input CreatePatientInput) int
+		CreatePrescription func(childComplexity int, input CreatePrescriptionInput) int
+		Empty              func(childComplexity int) int
+		UpdatePatient      func(childComplexity int, id string, input UpdatePatientInput) int
+		UpdatePrescription func(childComplexity int, id string, input UpdatePrescriptionInput) int
 	}
 
 	Patient struct {
@@ -96,15 +100,15 @@ type ComplexityRoot struct {
 	Query struct {
 		DashboardStats func(childComplexity int) int
 		Empty          func(childComplexity int) int
-		Patient        func(childComplexity int, id string) int
-		Patients       func(childComplexity int, query *string, limit *int, offset *int) int
-		Prescription   func(childComplexity int, id string) int
-		Prescriptions  func(childComplexity int, status *string, limit *int, offset *int) int
 	}
 }
 
 type MutationResolver interface {
 	Empty(ctx context.Context) (*string, error)
+	CreatePatient(ctx context.Context, input CreatePatientInput) (*model.Patient, error)
+	UpdatePatient(ctx context.Context, id string, input UpdatePatientInput) (*model.Patient, error)
+	CreatePrescription(ctx context.Context, input CreatePrescriptionInput) (*model1.Prescription, error)
+	UpdatePrescription(ctx context.Context, id string, input UpdatePrescriptionInput) (*model1.Prescription, error)
 }
 type PatientResolver interface {
 	Addresses(ctx context.Context, obj *model.Patient) ([]model.Address, error)
@@ -118,10 +122,6 @@ type PrescriptionResolver interface {
 type QueryResolver interface {
 	Empty(ctx context.Context) (*string, error)
 	DashboardStats(ctx context.Context) (*DashboardStats, error)
-	Patient(ctx context.Context, id string) (*model.Patient, error)
-	Patients(ctx context.Context, query *string, limit *int, offset *int) ([]model.Patient, error)
-	Prescription(ctx context.Context, id string) (*model1.Prescription, error)
-	Prescriptions(ctx context.Context, status *string, limit *int, offset *int) ([]model1.Prescription, error)
 }
 
 type executableSchema struct {
@@ -199,12 +199,56 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.DashboardStats.TotalPatients(childComplexity), true
 
+	case "Mutation.createPatient":
+		if e.complexity.Mutation.CreatePatient == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createPatient_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreatePatient(childComplexity, args["input"].(CreatePatientInput)), true
+	case "Mutation.createPrescription":
+		if e.complexity.Mutation.CreatePrescription == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createPrescription_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreatePrescription(childComplexity, args["input"].(CreatePrescriptionInput)), true
 	case "Mutation._empty":
 		if e.complexity.Mutation.Empty == nil {
 			break
 		}
 
 		return e.complexity.Mutation.Empty(childComplexity), true
+	case "Mutation.updatePatient":
+		if e.complexity.Mutation.UpdatePatient == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updatePatient_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdatePatient(childComplexity, args["id"].(string), args["input"].(UpdatePatientInput)), true
+	case "Mutation.updatePrescription":
+		if e.complexity.Mutation.UpdatePrescription == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updatePrescription_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdatePrescription(childComplexity, args["id"].(string), args["input"].(UpdatePrescriptionInput)), true
 
 	case "Patient.addresses":
 		if e.complexity.Patient.Addresses == nil {
@@ -310,50 +354,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Query.Empty(childComplexity), true
-	case "Query.patient":
-		if e.complexity.Query.Patient == nil {
-			break
-		}
-
-		args, err := ec.field_Query_patient_args(ctx, rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Query.Patient(childComplexity, args["id"].(string)), true
-	case "Query.patients":
-		if e.complexity.Query.Patients == nil {
-			break
-		}
-
-		args, err := ec.field_Query_patients_args(ctx, rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Query.Patients(childComplexity, args["query"].(*string), args["limit"].(*int), args["offset"].(*int)), true
-	case "Query.prescription":
-		if e.complexity.Query.Prescription == nil {
-			break
-		}
-
-		args, err := ec.field_Query_prescription_args(ctx, rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Query.Prescription(childComplexity, args["id"].(string)), true
-	case "Query.prescriptions":
-		if e.complexity.Query.Prescriptions == nil {
-			break
-		}
-
-		args, err := ec.field_Query_prescriptions_args(ctx, rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Query.Prescriptions(childComplexity, args["status"].(*string), args["limit"].(*int), args["offset"].(*int)), true
 
 	}
 	return 0, false
@@ -565,15 +565,15 @@ input UpdatePatientInput {
   state: String
 }
 
-extend type Query {
-  # Patient queries - requires authentication and patient:read or admin:all permission
-  patient(id: ID!): Patient
+extend type Mutation {
+  # Patient mutations - requires authentication and patient:write or admin:all permission
+  createPatient(input: CreatePatientInput!): Patient
     @auth
-    @permissionAny(requires: ["patient:read", "admin:all"])
+    @permissionAny(requires: ["patient:write", "admin:all"])
 
-  patients(query: String, limit: Int, offset: Int): [Patient!]!
+  updatePatient(id: ID!, input: UpdatePatientInput!): Patient
     @auth
-    @permissionAny(requires: ["patient:read", "admin:all"])
+    @permissionAny(requires: ["patient:write", "admin:all"])
 }
 `, BuiltIn: false},
 	{Name: "../../../domain/prescription/graphql/schema.graphql", Input: `# Prescription Domain GraphQL Schema
@@ -608,28 +608,26 @@ input UpdatePrescriptionInput {
   status: PrescriptionStatus
 }
 
-extend type Query {
-  # Prescription queries - requires authentication and prescription:read or healthcare role or admin
-  prescription(id: ID!): Prescription
+extend type Mutation {
+  # Prescription mutations - requires authentication and prescription:write or healthcare role or admin
+  createPrescription(input: CreatePrescriptionInput!): Prescription
     @auth
     @permissionAny(
       requires: [
-        "prescription:read"
+        "prescription:write"
         "doctor:role"
         "pharmacist:role"
-        "nurse:role"
         "admin:all"
       ]
     )
 
-  prescriptions(status: String, limit: Int, offset: Int): [Prescription!]!
+  updatePrescription(id: ID!, input: UpdatePrescriptionInput!): Prescription
     @auth
     @permissionAny(
       requires: [
-        "prescription:read"
+        "prescription:write"
         "doctor:role"
         "pharmacist:role"
-        "nurse:role"
         "admin:all"
       ]
     )
@@ -664,6 +662,60 @@ func (ec *executionContext) dir_permissionAny_args(ctx context.Context, rawArgs 
 	return args, nil
 }
 
+func (ec *executionContext) field_Mutation_createPatient_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNCreatePatientInput2pharmacyᚑmodernizationᚑprojectᚑmodelᚋinternalᚋgraphqlᚋgeneratedᚐCreatePatientInput)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_createPrescription_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNCreatePrescriptionInput2pharmacyᚑmodernizationᚑprojectᚑmodelᚋinternalᚋgraphqlᚋgeneratedᚐCreatePrescriptionInput)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_updatePatient_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "id", ec.unmarshalNID2string)
+	if err != nil {
+		return nil, err
+	}
+	args["id"] = arg0
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNUpdatePatientInput2pharmacyᚑmodernizationᚑprojectᚑmodelᚋinternalᚋgraphqlᚋgeneratedᚐUpdatePatientInput)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_updatePrescription_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "id", ec.unmarshalNID2string)
+	if err != nil {
+		return nil, err
+	}
+	args["id"] = arg0
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNUpdatePrescriptionInput2pharmacyᚑmodernizationᚑprojectᚑmodelᚋinternalᚋgraphqlᚋgeneratedᚐUpdatePrescriptionInput)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg1
+	return args, nil
+}
+
 func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -672,70 +724,6 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 		return nil, err
 	}
 	args["name"] = arg0
-	return args, nil
-}
-
-func (ec *executionContext) field_Query_patient_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
-	var err error
-	args := map[string]any{}
-	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "id", ec.unmarshalNID2string)
-	if err != nil {
-		return nil, err
-	}
-	args["id"] = arg0
-	return args, nil
-}
-
-func (ec *executionContext) field_Query_patients_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
-	var err error
-	args := map[string]any{}
-	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "query", ec.unmarshalOString2ᚖstring)
-	if err != nil {
-		return nil, err
-	}
-	args["query"] = arg0
-	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "limit", ec.unmarshalOInt2ᚖint)
-	if err != nil {
-		return nil, err
-	}
-	args["limit"] = arg1
-	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "offset", ec.unmarshalOInt2ᚖint)
-	if err != nil {
-		return nil, err
-	}
-	args["offset"] = arg2
-	return args, nil
-}
-
-func (ec *executionContext) field_Query_prescription_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
-	var err error
-	args := map[string]any{}
-	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "id", ec.unmarshalNID2string)
-	if err != nil {
-		return nil, err
-	}
-	args["id"] = arg0
-	return args, nil
-}
-
-func (ec *executionContext) field_Query_prescriptions_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
-	var err error
-	args := map[string]any{}
-	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "status", ec.unmarshalOString2ᚖstring)
-	if err != nil {
-		return nil, err
-	}
-	args["status"] = arg0
-	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "limit", ec.unmarshalOInt2ᚖint)
-	if err != nil {
-		return nil, err
-	}
-	args["limit"] = arg1
-	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "offset", ec.unmarshalOInt2ᚖint)
-	if err != nil {
-		return nil, err
-	}
-	args["offset"] = arg2
 	return args, nil
 }
 
@@ -1077,6 +1065,338 @@ func (ec *executionContext) fieldContext_Mutation__empty(_ context.Context, fiel
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
 		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_createPatient(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Mutation_createPatient,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.Mutation().CreatePatient(ctx, fc.Args["input"].(CreatePatientInput))
+		},
+		func(ctx context.Context, next graphql.Resolver) graphql.Resolver {
+			directive0 := next
+
+			directive1 := func(ctx context.Context) (any, error) {
+				if ec.directives.Auth == nil {
+					var zeroVal *model.Patient
+					return zeroVal, errors.New("directive auth is not implemented")
+				}
+				return ec.directives.Auth(ctx, nil, directive0)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				requires, err := ec.unmarshalNString2ᚕstringᚄ(ctx, []any{"patient:write", "admin:all"})
+				if err != nil {
+					var zeroVal *model.Patient
+					return zeroVal, err
+				}
+				if ec.directives.PermissionAny == nil {
+					var zeroVal *model.Patient
+					return zeroVal, errors.New("directive permissionAny is not implemented")
+				}
+				return ec.directives.PermissionAny(ctx, nil, directive1, requires)
+			}
+
+			next = directive2
+			return next
+		},
+		ec.marshalOPatient2ᚖpharmacyᚑmodernizationᚑprojectᚑmodelᚋdomainᚋpatientᚋcontractsᚋmodelᚐPatient,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_Mutation_createPatient(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Patient_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Patient_name(ctx, field)
+			case "dob":
+				return ec.fieldContext_Patient_dob(ctx, field)
+			case "phone":
+				return ec.fieldContext_Patient_phone(ctx, field)
+			case "state":
+				return ec.fieldContext_Patient_state(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Patient_createdAt(ctx, field)
+			case "addresses":
+				return ec.fieldContext_Patient_addresses(ctx, field)
+			case "prescriptions":
+				return ec.fieldContext_Patient_prescriptions(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Patient", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_createPatient_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_updatePatient(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Mutation_updatePatient,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.Mutation().UpdatePatient(ctx, fc.Args["id"].(string), fc.Args["input"].(UpdatePatientInput))
+		},
+		func(ctx context.Context, next graphql.Resolver) graphql.Resolver {
+			directive0 := next
+
+			directive1 := func(ctx context.Context) (any, error) {
+				if ec.directives.Auth == nil {
+					var zeroVal *model.Patient
+					return zeroVal, errors.New("directive auth is not implemented")
+				}
+				return ec.directives.Auth(ctx, nil, directive0)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				requires, err := ec.unmarshalNString2ᚕstringᚄ(ctx, []any{"patient:write", "admin:all"})
+				if err != nil {
+					var zeroVal *model.Patient
+					return zeroVal, err
+				}
+				if ec.directives.PermissionAny == nil {
+					var zeroVal *model.Patient
+					return zeroVal, errors.New("directive permissionAny is not implemented")
+				}
+				return ec.directives.PermissionAny(ctx, nil, directive1, requires)
+			}
+
+			next = directive2
+			return next
+		},
+		ec.marshalOPatient2ᚖpharmacyᚑmodernizationᚑprojectᚑmodelᚋdomainᚋpatientᚋcontractsᚋmodelᚐPatient,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_Mutation_updatePatient(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Patient_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Patient_name(ctx, field)
+			case "dob":
+				return ec.fieldContext_Patient_dob(ctx, field)
+			case "phone":
+				return ec.fieldContext_Patient_phone(ctx, field)
+			case "state":
+				return ec.fieldContext_Patient_state(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Patient_createdAt(ctx, field)
+			case "addresses":
+				return ec.fieldContext_Patient_addresses(ctx, field)
+			case "prescriptions":
+				return ec.fieldContext_Patient_prescriptions(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Patient", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_updatePatient_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_createPrescription(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Mutation_createPrescription,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.Mutation().CreatePrescription(ctx, fc.Args["input"].(CreatePrescriptionInput))
+		},
+		func(ctx context.Context, next graphql.Resolver) graphql.Resolver {
+			directive0 := next
+
+			directive1 := func(ctx context.Context) (any, error) {
+				if ec.directives.Auth == nil {
+					var zeroVal *model1.Prescription
+					return zeroVal, errors.New("directive auth is not implemented")
+				}
+				return ec.directives.Auth(ctx, nil, directive0)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				requires, err := ec.unmarshalNString2ᚕstringᚄ(ctx, []any{"prescription:write", "doctor:role", "pharmacist:role", "admin:all"})
+				if err != nil {
+					var zeroVal *model1.Prescription
+					return zeroVal, err
+				}
+				if ec.directives.PermissionAny == nil {
+					var zeroVal *model1.Prescription
+					return zeroVal, errors.New("directive permissionAny is not implemented")
+				}
+				return ec.directives.PermissionAny(ctx, nil, directive1, requires)
+			}
+
+			next = directive2
+			return next
+		},
+		ec.marshalOPrescription2ᚖpharmacyᚑmodernizationᚑprojectᚑmodelᚋdomainᚋprescriptionᚋcontractsᚋmodelᚐPrescription,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_Mutation_createPrescription(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Prescription_id(ctx, field)
+			case "patientID":
+				return ec.fieldContext_Prescription_patientID(ctx, field)
+			case "patient":
+				return ec.fieldContext_Prescription_patient(ctx, field)
+			case "drug":
+				return ec.fieldContext_Prescription_drug(ctx, field)
+			case "dose":
+				return ec.fieldContext_Prescription_dose(ctx, field)
+			case "status":
+				return ec.fieldContext_Prescription_status(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Prescription_createdAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Prescription", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_createPrescription_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_updatePrescription(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Mutation_updatePrescription,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.Mutation().UpdatePrescription(ctx, fc.Args["id"].(string), fc.Args["input"].(UpdatePrescriptionInput))
+		},
+		func(ctx context.Context, next graphql.Resolver) graphql.Resolver {
+			directive0 := next
+
+			directive1 := func(ctx context.Context) (any, error) {
+				if ec.directives.Auth == nil {
+					var zeroVal *model1.Prescription
+					return zeroVal, errors.New("directive auth is not implemented")
+				}
+				return ec.directives.Auth(ctx, nil, directive0)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				requires, err := ec.unmarshalNString2ᚕstringᚄ(ctx, []any{"prescription:write", "doctor:role", "pharmacist:role", "admin:all"})
+				if err != nil {
+					var zeroVal *model1.Prescription
+					return zeroVal, err
+				}
+				if ec.directives.PermissionAny == nil {
+					var zeroVal *model1.Prescription
+					return zeroVal, errors.New("directive permissionAny is not implemented")
+				}
+				return ec.directives.PermissionAny(ctx, nil, directive1, requires)
+			}
+
+			next = directive2
+			return next
+		},
+		ec.marshalOPrescription2ᚖpharmacyᚑmodernizationᚑprojectᚑmodelᚋdomainᚋprescriptionᚋcontractsᚋmodelᚐPrescription,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_Mutation_updatePrescription(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Prescription_id(ctx, field)
+			case "patientID":
+				return ec.fieldContext_Prescription_patientID(ctx, field)
+			case "patient":
+				return ec.fieldContext_Prescription_patient(ctx, field)
+			case "drug":
+				return ec.fieldContext_Prescription_drug(ctx, field)
+			case "dose":
+				return ec.fieldContext_Prescription_dose(ctx, field)
+			case "status":
+				return ec.fieldContext_Prescription_status(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Prescription_createdAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Prescription", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_updatePrescription_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
 	}
 	return fc, nil
 }
@@ -1701,338 +2021,6 @@ func (ec *executionContext) fieldContext_Query_dashboardStats(_ context.Context,
 			}
 			return nil, fmt.Errorf("no field named %q was found under type DashboardStats", field.Name)
 		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Query_patient(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_Query_patient,
-		func(ctx context.Context) (any, error) {
-			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Query().Patient(ctx, fc.Args["id"].(string))
-		},
-		func(ctx context.Context, next graphql.Resolver) graphql.Resolver {
-			directive0 := next
-
-			directive1 := func(ctx context.Context) (any, error) {
-				if ec.directives.Auth == nil {
-					var zeroVal *model.Patient
-					return zeroVal, errors.New("directive auth is not implemented")
-				}
-				return ec.directives.Auth(ctx, nil, directive0)
-			}
-			directive2 := func(ctx context.Context) (any, error) {
-				requires, err := ec.unmarshalNString2ᚕstringᚄ(ctx, []any{"patient:read", "admin:all"})
-				if err != nil {
-					var zeroVal *model.Patient
-					return zeroVal, err
-				}
-				if ec.directives.PermissionAny == nil {
-					var zeroVal *model.Patient
-					return zeroVal, errors.New("directive permissionAny is not implemented")
-				}
-				return ec.directives.PermissionAny(ctx, nil, directive1, requires)
-			}
-
-			next = directive2
-			return next
-		},
-		ec.marshalOPatient2ᚖpharmacyᚑmodernizationᚑprojectᚑmodelᚋdomainᚋpatientᚋcontractsᚋmodelᚐPatient,
-		true,
-		false,
-	)
-}
-
-func (ec *executionContext) fieldContext_Query_patient(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Query",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Patient_id(ctx, field)
-			case "name":
-				return ec.fieldContext_Patient_name(ctx, field)
-			case "dob":
-				return ec.fieldContext_Patient_dob(ctx, field)
-			case "phone":
-				return ec.fieldContext_Patient_phone(ctx, field)
-			case "state":
-				return ec.fieldContext_Patient_state(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_Patient_createdAt(ctx, field)
-			case "addresses":
-				return ec.fieldContext_Patient_addresses(ctx, field)
-			case "prescriptions":
-				return ec.fieldContext_Patient_prescriptions(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Patient", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_patient_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Query_patients(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_Query_patients,
-		func(ctx context.Context) (any, error) {
-			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Query().Patients(ctx, fc.Args["query"].(*string), fc.Args["limit"].(*int), fc.Args["offset"].(*int))
-		},
-		func(ctx context.Context, next graphql.Resolver) graphql.Resolver {
-			directive0 := next
-
-			directive1 := func(ctx context.Context) (any, error) {
-				if ec.directives.Auth == nil {
-					var zeroVal []model.Patient
-					return zeroVal, errors.New("directive auth is not implemented")
-				}
-				return ec.directives.Auth(ctx, nil, directive0)
-			}
-			directive2 := func(ctx context.Context) (any, error) {
-				requires, err := ec.unmarshalNString2ᚕstringᚄ(ctx, []any{"patient:read", "admin:all"})
-				if err != nil {
-					var zeroVal []model.Patient
-					return zeroVal, err
-				}
-				if ec.directives.PermissionAny == nil {
-					var zeroVal []model.Patient
-					return zeroVal, errors.New("directive permissionAny is not implemented")
-				}
-				return ec.directives.PermissionAny(ctx, nil, directive1, requires)
-			}
-
-			next = directive2
-			return next
-		},
-		ec.marshalNPatient2ᚕpharmacyᚑmodernizationᚑprojectᚑmodelᚋdomainᚋpatientᚋcontractsᚋmodelᚐPatientᚄ,
-		true,
-		true,
-	)
-}
-
-func (ec *executionContext) fieldContext_Query_patients(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Query",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Patient_id(ctx, field)
-			case "name":
-				return ec.fieldContext_Patient_name(ctx, field)
-			case "dob":
-				return ec.fieldContext_Patient_dob(ctx, field)
-			case "phone":
-				return ec.fieldContext_Patient_phone(ctx, field)
-			case "state":
-				return ec.fieldContext_Patient_state(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_Patient_createdAt(ctx, field)
-			case "addresses":
-				return ec.fieldContext_Patient_addresses(ctx, field)
-			case "prescriptions":
-				return ec.fieldContext_Patient_prescriptions(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Patient", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_patients_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Query_prescription(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_Query_prescription,
-		func(ctx context.Context) (any, error) {
-			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Query().Prescription(ctx, fc.Args["id"].(string))
-		},
-		func(ctx context.Context, next graphql.Resolver) graphql.Resolver {
-			directive0 := next
-
-			directive1 := func(ctx context.Context) (any, error) {
-				if ec.directives.Auth == nil {
-					var zeroVal *model1.Prescription
-					return zeroVal, errors.New("directive auth is not implemented")
-				}
-				return ec.directives.Auth(ctx, nil, directive0)
-			}
-			directive2 := func(ctx context.Context) (any, error) {
-				requires, err := ec.unmarshalNString2ᚕstringᚄ(ctx, []any{"prescription:read", "doctor:role", "pharmacist:role", "nurse:role", "admin:all"})
-				if err != nil {
-					var zeroVal *model1.Prescription
-					return zeroVal, err
-				}
-				if ec.directives.PermissionAny == nil {
-					var zeroVal *model1.Prescription
-					return zeroVal, errors.New("directive permissionAny is not implemented")
-				}
-				return ec.directives.PermissionAny(ctx, nil, directive1, requires)
-			}
-
-			next = directive2
-			return next
-		},
-		ec.marshalOPrescription2ᚖpharmacyᚑmodernizationᚑprojectᚑmodelᚋdomainᚋprescriptionᚋcontractsᚋmodelᚐPrescription,
-		true,
-		false,
-	)
-}
-
-func (ec *executionContext) fieldContext_Query_prescription(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Query",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Prescription_id(ctx, field)
-			case "patientID":
-				return ec.fieldContext_Prescription_patientID(ctx, field)
-			case "patient":
-				return ec.fieldContext_Prescription_patient(ctx, field)
-			case "drug":
-				return ec.fieldContext_Prescription_drug(ctx, field)
-			case "dose":
-				return ec.fieldContext_Prescription_dose(ctx, field)
-			case "status":
-				return ec.fieldContext_Prescription_status(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_Prescription_createdAt(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Prescription", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_prescription_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Query_prescriptions(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_Query_prescriptions,
-		func(ctx context.Context) (any, error) {
-			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Query().Prescriptions(ctx, fc.Args["status"].(*string), fc.Args["limit"].(*int), fc.Args["offset"].(*int))
-		},
-		func(ctx context.Context, next graphql.Resolver) graphql.Resolver {
-			directive0 := next
-
-			directive1 := func(ctx context.Context) (any, error) {
-				if ec.directives.Auth == nil {
-					var zeroVal []model1.Prescription
-					return zeroVal, errors.New("directive auth is not implemented")
-				}
-				return ec.directives.Auth(ctx, nil, directive0)
-			}
-			directive2 := func(ctx context.Context) (any, error) {
-				requires, err := ec.unmarshalNString2ᚕstringᚄ(ctx, []any{"prescription:read", "doctor:role", "pharmacist:role", "nurse:role", "admin:all"})
-				if err != nil {
-					var zeroVal []model1.Prescription
-					return zeroVal, err
-				}
-				if ec.directives.PermissionAny == nil {
-					var zeroVal []model1.Prescription
-					return zeroVal, errors.New("directive permissionAny is not implemented")
-				}
-				return ec.directives.PermissionAny(ctx, nil, directive1, requires)
-			}
-
-			next = directive2
-			return next
-		},
-		ec.marshalNPrescription2ᚕpharmacyᚑmodernizationᚑprojectᚑmodelᚋdomainᚋprescriptionᚋcontractsᚋmodelᚐPrescriptionᚄ,
-		true,
-		true,
-	)
-}
-
-func (ec *executionContext) fieldContext_Query_prescriptions(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Query",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Prescription_id(ctx, field)
-			case "patientID":
-				return ec.fieldContext_Prescription_patientID(ctx, field)
-			case "patient":
-				return ec.fieldContext_Prescription_patient(ctx, field)
-			case "drug":
-				return ec.fieldContext_Prescription_drug(ctx, field)
-			case "dose":
-				return ec.fieldContext_Prescription_dose(ctx, field)
-			case "status":
-				return ec.fieldContext_Prescription_status(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_Prescription_createdAt(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Prescription", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_prescriptions_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
 	}
 	return fc, nil
 }
@@ -3917,6 +3905,22 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation__empty(ctx, field)
 			})
+		case "createPatient":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_createPatient(ctx, field)
+			})
+		case "updatePatient":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_updatePatient(ctx, field)
+			})
+		case "createPrescription":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_createPrescription(ctx, field)
+			})
+		case "updatePrescription":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_updatePrescription(ctx, field)
+			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -4252,88 +4256,6 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_dashboardStats(ctx, field)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			rrm := func(ctx context.Context) graphql.Marshaler {
-				return ec.OperationContext.RootResolverMiddleware(ctx,
-					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
-		case "patient":
-			field := field
-
-			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Query_patient(ctx, field)
-				return res
-			}
-
-			rrm := func(ctx context.Context) graphql.Marshaler {
-				return ec.OperationContext.RootResolverMiddleware(ctx,
-					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
-		case "patients":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Query_patients(ctx, field)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			rrm := func(ctx context.Context) graphql.Marshaler {
-				return ec.OperationContext.RootResolverMiddleware(ctx,
-					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
-		case "prescription":
-			field := field
-
-			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Query_prescription(ctx, field)
-				return res
-			}
-
-			rrm := func(ctx context.Context) graphql.Marshaler {
-				return ec.OperationContext.RootResolverMiddleware(ctx,
-					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
-		case "prescriptions":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Query_prescriptions(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -4776,6 +4698,16 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
+func (ec *executionContext) unmarshalNCreatePatientInput2pharmacyᚑmodernizationᚑprojectᚑmodelᚋinternalᚋgraphqlᚋgeneratedᚐCreatePatientInput(ctx context.Context, v any) (CreatePatientInput, error) {
+	res, err := ec.unmarshalInputCreatePatientInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNCreatePrescriptionInput2pharmacyᚑmodernizationᚑprojectᚑmodelᚋinternalᚋgraphqlᚋgeneratedᚐCreatePrescriptionInput(ctx context.Context, v any) (CreatePrescriptionInput, error) {
+	res, err := ec.unmarshalInputCreatePrescriptionInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) marshalNDashboardStats2pharmacyᚑmodernizationᚑprojectᚑmodelᚋinternalᚋgraphqlᚋgeneratedᚐDashboardStats(ctx context.Context, sel ast.SelectionSet, v DashboardStats) graphql.Marshaler {
 	return ec._DashboardStats(ctx, sel, &v)
 }
@@ -4820,54 +4752,6 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 		}
 	}
 	return res
-}
-
-func (ec *executionContext) marshalNPatient2pharmacyᚑmodernizationᚑprojectᚑmodelᚋdomainᚋpatientᚋcontractsᚋmodelᚐPatient(ctx context.Context, sel ast.SelectionSet, v model.Patient) graphql.Marshaler {
-	return ec._Patient(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNPatient2ᚕpharmacyᚑmodernizationᚑprojectᚑmodelᚋdomainᚋpatientᚋcontractsᚋmodelᚐPatientᚄ(ctx context.Context, sel ast.SelectionSet, v []model.Patient) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNPatient2pharmacyᚑmodernizationᚑprojectᚑmodelᚋdomainᚋpatientᚋcontractsᚋmodelᚐPatient(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
 }
 
 func (ec *executionContext) marshalNPrescription2pharmacyᚑmodernizationᚑprojectᚑmodelᚋdomainᚋprescriptionᚋcontractsᚋmodelᚐPrescription(ctx context.Context, sel ast.SelectionSet, v model1.Prescription) graphql.Marshaler {
@@ -4988,6 +4872,16 @@ func (ec *executionContext) marshalNTime2timeᚐTime(ctx context.Context, sel as
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNUpdatePatientInput2pharmacyᚑmodernizationᚑprojectᚑmodelᚋinternalᚋgraphqlᚋgeneratedᚐUpdatePatientInput(ctx context.Context, v any) (UpdatePatientInput, error) {
+	res, err := ec.unmarshalInputUpdatePatientInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNUpdatePrescriptionInput2pharmacyᚑmodernizationᚑprojectᚑmodelᚋinternalᚋgraphqlᚋgeneratedᚐUpdatePrescriptionInput(ctx context.Context, v any) (UpdatePrescriptionInput, error) {
+	res, err := ec.unmarshalInputUpdatePrescriptionInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {
@@ -5270,24 +5164,6 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	_ = sel
 	_ = ctx
 	res := graphql.MarshalBoolean(*v)
-	return res
-}
-
-func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v any) (*int, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := graphql.UnmarshalInt(v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.SelectionSet, v *int) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	_ = sel
-	_ = ctx
-	res := graphql.MarshalInt(*v)
 	return res
 }
 

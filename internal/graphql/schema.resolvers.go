@@ -12,6 +12,30 @@ func (r *mutationResolver) Empty(ctx context.Context) (*string, error) {
 	return nil, nil
 }
 
+// CreatePatient is the resolver for the createPatient field.
+func (r *mutationResolver) CreatePatient(ctx context.Context, input generated.CreatePatientInput) (*model.Patient, error) {
+	// Delegate to patient domain resolver
+	return r.PatientResolver.CreatePatient(ctx, input)
+}
+
+// UpdatePatient is the resolver for the updatePatient field.
+func (r *mutationResolver) UpdatePatient(ctx context.Context, id string, input generated.UpdatePatientInput) (*model.Patient, error) {
+	// Delegate to patient domain resolver
+	return r.PatientResolver.UpdatePatient(ctx, id, input)
+}
+
+// CreatePrescription is the resolver for the createPrescription field.
+func (r *mutationResolver) CreatePrescription(ctx context.Context, input generated.CreatePrescriptionInput) (*model1.Prescription, error) {
+	// Delegate to prescription domain resolver
+	return r.PrescriptionResolver.CreatePrescription(ctx, input)
+}
+
+// UpdatePrescription is the resolver for the updatePrescription field.
+func (r *mutationResolver) UpdatePrescription(ctx context.Context, id string, input generated.UpdatePrescriptionInput) (*model1.Prescription, error) {
+	// Delegate to prescription domain resolver
+	return r.PrescriptionResolver.UpdatePrescription(ctx, id, input)
+}
+
 // Addresses is the resolver for the addresses field.
 func (r *patientResolver) Addresses(ctx context.Context, obj *model.Patient) ([]model.Address, error) {
 	// Delegate to patient domain resolver
@@ -45,30 +69,6 @@ func (r *queryResolver) Empty(ctx context.Context) (*string, error) {
 func (r *queryResolver) DashboardStats(ctx context.Context) (*generated.DashboardStats, error) {
 	// Delegate to dashboard domain resolver
 	return r.DashboardResolver.DashboardStats(ctx)
-}
-
-// Patient is the resolver for the patient field.
-func (r *queryResolver) Patient(ctx context.Context, id string) (*model.Patient, error) {
-	// Delegate to patient domain resolver
-	return r.PatientResolver.Patient(ctx, id)
-}
-
-// Patients is the resolver for the patients field.
-func (r *queryResolver) Patients(ctx context.Context, query *string, limit *int, offset *int) ([]model.Patient, error) {
-	// Delegate to patient domain resolver
-	return r.PatientResolver.Patients(ctx, query, limit, offset)
-}
-
-// Prescription is the resolver for the prescription field.
-func (r *queryResolver) Prescription(ctx context.Context, id string) (*model1.Prescription, error) {
-	// Delegate to prescription domain resolver
-	return r.PrescriptionResolver.Prescription(ctx, id)
-}
-
-// Prescriptions is the resolver for the prescriptions field.
-func (r *queryResolver) Prescriptions(ctx context.Context, status *string, limit *int, offset *int) ([]model1.Prescription, error) {
-	// Delegate to prescription domain resolver
-	return r.PrescriptionResolver.Prescriptions(ctx, status, limit, offset)
 }
 
 // Mutation returns generated.MutationResolver implementation.

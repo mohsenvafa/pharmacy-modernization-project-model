@@ -30,28 +30,26 @@ input UpdatePrescriptionInput {
   status: PrescriptionStatus
 }
 
-extend type Query {
-  # Prescription queries - requires authentication and prescription:read or healthcare role or admin
-  prescription(id: ID!): Prescription
+extend type Mutation {
+  # Prescription mutations - requires authentication and prescription:write or healthcare role or admin
+  createPrescription(input: CreatePrescriptionInput!): Prescription
     @auth
     @permissionAny(
       requires: [
-        "prescription:read"
+        "prescription:write"
         "doctor:role"
         "pharmacist:role"
-        "nurse:role"
         "admin:all"
       ]
     )
 
-  prescriptions(status: String, limit: Int, offset: Int): [Prescription!]!
+  updatePrescription(id: ID!, input: UpdatePrescriptionInput!): Prescription
     @auth
     @permissionAny(
       requires: [
-        "prescription:read"
+        "prescription:write"
         "doctor:role"
         "pharmacist:role"
-        "nurse:role"
         "admin:all"
       ]
     )

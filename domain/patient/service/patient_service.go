@@ -17,6 +17,7 @@ import (
 type PatientService interface {
 	List(ctx context.Context, req request.PatientListQueryRequest) ([]m.Patient, error)
 	GetByID(ctx context.Context, id string) (m.Patient, error)
+	Create(ctx context.Context, patient m.Patient) (m.Patient, error)
 	Update(ctx context.Context, patient m.Patient) error
 	Count(ctx context.Context, req request.PatientListQueryRequest) (int, error)
 }
@@ -37,9 +38,40 @@ func New(r repo.PatientRepository, c cache.Cache, l *zap.Logger) PatientService 
 	}
 }
 
+func (s *patientSvc) Create(ctx context.Context, patient m.Patient) (m.Patient, error) {
+	// Get current user for creation tracking
+	user, err := auth.GetCurrentUser(ctx)
+	if err != nil {
+		s.log.Error("Failed to get current user for creation tracking", zap.Error(err))
+		return m.Patient{}, err
+	}
+
+	s.log.Info("Creating patient", zap.String("name", patient.Name), zap.String("created_by", user.Name))
+
+	// Set creation tracking fields
+	now := time.Now()
+	patient.CreatedAt = now
+
+	// Create patient in repository
+	createdPatient, err := s.repo.Create(ctx, patient)
+	if err != nil {
+		s.log.Error("Failed to create patient",
+			zap.String("name", patient.Name),
+			zap.Error(err))
+		return m.Patient{}, err
+	}
+
+	s.log.Info("Patient created successfully",
+		zap.String("patient_id", createdPatient.ID),
+		zap.String("name", createdPatient.Name),
+		zap.String("created_by", user.Name))
+
+	return createdPatient, nil
+}
 func (s *patientSvc) List(ctx context.Context, req request.PatientListQueryRequest) ([]m.Patient, error) {
 	return s.repo.List(ctx, req)
 }
+
 func (s *patientSvc) GetByID(ctx context.Context, id string) (m.Patient, error) {
 	cacheKey := s.cacheKeys.PatientByID(id)
 

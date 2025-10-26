@@ -44,13 +44,13 @@ input UpdatePatientInput {
   state: String
 }
 
-extend type Query {
-  # Patient queries - requires authentication and patient:read or admin:all permission
-  patient(id: ID!): Patient
+extend type Mutation {
+  # Patient mutations - requires authentication and patient:write or admin:all permission
+  createPatient(input: CreatePatientInput!): Patient
     @auth
-    @permissionAny(requires: ["patient:read", "admin:all"])
+    @permissionAny(requires: ["patient:write", "admin:all"])
 
-  patients(query: String, limit: Int, offset: Int): [Patient!]!
+  updatePatient(id: ID!, input: UpdatePatientInput!): Patient
     @auth
-    @permissionAny(requires: ["patient:read", "admin:all"])
+    @permissionAny(requires: ["patient:write", "admin:all"])
 }
