@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"strings"
 
+	"pharmacy-modernization-project-model/internal/platform/sanitizer"
+
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 )
@@ -114,17 +116,17 @@ func main() {
 // Custom middleware to log headers
 func logHeaders(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Printf("📥 %s %s", r.Method, r.URL.Path)
+		log.Printf("📥 %s %s", sanitizer.ForLogging(r.Method), sanitizer.ForLogging(r.URL.Path))
 
 		// Log important headers
 		if userID := r.Header.Get("X-IRIS-User-ID"); userID != "" {
-			log.Printf("   └─ X-IRIS-User-ID: %s", userID)
+			log.Printf("   └─ X-IRIS-User-ID: %s", sanitizer.ForLogging(userID))
 		}
 		if envName := r.Header.Get("X-IRIS-Env-Name"); envName != "" {
-			log.Printf("   └─ X-IRIS-Env-Name: %s", envName)
+			log.Printf("   └─ X-IRIS-Env-Name: %s", sanitizer.ForLogging(envName))
 		}
 		if idempotency := r.Header.Get("X-Idempotency-Key"); idempotency != "" {
-			log.Printf("   └─ X-Idempotency-Key: %s", idempotency)
+			log.Printf("   └─ X-Idempotency-Key: %s", sanitizer.ForLogging(idempotency))
 		}
 		if auth := r.Header.Get("Authorization"); auth != "" {
 			log.Printf("   └─ Authorization: %s", maskToken(auth))
@@ -177,7 +179,7 @@ func handleGetPrescription(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
-	log.Printf("✅ Returned prescription: %s", prescriptionID)
+	log.Printf("✅ Returned prescription: %s", sanitizer.ForLogging(prescriptionID))
 }
 
 // Billing handlers
@@ -195,7 +197,7 @@ func handleGetInvoice(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
-	log.Printf("✅ Returned invoice for prescription: %s", prescriptionID)
+	log.Printf("✅ Returned invoice for prescription: %s", sanitizer.ForLogging(prescriptionID))
 }
 
 func handleGetInvoicesByPatient(w http.ResponseWriter, r *http.Request) {
@@ -237,7 +239,7 @@ func handleGetInvoicesByPatient(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
-	log.Printf("✅ Returned %d invoices for patient: %s", len(invoices), patientID)
+	log.Printf("✅ Returned %d invoices for patient: %s", len(invoices), sanitizer.ForLogging(patientID))
 }
 
 func handleCreateInvoice(w http.ResponseWriter, r *http.Request) {
@@ -249,7 +251,7 @@ func handleCreateInvoice(w http.ResponseWriter, r *http.Request) {
 
 	// Check for idempotency key
 	idempotencyKey := r.Header.Get("X-Idempotency-Key")
-	log.Printf("💡 Idempotency key: %s", idempotencyKey)
+	log.Printf("💡 Idempotency key: %s", sanitizer.ForLogging(idempotencyKey))
 
 	response := InvoiceResponse{
 		ID:             "INV-NEW-" + req.PrescriptionID,
@@ -262,7 +264,7 @@ func handleCreateInvoice(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(response)
-	log.Printf("✅ Created invoice: %s (Amount: %.2f)", response.ID, response.Amount)
+	log.Printf("✅ Created invoice: %s (Amount: %.2f)", sanitizer.ForLogging(response.ID), response.Amount)
 }
 
 func handleAcknowledgeInvoice(w http.ResponseWriter, r *http.Request) {
@@ -284,7 +286,7 @@ func handleAcknowledgeInvoice(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
-	log.Printf("✅ Acknowledged invoice: %s by %s", invoiceID, req.AcknowledgedBy)
+	log.Printf("✅ Acknowledged invoice: %s by %s", sanitizer.ForLogging(invoiceID), sanitizer.ForLogging(req.AcknowledgedBy))
 }
 
 func handleGetInvoicePayment(w http.ResponseWriter, r *http.Request) {
@@ -301,7 +303,7 @@ func handleGetInvoicePayment(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
-	log.Printf("✅ Returned payment for invoice: %s", invoiceID)
+	log.Printf("✅ Returned payment for invoice: %s", sanitizer.ForLogging(invoiceID))
 }
 
 // Stargate OAuth handlers
@@ -312,7 +314,7 @@ func handleGetToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Printf("🔐 Token request from client: %s", req.ClientID)
+	log.Printf("🔐 Token request from client: %s", sanitizer.ForLogging(req.ClientID))
 
 	// Mock token response
 	response := TokenResponse{
@@ -325,7 +327,7 @@ func handleGetToken(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
-	log.Printf("✅ Issued token for: %s (expires in %d seconds)", req.ClientID, response.ExpiresIn)
+	log.Printf("✅ Issued token for: %s (expires in %d seconds)", sanitizer.ForLogging(req.ClientID), response.ExpiresIn)
 }
 
 func handleRefreshToken(w http.ResponseWriter, r *http.Request) {
