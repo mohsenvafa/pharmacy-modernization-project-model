@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"time"
 
+	"pharmacy-modernization-project-model/internal/platform/sanitizer"
+
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
@@ -42,14 +44,14 @@ func ZapRequestLogger(l *zap.Logger) func(http.Handler) http.Handler {
 			start := time.Now()
 			next.ServeHTTP(ww, r)
 			l.Info("http_request",
-				zap.String("method", r.Method),
+				zap.String("method", sanitizer.ForLogging(r.Method)),
 				zap.Int("status", ww.Status()),
 				zap.Int("bytes", ww.BytesWritten()),
 				zap.Duration("duration", time.Since(start)),
-				zap.String("request_id", middleware.GetReqID(r.Context())),
-				zap.String("correlation_id", GetCorrelationID(r.Context())),
-				zap.String("remote_ip", r.RemoteAddr),
-				zap.String("user_agent", r.UserAgent()),
+				zap.String("request_id", sanitizer.ForLogging(middleware.GetReqID(r.Context()))),
+				zap.String("correlation_id", sanitizer.ForLogging(GetCorrelationID(r.Context()))),
+				zap.String("remote_ip", sanitizer.ForLogging(r.RemoteAddr)),
+				zap.String("user_agent", sanitizer.ForLogging(r.UserAgent())),
 			)
 		})
 	}

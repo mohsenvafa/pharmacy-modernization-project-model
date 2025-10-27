@@ -5,6 +5,8 @@ import (
 	"sync/atomic"
 	"time"
 
+	"pharmacy-modernization-project-model/internal/platform/sanitizer"
+
 	"go.uber.org/zap"
 )
 
@@ -32,7 +34,7 @@ func (m *CacheMiddleware) Get(ctx context.Context, key string) ([]byte, error) {
 	value, err := m.cache.Get(ctx, key)
 	if err != nil && err != ErrNotFound {
 		m.logger.Debug("Cache get error",
-			zap.String("key", key),
+			zap.String("key", sanitizer.ForLogging(key)),
 			zap.Error(err),
 			zap.Duration("latency", time.Since(start)))
 	}
@@ -50,7 +52,7 @@ func (m *CacheMiddleware) Set(ctx context.Context, key string, value []byte, ttl
 	err := m.cache.Set(ctx, key, value, ttl)
 	if err != nil {
 		m.logger.Warn("Cache set error",
-			zap.String("key", key),
+			zap.String("key", sanitizer.ForLogging(key)),
 			zap.Error(err),
 			zap.Duration("latency", time.Since(start)))
 	}
@@ -68,7 +70,7 @@ func (m *CacheMiddleware) Delete(ctx context.Context, key string) error {
 	err := m.cache.Delete(ctx, key)
 	if err != nil {
 		m.logger.Warn("Cache delete error",
-			zap.String("key", key),
+			zap.String("key", sanitizer.ForLogging(key)),
 			zap.Error(err),
 			zap.Duration("latency", time.Since(start)))
 	}

@@ -5,6 +5,8 @@ import (
 	"log"
 	"net/http"
 	"strings"
+
+	"pharmacy-modernization-project-model/internal/platform/sanitizer"
 )
 
 // ==========================================
@@ -32,19 +34,19 @@ func requireAuthWithSource(source TokenSource) func(http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			tokenString, err := ExtractToken(r, source)
 			if err != nil {
-				log.Printf("AUTH 401: %s %s - No token: %v", r.Method, r.URL.Path, err)
+				log.Printf("AUTH 401: %s %s - No token: %v", sanitizer.ForLogging(r.Method), sanitizer.ForLogging(r.URL.Path), err)
 				handleUnauthorized(w, r, "Authentication required", source)
 				return
 			}
 
 			user, err := ValidateToken(tokenString)
 			if err != nil {
-				log.Printf("AUTH 401: %s %s - Invalid token: %v", r.Method, r.URL.Path, err)
+				log.Printf("AUTH 401: %s %s - Invalid token: %v", sanitizer.ForLogging(r.Method), sanitizer.ForLogging(r.URL.Path), err)
 				handleUnauthorized(w, r, "Invalid or expired token", source)
 				return
 			}
 
-			log.Printf("AUTH OK: %s %s - User: %s (%s)", r.Method, r.URL.Path, user.Name, user.Email)
+			log.Printf("AUTH OK: %s %s - User: %s (%s)", sanitizer.ForLogging(r.Method), sanitizer.ForLogging(r.URL.Path), sanitizer.ForLogging(user.Name), sanitizer.ForLogging(user.Email))
 			ctx := SetUser(r.Context(), user)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
@@ -107,7 +109,7 @@ func RequirePermission(permission string) func(http.Handler) http.Handler {
 
 			if !hasPermission(user.Permissions, permission) {
 				log.Printf("AUTHZ 403: %s %s - User %s lacks permission: %s",
-					r.Method, r.URL.Path, user.Email, permission)
+					sanitizer.ForLogging(r.Method), sanitizer.ForLogging(r.URL.Path), sanitizer.ForLogging(user.Email), sanitizer.ForLogging(permission))
 				handleForbidden(w, r, []string{permission}, "all")
 				return
 			}
@@ -129,7 +131,7 @@ func RequirePermissionsMatchAll(permissions []string) func(http.Handler) http.Ha
 
 			if !HasAllPermissions(user.Permissions, permissions) {
 				log.Printf("AUTHZ 403: %s %s - User %s lacks all permissions: %v",
-					r.Method, r.URL.Path, user.Email, permissions)
+					sanitizer.ForLogging(r.Method), sanitizer.ForLogging(r.URL.Path), sanitizer.ForLogging(user.Email), permissions)
 				handleForbidden(w, r, permissions, "all")
 				return
 			}
@@ -151,7 +153,7 @@ func RequirePermissionsMatchAny(permissions []string) func(http.Handler) http.Ha
 
 			if !HasAnyPermission(user.Permissions, permissions) {
 				log.Printf("AUTHZ 403: %s %s - User %s lacks any permission: %v",
-					r.Method, r.URL.Path, user.Email, permissions)
+					sanitizer.ForLogging(r.Method), sanitizer.ForLogging(r.URL.Path), sanitizer.ForLogging(user.Email), permissions)
 				handleForbidden(w, r, permissions, "any")
 				return
 			}

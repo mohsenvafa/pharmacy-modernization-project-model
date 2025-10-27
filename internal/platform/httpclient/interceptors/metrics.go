@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"pharmacy-modernization-project-model/internal/platform/httpclient"
+	"pharmacy-modernization-project-model/internal/platform/sanitizer"
 
 	"go.uber.org/zap"
 )
@@ -28,8 +29,8 @@ func (m *MetricsInterceptor) Before(ctx context.Context, req *http.Request) erro
 func (m *MetricsInterceptor) After(ctx context.Context, resp *http.Response, response *httpclient.Response) error {
 	// Log metrics
 	m.logger.Info("http metrics",
-		zap.String("method", resp.Request.Method),
-		zap.String("url", resp.Request.URL.String()),
+		zap.String("method", sanitizer.ForLogging(resp.Request.Method)),
+		zap.String("url", sanitizer.ForLogging(resp.Request.URL.String())),
 		zap.Int("status", resp.StatusCode),
 		zap.Duration("duration", response.Duration),
 		zap.Int("response_bytes", len(response.Body)),
