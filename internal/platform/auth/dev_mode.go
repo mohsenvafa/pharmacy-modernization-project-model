@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+
+	"pharmacy-modernization-project-model/internal/platform/sanitizer"
 )
 
 // DevMode configuration
@@ -93,7 +95,7 @@ func AddMockUser(key string, user *User) {
 		mockUsers = make(map[string]*User)
 	}
 	mockUsers[key] = user
-	log.Printf("✓ Added mock user: %s (%s)", key, user.Name)
+	log.Printf("✓ Added mock user: %s (%s)", sanitizer.ForLogging(key), sanitizer.ForLogging(user.Name))
 }
 
 // GetMockUser retrieves a mock user by key
@@ -144,7 +146,7 @@ func DevAuthMiddleware() func(http.Handler) http.Handler {
 			}
 
 			log.Printf("DEV AUTH: Using mock user '%s' (%s) with permissions: %v",
-				mockUserKey, user.Email, user.Permissions)
+				sanitizer.ForLogging(mockUserKey), sanitizer.ForLogging(user.Email), user.Permissions)
 
 			// Set user in context
 			ctx := SetUser(r.Context(), user)
