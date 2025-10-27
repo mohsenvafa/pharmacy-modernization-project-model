@@ -1,6 +1,9 @@
 package addresslist
 
-import addressmodel "pharmacy-modernization-project-model/domain/patient/contracts/model"
+import (
+	addressmodel "pharmacy-modernization-project-model/domain/patient/contracts/model"
+	commonComponents "pharmacy-modernization-project-model/web/components/elements"
+)
 
 type AddressListParams struct {
 	Title        string
@@ -28,7 +31,9 @@ templ AddressListComponentView(params AddressListParams) {
 								<p class="text-sm">{ address.Line2 }</p>
 							}
 							<p class="text-sm opacity-70">
-								{ address.City }, { address.State } { address.Zip }
+								{ address.City }, 
+								@commonComponents.StateNameDisplay(address.State)
+								{ address.Zip }
 							</p>
 						</li>
 					}

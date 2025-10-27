@@ -121,7 +121,7 @@ func seedPatients(db *mongo.Database) {
 			Name:      "Ava Thompson2",
 			DOB:       time.Date(1988, time.January, 12, 0, 0, 0, 0, time.UTC),
 			Phone:     "(206) 417-8842",
-			State:     "Washington",
+			State:     "WA",
 			CreatedAt: time.Now(),
 		},
 		{
@@ -129,7 +129,7 @@ func seedPatients(db *mongo.Database) {
 			Name:      "Liam Anderson",
 			DOB:       time.Date(1979, time.March, 3, 0, 0, 0, 0, time.UTC),
 			Phone:     "(415) 736-5528",
-			State:     "California",
+			State:     "CA",
 			CreatedAt: time.Now(),
 		},
 		{
@@ -137,7 +137,7 @@ func seedPatients(db *mongo.Database) {
 			Name:      "Sophia Martinez",
 			DOB:       time.Date(1992, time.July, 27, 0, 0, 0, 0, time.UTC),
 			Phone:     "(617) 980-3314",
-			State:     "Massachusetts",
+			State:     "MA",
 			CreatedAt: time.Now(),
 		},
 		{
@@ -145,7 +145,7 @@ func seedPatients(db *mongo.Database) {
 			Name:      "Noah Patel",
 			DOB:       time.Date(1985, time.May, 5, 0, 0, 0, 0, time.UTC),
 			Phone:     "(972) 645-2091",
-			State:     "Texas",
+			State:     "TX",
 			CreatedAt: time.Now(),
 		},
 		{
@@ -153,7 +153,7 @@ func seedPatients(db *mongo.Database) {
 			Name:      "Mia Chen",
 			DOB:       time.Date(1996, time.September, 19, 0, 0, 0, 0, time.UTC),
 			Phone:     "(312) 478-6605",
-			State:     "Illinois",
+			State:     "IL",
 			CreatedAt: time.Now(),
 		},
 		{
@@ -161,7 +161,7 @@ func seedPatients(db *mongo.Database) {
 			Name:      "Ethan Johnson",
 			DOB:       time.Date(1975, time.November, 8, 0, 0, 0, 0, time.UTC),
 			Phone:     "(303) 825-1947",
-			State:     "Colorado",
+			State:     "CO",
 			CreatedAt: time.Now(),
 		},
 		{
@@ -169,7 +169,7 @@ func seedPatients(db *mongo.Database) {
 			Name:      "Olivia Rossi",
 			DOB:       time.Date(1990, time.February, 22, 0, 0, 0, 0, time.UTC),
 			Phone:     "(646) 291-0743",
-			State:     "New York",
+			State:     "NY",
 			CreatedAt: time.Now(),
 		},
 		{
@@ -177,7 +177,7 @@ func seedPatients(db *mongo.Database) {
 			Name:      "Jackson Lee",
 			DOB:       time.Date(1983, time.April, 16, 0, 0, 0, 0, time.UTC),
 			Phone:     "(503) 913-2286",
-			State:     "Oregon",
+			State:     "OR",
 			CreatedAt: time.Now(),
 		},
 		{
@@ -185,7 +185,7 @@ func seedPatients(db *mongo.Database) {
 			Name:      "Emma Davis",
 			DOB:       time.Date(1998, time.December, 2, 0, 0, 0, 0, time.UTC),
 			Phone:     "(305) 744-1189",
-			State:     "Florida",
+			State:     "FL",
 			CreatedAt: time.Now(),
 		},
 		{
@@ -193,7 +193,7 @@ func seedPatients(db *mongo.Database) {
 			Name:      "Lucas Hernandez",
 			DOB:       time.Date(1981, time.June, 14, 0, 0, 0, 0, time.UTC),
 			Phone:     "(713) 402-5378",
-			State:     "Texas",
+			State:     "TX",
 			CreatedAt: time.Now(),
 		},
 		{
@@ -201,7 +201,7 @@ func seedPatients(db *mongo.Database) {
 			Name:      "Isabella Rodriguez",
 			DOB:       time.Date(1994, time.August, 30, 0, 0, 0, 0, time.UTC),
 			Phone:     "(212) 555-9876",
-			State:     "New York",
+			State:     "NY",
 			CreatedAt: time.Now(),
 		},
 		{
@@ -209,7 +209,7 @@ func seedPatients(db *mongo.Database) {
 			Name:      "Mason Williams",
 			DOB:       time.Date(1987, time.October, 18, 0, 0, 0, 0, time.UTC),
 			Phone:     "(404) 555-4321",
-			State:     "Georgia",
+			State:     "GA",
 			CreatedAt: time.Now(),
 		},
 		{
@@ -217,7 +217,7 @@ func seedPatients(db *mongo.Database) {
 			Name:      "Charlotte Brown",
 			DOB:       time.Date(1991, time.April, 7, 0, 0, 0, 0, time.UTC),
 			Phone:     "(602) 555-1111",
-			State:     "Arizona",
+			State:     "AZ",
 			CreatedAt: time.Now(),
 		},
 		{
@@ -225,7 +225,7 @@ func seedPatients(db *mongo.Database) {
 			Name:      "James Taylor",
 			DOB:       time.Date(1980, time.December, 25, 0, 0, 0, 0, time.UTC),
 			Phone:     "(702) 555-2222",
-			State:     "Nevada",
+			State:     "NV",
 			CreatedAt: time.Now(),
 		},
 		{
@@ -233,7 +233,7 @@ func seedPatients(db *mongo.Database) {
 			Name:      "Amelia Garcia",
 			DOB:       time.Date(1995, time.June, 15, 0, 0, 0, 0, time.UTC),
 			Phone:     "(214) 555-3333",
-			State:     "Texas",
+			State:     "TX",
 			CreatedAt: time.Now(),
 		},
 	}

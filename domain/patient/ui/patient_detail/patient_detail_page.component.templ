@@ -35,7 +35,7 @@ templ patientDetail(ctx context.Context, pageParam PatientDetailPageParam) {
 		</div>
 		<section class="grid gap-4 px-4 md:grid-cols-3">
 			@commonComponents.StatisticsCard("Age", fmt.Sprintf("%d", pageParam.Age), "years old")
-			@commonComponents.StatisticsCard("State", pageParam.Patient.State, "Primary residence")
+			@commonComponents.StatisticsCard("State", commonComponents.StateAbbreviationToName(pageParam.Patient.State), "Primary residence")
 			@commonComponents.StatisticsCard("Phone", pageParam.Patient.Phone, "Primary contact")
 		</section>
 		<section class="card mx-4 bg-base-100 shadow">
@@ -69,7 +69,8 @@ templ patientDetail(ctx context.Context, pageParam PatientDetailPageParam) {
 					</div>
 					<div>
 						<div class="text-xs uppercase opacity-60">State</div>
-						<div class="text-base font-semibold">{ pageParam.Patient.State }</div>
+						<div class="text-base font-semibold">@commonComponents.StateNameDisplay(pageParam.Patient.State)
+</div>
 					</div>
 					<div>
 						<div class="text-xs uppercase opacity-60">Patient ID</div>
