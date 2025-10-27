@@ -78,7 +78,6 @@ func (m *MongoDBCache) Get(ctx context.Context, key string) ([]byte, error) {
 	if valid, reason := ValidateIDWithReason(key); !valid {
 		m.errors.Add(1)
 		m.logger.Warn("Get: rejected invalid cache key",
-			zap.String("key", key),
 			zap.String("reason", reason))
 		return nil, ErrNotFound
 	}
@@ -105,7 +104,6 @@ func (m *MongoDBCache) Get(ctx context.Context, key string) ([]byte, error) {
 		go func() {
 			if valid, reason := ValidateIDWithReason(key); !valid {
 				m.logger.Warn("DeleteOne: rejected invalid cache key in async deletion",
-					zap.String("key", key),
 					zap.String("reason", reason))
 				return
 			}
@@ -125,7 +123,6 @@ func (m *MongoDBCache) Set(ctx context.Context, key string, value []byte, ttl ti
 	if valid, reason := ValidateIDWithReason(key); !valid {
 		m.errors.Add(1)
 		m.logger.Warn("Set: rejected invalid cache key",
-			zap.String("key", key),
 			zap.String("reason", reason))
 		return ErrInvalidKey
 	}
@@ -156,7 +153,6 @@ func (m *MongoDBCache) Delete(ctx context.Context, key string) error {
 	if valid, reason := ValidateIDWithReason(key); !valid {
 		m.errors.Add(1)
 		m.logger.Warn("Delete: rejected invalid cache key",
-			zap.String("key", key),
 			zap.String("reason", reason))
 		return ErrInvalidKey
 	}
