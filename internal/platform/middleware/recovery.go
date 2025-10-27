@@ -3,6 +3,8 @@ package middleware
 import (
 	"net/http"
 
+	"pharmacy-modernization-project-model/internal/platform/sanitizer"
+
 	"go.uber.org/zap"
 )
 
@@ -14,9 +16,9 @@ func RecoveryMiddleware(logger *zap.Logger) func(http.Handler) http.Handler {
 				if err := recover(); err != nil {
 					logger.Error("Panic recovered",
 						zap.Any("error", err),
-						zap.String("method", r.Method),
-						zap.String("url", r.URL.String()),
-						zap.String("remote_addr", r.RemoteAddr))
+						zap.String("method", sanitizer.ForLogging(r.Method)),
+						zap.String("url", sanitizer.ForLogging(r.URL.String())),
+						zap.String("remote_addr", sanitizer.ForLogging(r.RemoteAddr)))
 
 					http.Error(w, "Internal server error", http.StatusInternalServerError)
 				}
