@@ -11,6 +11,7 @@ import (
 
 	m "pharmacy-modernization-project-model/domain/prescription/contracts/model"
 	platformErrors "pharmacy-modernization-project-model/internal/platform/errors"
+	"pharmacy-modernization-project-model/internal/platform/sanitizer"
 	"pharmacy-modernization-project-model/internal/validators/validation_logic"
 )
 
@@ -101,7 +102,7 @@ func (r *PrescriptionMongoRepository) GetByID(ctx context.Context, id string) (m
 	// Validate input to prevent NoSQL injection
 	if err := validation_logic.ValidateID("id", id); err != nil {
 		r.logger.Warn("Invalid prescription ID provided",
-			zap.String("id", id),
+			zap.String("id", sanitizer.ForLogging(id)),
 			zap.Error(err))
 		return m.Prescription{}, platformErrors.NewValidationError("id", id, "Invalid prescription ID format")
 	}
@@ -115,7 +116,7 @@ func (r *PrescriptionMongoRepository) GetByID(ctx context.Context, id string) (m
 	}
 
 	r.logger.Debug("Successfully retrieved prescription from MongoDB",
-		zap.String("id", id))
+		zap.String("id", sanitizer.ForLogging(id)))
 
 	return prescription, nil
 }
@@ -158,7 +159,7 @@ func (r *PrescriptionMongoRepository) Update(ctx context.Context, id string, p m
 	// Validate input to prevent NoSQL injection
 	if err := validation_logic.ValidateID("id", id); err != nil {
 		r.logger.Warn("Invalid prescription ID provided for update",
-			zap.String("id", id),
+			zap.String("id", sanitizer.ForLogging(id)),
 			zap.Error(err))
 		return m.Prescription{}, platformErrors.NewValidationError("id", id, "Invalid prescription ID format")
 	}

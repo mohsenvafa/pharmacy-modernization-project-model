@@ -12,6 +12,7 @@ import (
 
 	addressModel "pharmacy-modernization-project-model/domain/patient/contracts/model"
 	platformErrors "pharmacy-modernization-project-model/internal/platform/errors"
+	"pharmacy-modernization-project-model/internal/validators/validation_logic"
 )
 
 // AddressMongoRepository implements AddressRepository interface using MongoDB
@@ -50,6 +51,13 @@ func (r *AddressMongoRepository) ListByPatientID(ctx context.Context, patientID 
 			zap.Duration("duration", time.Since(start)))
 	}()
 
+	// Validate input to prevent NoSQL injection
+	if err := validation_logic.ValidateID("patient_id", patientID); err != nil {
+		r.logger.Warn("Invalid patient_id provided",
+			zap.Error(err))
+		return nil, platformErrors.NewValidationError("patient_id", patientID, "Invalid patient ID format")
+	}
+
 	filter := bson.M{"patient_id": patientID}
 	opts := options.Find().SetSort(bson.D{{Key: "_id", Value: 1}})
 
@@ -81,6 +89,18 @@ func (r *AddressMongoRepository) GetByID(ctx context.Context, patientID, address
 			zap.Duration("duration", time.Since(start)))
 	}()
 
+	// Validate input to prevent NoSQL injection
+	if err := validation_logic.ValidateID("patient_id", patientID); err != nil {
+		r.logger.Warn("Invalid patient_id provided",
+			zap.Error(err))
+		return addressModel.Address{}, platformErrors.NewValidationError("patient_id", patientID, "Invalid patient ID format")
+	}
+	if err := validation_logic.ValidateID("address_id", addressID); err != nil {
+		r.logger.Warn("Invalid address_id provided",
+			zap.Error(err))
+		return addressModel.Address{}, platformErrors.NewValidationError("address_id", addressID, "Invalid address ID format")
+	}
+
 	filter := bson.M{
 		"_id":        addressID,
 		"patient_id": patientID,
@@ -111,6 +131,20 @@ func (r *AddressMongoRepository) Upsert(ctx context.Context, patientID string, a
 			zap.String("address_id", address.ID),
 			zap.Duration("duration", time.Since(start)))
 	}()
+
+	// Validate input to prevent NoSQL injection
+	if err := validation_logic.ValidateID("patient_id", patientID); err != nil {
+		r.logger.Warn("Invalid patient_id provided",
+			zap.Error(err))
+		return addressModel.Address{}, platformErrors.NewValidationError("patient_id", patientID, "Invalid patient ID format")
+	}
+	if address.ID != "" {
+		if err := validation_logic.ValidateID("address_id", address.ID); err != nil {
+			r.logger.Warn("Invalid address_id provided",
+				zap.Error(err))
+			return addressModel.Address{}, platformErrors.NewValidationError("address_id", address.ID, "Invalid address ID format")
+		}
+	}
 
 	// Generate ID if not provided
 	if address.ID == "" {
