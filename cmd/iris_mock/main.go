@@ -129,7 +129,7 @@ func logHeaders(next http.Handler) http.Handler {
 			log.Printf("   └─ X-Idempotency-Key: %s", sanitizer.ForLogging(idempotency))
 		}
 		if auth := r.Header.Get("Authorization"); auth != "" {
-			log.Printf("   └─ Authorization: %s", maskToken(auth))
+			log.Printf("   └─ Authorization: %s", sanitizer.ForLogging(maskToken(auth)))
 		}
 
 		next.ServeHTTP(w, r)
