@@ -119,8 +119,9 @@ templ patientTableRows(pats []patientsmodel.Patient, detailPath func(string) str
 				</div>
 			</td>
 			<td>{ pat.DOB.Format("Jan 2, 2006") }</td>
-			<td>@commonComponents.StateNameDisplay(pat.State)
-</td>
+			<td>
+				@commonComponents.StateNameDisplay(pat.State)
+			</td>
 		</tr>
 	}
 }

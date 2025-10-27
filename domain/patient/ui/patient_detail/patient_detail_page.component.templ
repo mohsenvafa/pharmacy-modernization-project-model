@@ -69,8 +69,9 @@ templ patientDetail(ctx context.Context, pageParam PatientDetailPageParam) {
 					</div>
 					<div>
 						<div class="text-xs uppercase opacity-60">State</div>
-						<div class="text-base font-semibold">@commonComponents.StateNameDisplay(pageParam.Patient.State)
-</div>
+						<div class="text-base font-semibold">
+							@commonComponents.StateNameDisplay(pageParam.Patient.State)
+						</div>
 					</div>
 					<div>
 						<div class="text-xs uppercase opacity-60">Patient ID</div>
