@@ -141,7 +141,7 @@ func DevAuthMiddleware() func(http.Handler) http.Handler {
 
 			user := mockUsers[mockUserKey]
 			if user == nil {
-				log.Printf("Warning: Unknown mock user '%s', using admin", mockUserKey)
+				log.Printf("Warning: Unknown mock user '%s', using admin", sanitizer.ForLogging(mockUserKey))
 				user = mockUsers["admin"]
 			}
 
