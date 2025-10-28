@@ -12,8 +12,8 @@ import (
 // JWTConfig holds JWT configuration
 type JWTConfig struct {
 	Secret     string
-	Issuer     string
-	Audience   string
+	Issuer     []string
+	Audience   []string
 	CookieName string
 }
 
@@ -53,16 +53,30 @@ func ValidateToken(tokenString string) (*User, error) {
 	}
 
 	// Validate issuer if configured
-	if jwtConfig.Issuer != "" && claims.Issuer != jwtConfig.Issuer {
-		return nil, errors.New("invalid issuer")
+	if len(jwtConfig.Issuer) > 0 {
+		validIssuer := false
+		for _, issuer := range jwtConfig.Issuer {
+			if claims.Issuer == issuer {
+				validIssuer = true
+				break
+			}
+		}
+		if !validIssuer {
+			return nil, errors.New("invalid issuer")
+		}
 	}
 
 	// Validate audience if configured
-	if jwtConfig.Audience != "" {
+	if len(jwtConfig.Audience) > 0 {
 		validAudience := false
 		for _, aud := range claims.Audience {
-			if aud == jwtConfig.Audience {
-				validAudience = true
+			for _, expectedAud := range jwtConfig.Audience {
+				if aud == expectedAud {
+					validAudience = true
+					break
+				}
+			}
+			if validAudience {
 				break
 			}
 		}
@@ -151,14 +165,26 @@ func CreateToken(user *User, expirationHours int) (string, error) {
 		return "", errors.New("JWT config not initialized")
 	}
 
+	// Use first issuer and audience from arrays, or empty strings if arrays are empty
+	var issuer string
+	var audience jwt.ClaimStrings
+
+	if len(jwtConfig.Issuer) > 0 {
+		issuer = jwtConfig.Issuer[0]
+	}
+
+	if len(jwtConfig.Audience) > 0 {
+		audience = jwt.ClaimStrings(jwtConfig.Audience)
+	}
+
 	claims := JWTClaims{
 		UserID:      user.ID,
 		Email:       user.Email,
 		Name:        user.Name,
 		Permissions: user.Permissions,
 		RegisteredClaims: jwt.RegisteredClaims{
-			Issuer:    jwtConfig.Issuer,
-			Audience:  jwt.ClaimStrings{jwtConfig.Audience},
+			Issuer:    issuer,
+			Audience:  audience,
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Duration(expirationHours) * time.Hour)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 			NotBefore: jwt.NewNumericDate(time.Now()),

@@ -15,8 +15,8 @@ auth:
   dev_mode: false  # MUST be false in production
   jwt:
     secret: ""  # REQUIRED: Set via RX_AUTH_JWT_SECRET
-    issuer: "PharmacyModernization"
-    audience: "PharmacyModernization"
+    issuer: ["PharmacyModernization"]
+    audience: ["PharmacyModernization"]
     cookie:
       name: "auth_token"
       secure: true  # HTTPS only

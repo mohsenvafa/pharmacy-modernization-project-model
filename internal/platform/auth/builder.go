@@ -20,7 +20,7 @@ func NewBuilder() *Builder {
 }
 
 // WithJWTConfig sets JWT configuration
-func (b *Builder) WithJWTConfig(secret, issuer, audience, cookieName string) *Builder {
+func (b *Builder) WithJWTConfig(secret string, issuer, audience []string, cookieName string) *Builder {
 	b.jwtConfig = JWTConfig{
 		Secret:     secret,
 		Issuer:     issuer,
@@ -75,13 +75,15 @@ func (b *Builder) Build() error {
 			b.logger.Info("Authentication initialized",
 				zap.String("mode", "development"),
 				zap.Bool("dev_mode", true),
-				zap.String("issuer", b.jwtConfig.Issuer),
+				zap.Strings("issuers", b.jwtConfig.Issuer),
+				zap.Strings("audiences", b.jwtConfig.Audience),
 			)
 		} else {
 			b.logger.Info("Authentication initialized",
 				zap.String("mode", "production"),
 				zap.Bool("dev_mode", false),
-				zap.String("issuer", b.jwtConfig.Issuer),
+				zap.Strings("issuers", b.jwtConfig.Issuer),
+				zap.Strings("audiences", b.jwtConfig.Audience),
 			)
 		}
 	}

@@ -26,9 +26,9 @@ type Config struct {
 	Auth struct {
 		DevMode bool `mapstructure:"dev_mode"`
 		JWT     struct {
-			Secret   string `mapstructure:"secret"`
-			Issuer   string `mapstructure:"issuer"`
-			Audience string `mapstructure:"audience"`
+			Secret   string   `mapstructure:"secret"`
+			Issuer   []string `mapstructure:"issuer"`
+			Audience []string `mapstructure:"audience"`
 			Cookie   struct {
 				Name     string `mapstructure:"name"`
 				Secure   bool   `mapstructure:"secure"`
@@ -191,11 +191,11 @@ func Load() *Config {
 	// Auth defaults
 	// JWT Secret is REQUIRED via RX_AUTH_JWT_SECRET environment variable
 	// No default provided for security reasons
-	if cfg.Auth.JWT.Issuer == "" {
-		cfg.Auth.JWT.Issuer = "PharmacyModernization"
+	if len(cfg.Auth.JWT.Issuer) == 0 {
+		cfg.Auth.JWT.Issuer = []string{"PharmacyModernization"}
 	}
-	if cfg.Auth.JWT.Audience == "" {
-		cfg.Auth.JWT.Audience = "PharmacyModernization"
+	if len(cfg.Auth.JWT.Audience) == 0 {
+		cfg.Auth.JWT.Audience = []string{"PharmacyModernization"}
 	}
 	if cfg.Auth.JWT.Cookie.Name == "" {
 		cfg.Auth.JWT.Cookie.Name = "auth_token"
