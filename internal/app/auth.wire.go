@@ -8,6 +8,7 @@ func (a *App) wireAuth() error {
 			a.Cfg.Auth.JWT.Secret,
 			a.Cfg.Auth.JWT.Issuer,
 			a.Cfg.Auth.JWT.Audience,
+			a.Cfg.Auth.JWT.ClientIds,
 			a.Cfg.Auth.JWT.Cookie.Name,
 		).
 		WithDevMode(a.Cfg.Auth.DevMode).

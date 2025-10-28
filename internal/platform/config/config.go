@@ -26,10 +26,11 @@ type Config struct {
 	Auth struct {
 		DevMode bool `mapstructure:"dev_mode"`
 		JWT     struct {
-			Secret   string   `mapstructure:"secret"`
-			Issuer   []string `mapstructure:"issuer"`
-			Audience []string `mapstructure:"audience"`
-			Cookie   struct {
+			Secret    string   `mapstructure:"secret"`
+			Issuer    []string `mapstructure:"issuer"`
+			Audience  []string `mapstructure:"audience"`
+			ClientIds []string `mapstructure:"client_ids"`
+			Cookie    struct {
 				Name     string `mapstructure:"name"`
 				Secure   bool   `mapstructure:"secure"`
 				HTTPOnly bool   `mapstructure:"httponly"`
@@ -196,6 +197,9 @@ func Load() *Config {
 	}
 	if len(cfg.Auth.JWT.Audience) == 0 {
 		cfg.Auth.JWT.Audience = []string{"PharmacyModernization"}
+	}
+	if len(cfg.Auth.JWT.ClientIds) == 0 {
+		cfg.Auth.JWT.ClientIds = []string{"default-client"}
 	}
 	if cfg.Auth.JWT.Cookie.Name == "" {
 		cfg.Auth.JWT.Cookie.Name = "auth_token"

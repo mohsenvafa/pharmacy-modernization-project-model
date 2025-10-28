@@ -14,6 +14,7 @@ type JWTConfig struct {
 	Secret     string
 	Issuer     []string
 	Audience   []string
+	ClientIds  []string
 	CookieName string
 }
 
@@ -82,6 +83,20 @@ func ValidateToken(tokenString string) (*User, error) {
 		}
 		if !validAudience {
 			return nil, errors.New("invalid audience")
+		}
+	}
+
+	// Validate client ID if configured
+	if len(jwtConfig.ClientIds) > 0 {
+		validClientId := false
+		for _, clientId := range jwtConfig.ClientIds {
+			if claims.ClientId == clientId {
+				validClientId = true
+				break
+			}
+		}
+		if !validClientId {
+			return nil, errors.New("invalid client ID")
 		}
 	}
 
@@ -160,7 +175,7 @@ func extractFromAuto(r *http.Request) (string, error) {
 }
 
 // CreateToken creates a new JWT token for a user (helper for testing/login)
-func CreateToken(user *User, expirationHours int) (string, error) {
+func CreateToken(user *User, clientId string, expirationHours int) (string, error) {
 	if jwtConfig.Secret == "" {
 		return "", errors.New("JWT config not initialized")
 	}
@@ -182,6 +197,7 @@ func CreateToken(user *User, expirationHours int) (string, error) {
 		Email:       user.Email,
 		Name:        user.Name,
 		Permissions: user.Permissions,
+		ClientId:    clientId,
 		RegisteredClaims: jwt.RegisteredClaims{
 			Issuer:    issuer,
 			Audience:  audience,

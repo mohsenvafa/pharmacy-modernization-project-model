@@ -17,6 +17,7 @@ auth:
     secret: ""  # REQUIRED: Set via RX_AUTH_JWT_SECRET
     issuer: ["PharmacyModernization"]
     audience: ["PharmacyModernization"]
+    client_ids: ["production-client", "mobile-app", "web-app"]
     cookie:
       name: "auth_token"
       secure: true  # HTTPS only

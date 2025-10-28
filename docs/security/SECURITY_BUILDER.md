@@ -52,7 +52,7 @@ Creates a new authentication builder instance.
 builder := auth.NewBuilder()
 ```
 
-### `WithJWTConfig(secret string, issuer, audience []string, cookieName string)`
+### `WithJWTConfig(secret string, issuer, audience, clientIds []string, cookieName string)`
 Sets JWT configuration parameters.
 
 ```go
@@ -60,6 +60,7 @@ builder.WithJWTConfig(
     "your-secret-key",
     []string{"rxintake", "pharmacy-modernization"},
     []string{"rxintake", "pharmacy-modernization"},
+    []string{"mobile-app", "web-app", "api-client"},
     "auth_token",
 )
 ```
@@ -68,6 +69,7 @@ builder.WithJWTConfig(
 - `secret` - JWT signing secret (use environment variable in production)
 - `issuer` - Array of expected token issuers
 - `audience` - Array of expected token audiences
+- `clientIds` - Array of expected client IDs
 - `cookieName` - Name of the authentication cookie
 
 ### `WithDevMode(enabled bool)`
@@ -215,7 +217,7 @@ err := auth.NewBuilder().
 // Test setup with dev mode
 func setupTestAuth(t *testing.T) {
     err := auth.NewBuilder().
-        WithJWTConfig("test-secret", []string{"test"}, []string{"test"}, "test_token").
+        WithJWTConfig("test-secret", []string{"test"}, []string{"test"}, []string{"test-client"}, "test_token").
         WithDevMode(true).
         WithEnvironment("test").
         Build()
@@ -234,7 +236,7 @@ func setupTestAuth(t *testing.T) {
 
 ```go
 err := auth.NewBuilder().
-    WithJWTConfig("secret", []string{"issuer"}, []string{"audience"}, "token").
+    WithJWTConfig("secret", []string{"issuer"}, []string{"audience"}, []string{"client"}, "token").
     WithDevMode(true).        // Dev mode enabled
     WithEnvironment("prod").  // Production environment
     Build()
@@ -361,17 +363,17 @@ func buildAuth(cfg *config.Config, logger *zap.Logger) error {
     switch cfg.App.Env {
     case "dev", "development":
         builder.
-            WithJWTConfig("dev-secret", []string{"dev-issuer"}, []string{"rxintake"}, "auth_token").
+            WithJWTConfig("dev-secret", []string{"dev-issuer"}, []string{"rxintake"}, []string{"dev-client"}, "auth_token").
             WithDevMode(true)
     
     case "staging":
         builder.
-            WithJWTConfig(os.Getenv("JWT_SECRET"), []string{"staging-issuer"}, []string{"rxintake"}, "auth_token").
+            WithJWTConfig(os.Getenv("JWT_SECRET"), []string{"staging-issuer"}, []string{"rxintake"}, []string{"staging-client"}, "auth_token").
             WithDevMode(false)
     
     case "prod", "production":
         builder.
-            WithJWTConfig(os.Getenv("JWT_SECRET"), []string{"rxintake"}, []string{"rxintake"}, "auth_token").
+            WithJWTConfig(os.Getenv("JWT_SECRET"), []string{"rxintake"}, []string{"rxintake"}, []string{"prod-client"}, "auth_token").
             WithDevMode(false)
     
     default:
@@ -416,7 +418,7 @@ func SetupTestAuth(t *testing.T) {
     logger := zap.NewNop()
     
     err := auth.NewBuilder().
-        WithJWTConfig("test-secret", []string{"test"}, []string{"test"}, "test_token").
+        WithJWTConfig("test-secret", []string{"test"}, []string{"test"}, []string{"test-client"}, "test_token").
         WithDevMode(true).
         WithEnvironment("test").
         WithLogger(logger).
