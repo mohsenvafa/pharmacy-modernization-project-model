@@ -1,44 +1,54 @@
 package auth
 
 import (
+	"context"
 	"errors"
+	"fmt"
 	"net/http"
 	"strings"
-	"time"
 
+	"github.com/MicahParks/keyfunc/v3"
 	"github.com/golang-jwt/jwt/v5"
 )
 
 // JWTConfig holds JWT configuration
 type JWTConfig struct {
-	Secret     string
-	Issuer     []string
-	Audience   []string
-	ClientIds  []string
-	CookieName string
+	Issuer         []string // Expected token issuers
+	Audience       []string // Expected token audiences
+	ClientIds      []string // Expected client IDs
+	CookieName     string   // Name of the authentication cookie
+	JWKSURL        string   // URL to fetch JWKS from
+	JWKSCache      int      // Cache duration in minutes (default: 15)
+	SigningMethods []string // Allowed signing methods (RS256, ES256, etc.)
 }
 
 var jwtConfig JWTConfig
+var jwksKeyfunc keyfunc.Keyfunc
 
 // InitJWTConfig initializes the global JWT configuration
-func InitJWTConfig(config JWTConfig) {
+func InitJWTConfig(config JWTConfig) error {
 	jwtConfig = config
-}
 
-// ValidateToken validates and parses a JWT token string
-func ValidateToken(tokenString string) (*User, error) {
-	if jwtConfig.Secret == "" {
-		return nil, errors.New("JWT config not initialized")
+	// Initialize JWKS
+	if config.JWKSURL != "" {
+		ctx := context.Background()
+
+		var err error
+		jwksKeyfunc, err = keyfunc.NewDefaultCtx(ctx, []string{config.JWKSURL})
+		if err != nil {
+			return fmt.Errorf("failed to initialize JWKS: %w", err)
+		}
+	} else {
+		return errors.New("JWKS URL is required")
 	}
 
-	// Parse and validate token
-	token, err := jwt.ParseWithClaims(tokenString, &JWTClaims{}, func(token *jwt.Token) (interface{}, error) {
-		// Validate signing method
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, errors.New("unexpected signing method")
-		}
-		return []byte(jwtConfig.Secret), nil
-	})
+	return nil
+}
+
+// ValidateToken validates and parses a JWT token string using JWKS
+func ValidateToken(tokenString string) (*User, error) {
+	// Parse token using JWKS keyfunc
+	token, err := jwt.ParseWithClaims(tokenString, &JWTClaims{}, jwksKeyfunc.Keyfunc)
 
 	if err != nil {
 		return nil, err
@@ -48,6 +58,25 @@ func ValidateToken(tokenString string) (*User, error) {
 		return nil, errors.New("invalid token")
 	}
 
+	// Check if signing method is allowed
+	if len(jwtConfig.SigningMethods) > 0 {
+		allowed := false
+		for _, method := range jwtConfig.SigningMethods {
+			if token.Method.Alg() == method {
+				allowed = true
+				break
+			}
+		}
+		if !allowed {
+			return nil, errors.New("signing method not allowed: " + token.Method.Alg())
+		}
+	}
+
+	return extractUserFromClaims(token)
+}
+
+// extractUserFromClaims extracts user information from validated token claims
+func extractUserFromClaims(token *jwt.Token) (*User, error) {
 	claims, ok := token.Claims.(*JWTClaims)
 	if !ok {
 		return nil, errors.New("invalid claims")
@@ -102,10 +131,12 @@ func ValidateToken(tokenString string) (*User, error) {
 
 	// Build user from claims
 	user := &User{
-		ID:          claims.UserID,
-		Email:       claims.Email,
-		Name:        claims.Name,
-		Permissions: claims.Permissions,
+		ID:              claims.UserID,
+		Email:           claims.Email,
+		Name:            claims.Name,
+		Permissions:     claims.Permissions,
+		DataAccessRoles: claims.DataAccessRoles,
+		FuncRoles:       claims.FuncRoles,
 	}
 
 	return user, nil
@@ -172,41 +203,4 @@ func extractFromAuto(r *http.Request) (string, error) {
 	}
 
 	return "", errors.New("no token found in Authorization header or cookie")
-}
-
-// CreateToken creates a new JWT token for a user (helper for testing/login)
-func CreateToken(user *User, clientId string, expirationHours int) (string, error) {
-	if jwtConfig.Secret == "" {
-		return "", errors.New("JWT config not initialized")
-	}
-
-	// Use first issuer and audience from arrays, or empty strings if arrays are empty
-	var issuer string
-	var audience jwt.ClaimStrings
-
-	if len(jwtConfig.Issuer) > 0 {
-		issuer = jwtConfig.Issuer[0]
-	}
-
-	if len(jwtConfig.Audience) > 0 {
-		audience = jwt.ClaimStrings(jwtConfig.Audience)
-	}
-
-	claims := JWTClaims{
-		UserID:      user.ID,
-		Email:       user.Email,
-		Name:        user.Name,
-		Permissions: user.Permissions,
-		ClientId:    clientId,
-		RegisteredClaims: jwt.RegisteredClaims{
-			Issuer:    issuer,
-			Audience:  audience,
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Duration(expirationHours) * time.Hour)),
-			IssuedAt:  jwt.NewNumericDate(time.Now()),
-			NotBefore: jwt.NewNumericDate(time.Now()),
-		},
-	}
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString([]byte(jwtConfig.Secret))
 }

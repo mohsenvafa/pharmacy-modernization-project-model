@@ -221,11 +221,8 @@ testUser := &auth.User{
     },
 }
 
-// Generate token (1 hour expiration)
-token, err := auth.CreateToken(testUser, 1)
-if err != nil {
-    log.Fatal(err)
-}
+# Test with your auth provider's token
+# Use tokens created by Auth0, Okta, or your auth provider
 
 fmt.Println("Test Token:", token)
 ```

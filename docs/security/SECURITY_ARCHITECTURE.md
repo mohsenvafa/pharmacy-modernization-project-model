@@ -144,7 +144,6 @@ rxintake_scaffold/
 ```go
 ValidateToken(tokenString string) (*User, error)
 ExtractToken(r *http.Request, source TokenSource) (string, error)
-CreateToken(user *User, expirationHours int) (string, error)
 ```
 
 ### 2. Context Helper (`context.go`)
@@ -525,7 +524,7 @@ auth:
 ```yaml
 auth:
   jwt:
-    secret: "${JWT_SECRET}"  # From environment variable
+    jwks_url: "${RX_AUTH_JWT_JWKS_URL}"  # From environment variable
     cookie:
       secure: true  # HTTPS only
 ```
@@ -604,7 +603,7 @@ auth:
 Production should use environment variables:
 
 ```bash
-export RX_AUTH_JWT_SECRET="your-production-secret"
+export RX_AUTH_JWT_JWKS_URL="https://your-auth-provider.com/.well-known/jwks.json"
 export RX_AUTH_JWT_ISSUER="your-auth-service"
 ```
 
@@ -616,7 +615,7 @@ export RX_AUTH_JWT_ISSUER="your-auth-service"
 
 **Issue: Always getting 401**
 - Check token is being sent (cookie or header)
-- Verify JWT secret matches
+- Verify JWKS URL is accessible
 - Check token hasn't expired
 - Validate issuer/audience claims
 

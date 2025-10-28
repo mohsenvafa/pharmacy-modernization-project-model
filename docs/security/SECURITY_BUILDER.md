@@ -24,10 +24,15 @@ func (a *App) wire() error {
     // Initialize authentication with builder
     if err := auth.NewBuilder().
         WithJWTConfig(
-            a.Cfg.Auth.JWT.Secret,
             a.Cfg.Auth.JWT.Issuer,
             a.Cfg.Auth.JWT.Audience,
+            a.Cfg.Auth.JWT.ClientIds,
             a.Cfg.Auth.JWT.Cookie.Name,
+        ).
+        WithJWKSConfig(
+            a.Cfg.Auth.JWT.JWKSURL,
+            a.Cfg.Auth.JWT.JWKSCache,
+            a.Cfg.Auth.JWT.SigningMethods,
         ).
         WithDevMode(a.Cfg.Auth.DevMode).
         WithEnvironment(a.Cfg.App.Env).
@@ -52,12 +57,11 @@ Creates a new authentication builder instance.
 builder := auth.NewBuilder()
 ```
 
-### `WithJWTConfig(secret string, issuer, audience, clientIds []string, cookieName string)`
+### `WithJWTConfig(issuer, audience, clientIds []string, cookieName string)`
 Sets JWT configuration parameters.
 
 ```go
 builder.WithJWTConfig(
-    "your-secret-key",
     []string{"rxintake", "pharmacy-modernization"},
     []string{"rxintake", "pharmacy-modernization"},
     []string{"mobile-app", "web-app", "api-client"},
@@ -66,7 +70,6 @@ builder.WithJWTConfig(
 ```
 
 **Parameters:**
-- `secret` - JWT signing secret (use environment variable in production)
 - `issuer` - Array of expected token issuers
 - `audience` - Array of expected token audiences
 - `clientIds` - Array of expected client IDs
@@ -131,7 +134,7 @@ builder.MustBuild() // Panics if error
 ```go
 // Minimal configuration without logger
 err := auth.NewBuilder().
-    WithJWTConfig("secret", "issuer", "audience", "auth_token").
+    WithJWTConfig([]string{"issuer"}, []string{"audience"}, []string{"client"}, "auth_token").
     WithDevMode(false).
     WithEnvironment("dev").
     Build()
@@ -147,9 +150,9 @@ if err != nil {
 // Development with dev mode enabled
 err := auth.NewBuilder().
     WithJWTConfig(
-        "dev-secret-key",
-        "rxintake-dev",
-        "rxintake",
+        []string{"rxintake-dev"},
+        []string{"rxintake"},
+        []string{"dev-client"},
         "auth_token",
     ).
     WithDevMode(true).  // Enable mock users
@@ -174,10 +177,15 @@ Authentication initialized | mode=development dev_mode=true issuer=rxintake-dev
 // Production with strict checks
 err := auth.NewBuilder().
     WithJWTConfig(
-        os.Getenv("JWT_SECRET"), // From environment
-        "rxintake",
-        "rxintake",
+        []string{"rxintake"},
+        []string{"rxintake"},
+        []string{"prod-client"},
         "auth_token",
+    ).
+    WithJWKSConfig(
+        "https://your-auth-provider.com/.well-known/jwks.json",
+        15,
+        []string{"RS256", "ES256"},
     ).
     WithDevMode(false). // Dev mode disabled
     WithEnvironment("prod").

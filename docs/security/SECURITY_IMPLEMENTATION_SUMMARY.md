@@ -290,10 +290,9 @@ testUser := &auth.User{
         "doctor:role",
     },
 }
-
-token, _ := auth.CreateToken(testUser, 1) // 1 hour expiration
-fmt.Println("Token:", token)
 ```
+
+**Note:** Token creation should be handled by your auth provider (Auth0, Okta, etc.), not by the application.
 
 **Test with curl:**
 ```bash

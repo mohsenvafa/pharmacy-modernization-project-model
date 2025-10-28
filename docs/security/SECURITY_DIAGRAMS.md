@@ -136,10 +136,10 @@ This document provides visual diagrams to help understand the security architect
 │  }                                                           │
 ├─────────────────────────────────────────────────────────────┤
 │  Signature                                                   │
-│  HMACSHA256(                                                │
+│  RSASHA256(                                                 │
 │    base64UrlEncode(header) + "." +                          │
 │    base64UrlEncode(payload),                                │
-│    secret                                                    │
+│    private_key                                               │
 │  )                                                           │
 └─────────────────────────────────────────────────────────────┘
 ```

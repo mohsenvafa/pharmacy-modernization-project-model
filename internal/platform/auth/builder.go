@@ -20,14 +20,21 @@ func NewBuilder() *Builder {
 }
 
 // WithJWTConfig sets JWT configuration
-func (b *Builder) WithJWTConfig(secret string, issuer, audience, clientIds []string, cookieName string) *Builder {
+func (b *Builder) WithJWTConfig(issuer, audience, clientIds []string, cookieName string) *Builder {
 	b.jwtConfig = JWTConfig{
-		Secret:     secret,
 		Issuer:     issuer,
 		Audience:   audience,
 		ClientIds:  clientIds,
 		CookieName: cookieName,
 	}
+	return b
+}
+
+// WithJWKSConfig sets JWKS configuration for RSA/ECDSA signature validation
+func (b *Builder) WithJWKSConfig(jwksURL string, cacheMinutes int, signingMethods []string) *Builder {
+	b.jwtConfig.JWKSURL = jwksURL
+	b.jwtConfig.JWKSCache = cacheMinutes
+	b.jwtConfig.SigningMethods = signingMethods
 	return b
 }
 
@@ -53,7 +60,9 @@ func (b *Builder) WithLogger(logger *zap.Logger) *Builder {
 // Returns an error if configuration is invalid or unsafe
 func (b *Builder) Build() error {
 	// Initialize JWT configuration
-	InitJWTConfig(b.jwtConfig)
+	if err := InitJWTConfig(b.jwtConfig); err != nil {
+		return fmt.Errorf("failed to initialize JWT config: %w", err)
+	}
 
 	// Safety check: prevent dev mode in production
 	if b.env == "prod" && b.devMode {
@@ -79,6 +88,9 @@ func (b *Builder) Build() error {
 				zap.Strings("issuers", b.jwtConfig.Issuer),
 				zap.Strings("audiences", b.jwtConfig.Audience),
 				zap.Strings("client_ids", b.jwtConfig.ClientIds),
+				zap.String("jwks_url", b.jwtConfig.JWKSURL),
+				zap.Int("jwks_cache_minutes", b.jwtConfig.JWKSCache),
+				zap.Strings("signing_methods", b.jwtConfig.SigningMethods),
 			)
 		} else {
 			b.logger.Info("Authentication initialized",
@@ -87,6 +99,9 @@ func (b *Builder) Build() error {
 				zap.Strings("issuers", b.jwtConfig.Issuer),
 				zap.Strings("audiences", b.jwtConfig.Audience),
 				zap.Strings("client_ids", b.jwtConfig.ClientIds),
+				zap.String("jwks_url", b.jwtConfig.JWKSURL),
+				zap.Int("jwks_cache_minutes", b.jwtConfig.JWKSCache),
+				zap.Strings("signing_methods", b.jwtConfig.SigningMethods),
 			)
 		}
 	}

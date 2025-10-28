@@ -26,7 +26,6 @@ type Config struct {
 	Auth struct {
 		DevMode bool `mapstructure:"dev_mode"`
 		JWT     struct {
-			Secret    string   `mapstructure:"secret"`
 			Issuer    []string `mapstructure:"issuer"`
 			Audience  []string `mapstructure:"audience"`
 			ClientIds []string `mapstructure:"client_ids"`
@@ -36,6 +35,9 @@ type Config struct {
 				HTTPOnly bool   `mapstructure:"httponly"`
 				MaxAge   int    `mapstructure:"max_age"`
 			} `mapstructure:"cookie"`
+			JWKSURL        string   `mapstructure:"jwks_url"`
+			JWKSCache      int      `mapstructure:"jwks_cache"`
+			SigningMethods []string `mapstructure:"signing_methods"`
 		} `mapstructure:"jwt"`
 	} `mapstructure:"auth"`
 	Database struct {

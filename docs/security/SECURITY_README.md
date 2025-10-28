@@ -200,12 +200,8 @@ auth:
 curl -H "Authorization: Bearer YOUR_TOKEN" \
   http://localhost:8080/api/v1/patients
 
-# Create test token in Go
-token, _ := auth.CreateToken(&auth.User{
-    ID: "test",
-    Email: "test@example.com",
-    Permissions: []string{"patient:read"},
-}, 1)
+# Test with your auth provider's token
+# Use tokens created by Auth0, Okta, or your auth provider
 ```
 
 ## 📖 Next Steps

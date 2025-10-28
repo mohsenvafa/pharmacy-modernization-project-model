@@ -33,9 +33,6 @@ database:
 auth:
   dev_mode: true  # ONLY for local development - bypasses JWT with mock users
   jwt:
-    # REQUIRED: Set via RX_AUTH_JWT_SECRET (UPPERCASE)
-    # Even in dev mode, should be set for when dev_mode is disabled
-    secret: ""  # Override with RX_AUTH_JWT_SECRET
     issuer: ["PharmacyModernization"]
     audience: ["PharmacyModernization"]
     client_ids: ["default-client", "mobile-app", "web-app"]
@@ -44,6 +41,11 @@ auth:
       secure: false  # Set to true in production (HTTPS only)
       httponly: true
       max_age: 3600  # 1 hour in seconds
+    # JWKS Configuration
+    # REQUIRED: Set via RX_AUTH_JWT_JWKS_URL (UPPERCASE)
+    jwks_url: ""  # Override with RX_AUTH_JWT_JWKS_URL
+    jwks_cache: 15  # Cache duration in minutes (default: 15)
+    signing_methods: ["RS256", "ES256"]  # Allowed signing methods
 cache:
   # MongoDB cache configuration (independent from main database)
   mongodb:
