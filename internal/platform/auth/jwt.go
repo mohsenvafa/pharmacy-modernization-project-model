@@ -7,139 +7,61 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/MicahParks/keyfunc/v3"
-	"github.com/golang-jwt/jwt/v5"
+	"pharmacy-modernization-project-model/internal/platform/auth/token_identifiers"
+	"pharmacy-modernization-project-model/internal/platform/auth/types"
 )
 
 // JWTConfig holds JWT configuration
-type JWTConfig struct {
-	Issuer         []string // Expected token issuers
-	Audience       []string // Expected token audiences
-	ClientIds      []string // Expected client IDs
-	CookieName     string   // Name of the authentication cookie
-	JWKSURL        string   // URL to fetch JWKS from
-	JWKSCache      int      // Cache duration in minutes (default: 15)
-	SigningMethods []string // Allowed signing methods (RS256, ES256, etc.)
-}
+type JWTConfig = types.JWTConfig
 
 var jwtConfig JWTConfig
-var jwksKeyfunc keyfunc.Keyfunc
+var tokenManager *TokenManager
 
-// InitJWTConfig initializes the global JWT configuration
+// InitJWTConfig initializes the global JWT configuration and token manager
 func InitJWTConfig(config JWTConfig) error {
 	jwtConfig = config
 
-	// Initialize JWKS
-	if config.JWKSURL != "" {
-		ctx := context.Background()
+	// Create token manager
+	tokenManager = NewTokenManager(config)
 
-		var err error
-		jwksKeyfunc, err = keyfunc.NewDefaultCtx(ctx, []string{config.JWKSURL})
-		if err != nil {
-			return fmt.Errorf("failed to initialize JWKS: %w", err)
+	// Register token identifiers for each configured token type
+	for _, tokenType := range config.TokenTypes {
+		tokenConfig, exists := config.TokenTypesConfig[tokenType]
+		if !exists {
+			return fmt.Errorf("configuration not found for token type: %s", string(tokenType))
 		}
-	} else {
-		return errors.New("JWKS URL is required")
+
+		switch tokenType {
+		case types.TokenTypeAuthPass:
+			identifier, err := token_identifiers.NewAuthPassTokenIdentifier(tokenConfig, config)
+			if err != nil {
+				return fmt.Errorf("failed to create auth_pass token identifier: %w", err)
+			}
+			tokenManager.RegisterIdentifier(identifier)
+
+		case types.TokenTypeAzureB2C:
+			identifier, err := token_identifiers.NewAzureB2CTokenIdentifier(tokenConfig, config)
+			if err != nil {
+				return fmt.Errorf("failed to create Azure B2C token identifier: %w", err)
+			}
+			tokenManager.RegisterIdentifier(identifier)
+
+		default:
+			return fmt.Errorf("unsupported token type: %s", string(tokenType))
+		}
 	}
 
 	return nil
 }
 
-// ValidateToken validates and parses a JWT token string using JWKS
-func ValidateToken(tokenString string) (*User, error) {
-	// Parse token using JWKS keyfunc
-	token, err := jwt.ParseWithClaims(tokenString, &JWTClaims{}, jwksKeyfunc.Keyfunc)
-
-	if err != nil {
-		return nil, err
+// ValidateToken validates and parses a JWT token string using the token manager
+func ValidateToken(tokenString string) (*types.User, error) {
+	if tokenManager == nil {
+		return nil, errors.New("token manager not initialized")
 	}
 
-	if !token.Valid {
-		return nil, errors.New("invalid token")
-	}
-
-	// Check if signing method is allowed
-	if len(jwtConfig.SigningMethods) > 0 {
-		allowed := false
-		for _, method := range jwtConfig.SigningMethods {
-			if token.Method.Alg() == method {
-				allowed = true
-				break
-			}
-		}
-		if !allowed {
-			return nil, errors.New("signing method not allowed: " + token.Method.Alg())
-		}
-	}
-
-	return extractUserFromClaims(token)
-}
-
-// extractUserFromClaims extracts user information from validated token claims
-func extractUserFromClaims(token *jwt.Token) (*User, error) {
-	claims, ok := token.Claims.(*JWTClaims)
-	if !ok {
-		return nil, errors.New("invalid claims")
-	}
-
-	// Validate issuer if configured
-	if len(jwtConfig.Issuer) > 0 {
-		validIssuer := false
-		for _, issuer := range jwtConfig.Issuer {
-			if claims.Issuer == issuer {
-				validIssuer = true
-				break
-			}
-		}
-		if !validIssuer {
-			return nil, errors.New("invalid issuer")
-		}
-	}
-
-	// Validate audience if configured
-	if len(jwtConfig.Audience) > 0 {
-		validAudience := false
-		for _, aud := range claims.Audience {
-			for _, expectedAud := range jwtConfig.Audience {
-				if aud == expectedAud {
-					validAudience = true
-					break
-				}
-			}
-			if validAudience {
-				break
-			}
-		}
-		if !validAudience {
-			return nil, errors.New("invalid audience")
-		}
-	}
-
-	// Validate client ID if configured
-	if len(jwtConfig.ClientIds) > 0 {
-		validClientId := false
-		for _, clientId := range jwtConfig.ClientIds {
-			if claims.ClientId == clientId {
-				validClientId = true
-				break
-			}
-		}
-		if !validClientId {
-			return nil, errors.New("invalid client ID")
-		}
-	}
-
-	// Build user from claims
-	user := &User{
-		ID:              claims.UserID,
-		Email:           claims.Email,
-		Name:            claims.Name,
-		Permissions:     claims.Permissions,
-		DataAccessRoles: claims.DataAccessRoles,
-		FuncRoles:       claims.FuncRoles,
-	}
-
-	return user, nil
+	ctx := context.Background()
+	return tokenManager.ValidateToken(ctx, tokenString)
 }
 
 // ExtractToken extracts JWT token from request based on source

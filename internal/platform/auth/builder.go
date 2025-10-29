@@ -20,21 +20,23 @@ func NewBuilder() *Builder {
 }
 
 // WithJWTConfig sets JWT configuration
-func (b *Builder) WithJWTConfig(issuer, audience, clientIds []string, cookieName string) *Builder {
+func (b *Builder) WithJWTConfig(cookieName string) *Builder {
 	b.jwtConfig = JWTConfig{
-		Issuer:     issuer,
-		Audience:   audience,
-		ClientIds:  clientIds,
 		CookieName: cookieName,
 	}
 	return b
 }
 
-// WithJWKSConfig sets JWKS configuration for RSA/ECDSA signature validation
-func (b *Builder) WithJWKSConfig(jwksURL string, cacheMinutes int, signingMethods []string) *Builder {
-	b.jwtConfig.JWKSURL = jwksURL
+// WithTokenTypesConfig sets configuration for each token type
+func (b *Builder) WithTokenTypesConfig(tokenTypesConfig map[TokenType]TokenTypeConfig, cacheMinutes int) *Builder {
+	b.jwtConfig.TokenTypesConfig = tokenTypesConfig
 	b.jwtConfig.JWKSCache = cacheMinutes
-	b.jwtConfig.SigningMethods = signingMethods
+	return b
+}
+
+// WithTokenTypes sets supported token types
+func (b *Builder) WithTokenTypes(tokenTypes []TokenType) *Builder {
+	b.jwtConfig.TokenTypes = tokenTypes
 	return b
 }
 
@@ -82,37 +84,11 @@ func (b *Builder) Build() error {
 	// Log successful initialization
 	if b.logger != nil {
 		if b.devMode {
-			b.logger.Info("Authentication initialized",
-				zap.String("mode", "development"),
-				zap.Bool("dev_mode", true),
-				zap.Strings("issuers", b.jwtConfig.Issuer),
-				zap.Strings("audiences", b.jwtConfig.Audience),
-				zap.Strings("client_ids", b.jwtConfig.ClientIds),
-				zap.String("jwks_url", b.jwtConfig.JWKSURL),
-				zap.Int("jwks_cache_minutes", b.jwtConfig.JWKSCache),
-				zap.Strings("signing_methods", b.jwtConfig.SigningMethods),
-			)
+			b.logger.Info("Authentication initialized")
 		} else {
-			b.logger.Info("Authentication initialized",
-				zap.String("mode", "production"),
-				zap.Bool("dev_mode", false),
-				zap.Strings("issuers", b.jwtConfig.Issuer),
-				zap.Strings("audiences", b.jwtConfig.Audience),
-				zap.Strings("client_ids", b.jwtConfig.ClientIds),
-				zap.String("jwks_url", b.jwtConfig.JWKSURL),
-				zap.Int("jwks_cache_minutes", b.jwtConfig.JWKSCache),
-				zap.Strings("signing_methods", b.jwtConfig.SigningMethods),
-			)
+			b.logger.Info("Authentication initialized")
 		}
 	}
 
 	return nil
-}
-
-// MustBuild initializes authentication and panics on error
-// Use this only when you're certain the configuration is valid
-func (b *Builder) MustBuild() {
-	if err := b.Build(); err != nil {
-		panic(fmt.Sprintf("Failed to initialize authentication: %v", err))
-	}
 }
