@@ -26,18 +26,10 @@ type Config struct {
 	Auth struct {
 		DevMode bool `mapstructure:"dev_mode"`
 		JWT     struct {
-			Issuer    []string `mapstructure:"issuer"`
-			Audience  []string `mapstructure:"audience"`
-			ClientIds []string `mapstructure:"client_ids"`
-			Cookie    struct {
-				Name     string `mapstructure:"name"`
-				Secure   bool   `mapstructure:"secure"`
-				HTTPOnly bool   `mapstructure:"httponly"`
-				MaxAge   int    `mapstructure:"max_age"`
-			} `mapstructure:"cookie"`
-			JWKSURL        string   `mapstructure:"jwks_url"`
-			JWKSCache      int      `mapstructure:"jwks_cache"`
-			SigningMethods []string `mapstructure:"signing_methods"`
+			Cookie           CookieConfig               `mapstructure:"cookie"`
+			TokenTypesConfig map[string]TokenTypeConfig `mapstructure:"token_types_config"`
+			JWKSCache        int                        `mapstructure:"jwks_cache"`
+			TokenTypes       []string                   `mapstructure:"token_types"`
 		} `mapstructure:"jwt"`
 	} `mapstructure:"auth"`
 	Database struct {
@@ -194,15 +186,6 @@ func Load() *Config {
 	// Auth defaults
 	// JWT Secret is REQUIRED via RX_AUTH_JWT_SECRET environment variable
 	// No default provided for security reasons
-	if len(cfg.Auth.JWT.Issuer) == 0 {
-		cfg.Auth.JWT.Issuer = []string{"PharmacyModernization"}
-	}
-	if len(cfg.Auth.JWT.Audience) == 0 {
-		cfg.Auth.JWT.Audience = []string{"PharmacyModernization"}
-	}
-	if len(cfg.Auth.JWT.ClientIds) == 0 {
-		cfg.Auth.JWT.ClientIds = []string{"default-client"}
-	}
 	if cfg.Auth.JWT.Cookie.Name == "" {
 		cfg.Auth.JWT.Cookie.Name = "auth_token"
 	}
@@ -211,4 +194,21 @@ func Load() *Config {
 	}
 	cfg.Auth.JWT.Cookie.HTTPOnly = true // Always true for security
 	return cfg
+}
+
+// CookieConfig represents cookie configuration
+type CookieConfig struct {
+	Name     string `mapstructure:"name"`
+	Secure   bool   `mapstructure:"secure"`
+	HTTPOnly bool   `mapstructure:"httponly"`
+	MaxAge   int    `mapstructure:"max_age"`
+}
+
+// TokenTypeConfig represents configuration for a specific token type
+type TokenTypeConfig struct {
+	JWKSURL        string   `mapstructure:"jwks_url"`
+	SigningMethods []string `mapstructure:"signing_methods"`
+	Issuer         []string `mapstructure:"issuer"`
+	Audience       []string `mapstructure:"audience"`
+	ClientIds      []string `mapstructure:"client_ids"`
 }

@@ -33,9 +33,6 @@ database:
 auth:
   dev_mode: true  # ONLY for local development - bypasses JWT with mock users
   jwt:
-    issuer: ["PharmacyModernization"]
-    audience: ["PharmacyModernization"]
-    client_ids: ["default-client", "mobile-app", "web-app"]
     cookie:
       name: "auth_token"
       secure: false  # Set to true in production (HTTPS only)
@@ -43,9 +40,21 @@ auth:
       max_age: 3600  # 1 hour in seconds
     # JWKS Configuration
     # REQUIRED: Set via RX_AUTH_JWT_JWKS_URL (UPPERCASE)
-    jwks_url: ""  # Override with RX_AUTH_JWT_JWKS_URL
+    token_types_config:
+      auth_pass:
+        jwks_url: "https://your-auth-provider.com/.well-known/jwks.json"
+        signing_methods: ["RS256", "ES256"]
+        issuer: ["PharmacyModernization"]
+        audience: ["PharmacyModernization"]
+        client_ids: ["default-client", "mobile-app", "web-app"]
+      azure_b2c:
+        jwks_url: "https://yourtenant.b2clogin.com/yourtenant.onmicrosoft.com/B2C_1_signupsignin/discovery/v2.0/keys"
+        signing_methods: ["RS256", "ES256"]
+        issuer: ["https://yourtenant.b2clogin.com/yourtenant.onmicrosoft.com/v2.0/"]
+        audience: ["your-app-id"]
+        client_ids: ["your-client-id"]
     jwks_cache: 15  # Cache duration in minutes (default: 15)
-    signing_methods: ["RS256", "ES256"]  # Allowed signing methods
+    token_types: ["auth_pass", "azure_b2c"]  # Supported token types
 cache:
   # MongoDB cache configuration (independent from main database)
   mongodb:

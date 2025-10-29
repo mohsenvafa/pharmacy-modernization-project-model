@@ -42,7 +42,14 @@ func requireAuthWithSource(source TokenSource) func(http.Handler) http.Handler {
 			user, err := ValidateToken(tokenString)
 			if err != nil {
 				log.Printf("AUTH 401: %s %s - Invalid token: %v", sanitizer.ForLogging(r.Method), sanitizer.ForLogging(r.URL.Path), err)
-				handleUnauthorized(w, r, "Invalid or expired token", source)
+
+				// Try to detect token type for better error reporting
+				tokenType, detectErr := DetectTokenType(tokenString)
+				if detectErr != nil {
+					tokenType = "unknown"
+				}
+
+				handleUnauthorized(w, r, "Invalid or expired token", source, string(tokenType))
 				return
 			}
 
@@ -54,17 +61,27 @@ func requireAuthWithSource(source TokenSource) func(http.Handler) http.Handler {
 }
 
 // handleUnauthorized returns 401 Unauthorized response
-func handleUnauthorized(w http.ResponseWriter, r *http.Request, message string, source TokenSource) {
+func handleUnauthorized(w http.ResponseWriter, r *http.Request, message string, source TokenSource, tokenType ...string) {
+	// Default token type if not provided
+	detectedTokenType := "unknown"
+	if len(tokenType) > 0 {
+		detectedTokenType = tokenType[0]
+	}
+
 	switch source {
 	case TokenSourceHeader:
 		// API - return JSON with 401
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusUnauthorized)
-		json.NewEncoder(w).Encode(map[string]interface{}{
+		response := map[string]interface{}{
 			"error":   "unauthorized",
 			"message": message,
 			"status":  401,
-		})
+		}
+		if detectedTokenType != "unknown" {
+			response["detected_token_type"] = detectedTokenType
+		}
+		json.NewEncoder(w).Encode(response)
 
 	case TokenSourceCookie:
 		// Browser - redirect to login
@@ -78,11 +95,15 @@ func handleUnauthorized(w http.ResponseWriter, r *http.Request, message string, 
 		if isAPIRequest(r) {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusUnauthorized)
-			json.NewEncoder(w).Encode(map[string]interface{}{
+			response := map[string]interface{}{
 				"error":   "unauthorized",
 				"message": message,
 				"status":  401,
-			})
+			}
+			if detectedTokenType != "unknown" {
+				response["detected_token_type"] = detectedTokenType
+			}
+			json.NewEncoder(w).Encode(response)
 		} else {
 			redirectURL := "/login"
 			if r.URL.Path != "" && r.URL.Path != "/login" {

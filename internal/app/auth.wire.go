@@ -4,22 +4,39 @@ import "pharmacy-modernization-project-model/internal/platform/auth"
 
 func (a *App) wireAuth() error {
 	builder := auth.NewBuilder().
-		WithJWTConfig(
-			a.Cfg.Auth.JWT.Issuer,
-			a.Cfg.Auth.JWT.Audience,
-			a.Cfg.Auth.JWT.ClientIds,
-			a.Cfg.Auth.JWT.Cookie.Name,
-		).
+		WithJWTConfig(a.Cfg.Auth.JWT.Cookie.Name).
 		WithDevMode(a.Cfg.Auth.DevMode).
 		WithEnvironment(a.Cfg.App.Env).
 		WithLogger(a.Logger.Base)
 
-	// Add JWKS configuration
-	builder = builder.WithJWKSConfig(
-		a.Cfg.Auth.JWT.JWKSURL,
+	// Convert string token types config to TokenType map
+	tokenTypesConfig := make(map[auth.TokenType]auth.TokenTypeConfig)
+	for tokenTypeStr, config := range a.Cfg.Auth.JWT.TokenTypesConfig {
+		tokenTypesConfig[auth.TokenType(tokenTypeStr)] = auth.TokenTypeConfig{
+			JWKSURL:        config.JWKSURL,
+			SigningMethods: config.SigningMethods,
+			Issuer:         config.Issuer,
+			Audience:       config.Audience,
+			ClientIds:      config.ClientIds,
+		}
+	}
+
+	// Add token types configuration
+	builder = builder.WithTokenTypesConfig(
+		tokenTypesConfig,
 		a.Cfg.Auth.JWT.JWKSCache,
-		a.Cfg.Auth.JWT.SigningMethods,
 	)
+
+	// Convert string token types to TokenType enum
+	var tokenTypes []auth.TokenType
+	for _, tokenTypeStr := range a.Cfg.Auth.JWT.TokenTypes {
+		tokenTypes = append(tokenTypes, auth.TokenType(tokenTypeStr))
+	}
+
+	// Add token types if configured
+	if len(tokenTypes) > 0 {
+		builder = builder.WithTokenTypes(tokenTypes)
+	}
 
 	if err := builder.Build(); err != nil {
 		return err
