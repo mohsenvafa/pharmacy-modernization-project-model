@@ -43,10 +43,8 @@ func NewAzureB2CTokenIdentifier(tokenConfig types.TokenTypeConfig, config types.
 
 // DetectTokenType attempts to detect if this is an Azure B2C token based on issuer
 func (abti *AzureB2CTokenIdentifier) DetectTokenType(ctx context.Context, tokenString string) (types.TokenType, error) {
-	// Parse token without validation to extract issuer
-	token, err := jwt.ParseWithClaims(tokenString, &jwt.MapClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return []byte("dummy"), nil
-	})
+	// Parse token without signature validation to extract issuer
+	token, _, err := jwt.NewParser().ParseUnverified(tokenString, &jwt.MapClaims{})
 	if err != nil {
 		return "", fmt.Errorf("failed to parse token: %w", err)
 	}
