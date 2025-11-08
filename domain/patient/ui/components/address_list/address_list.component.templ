@@ -2,7 +2,7 @@ package addresslist
 
 import (
 	addressmodel "pharmacy-modernization-project-model/domain/patient/contracts/model"
-	commonComponents "pharmacy-modernization-project-model/web/components/elements"
+	stateNameDisplayComponents "pharmacy-modernization-project-model/web/components/elements/state_name_display"
 )
 
 type AddressListParams struct {
@@ -32,7 +32,7 @@ templ AddressListComponentView(params AddressListParams) {
 							}
 							<p class="text-sm opacity-70">
 								{ address.City }, 
-								@commonComponents.StateNameDisplay(address.State)
+								@stateNameDisplayComponents.StateNameDisplay(address.State)
 								{ address.Zip }
 							</p>
 						</li>

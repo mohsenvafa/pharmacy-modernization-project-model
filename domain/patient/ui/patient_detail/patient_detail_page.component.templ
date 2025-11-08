@@ -8,6 +8,7 @@ import (
 	patientsmodel "pharmacy-modernization-project-model/domain/patient/contracts/model"
 	authComponents "pharmacy-modernization-project-model/web/components/auth"
 	commonComponents "pharmacy-modernization-project-model/web/components/elements"
+	stateNameDisplayComponents "pharmacy-modernization-project-model/web/components/elements/state_name_display"
 	layouts "pharmacy-modernization-project-model/web/components/layouts"
 )
 
@@ -35,7 +36,7 @@ templ patientDetail(ctx context.Context, pageParam PatientDetailPageParam) {
 		</div>
 		<section class="grid gap-4 px-4 md:grid-cols-3">
 			@commonComponents.StatisticsCard("Age", fmt.Sprintf("%d", pageParam.Age), "years old")
-			@commonComponents.StatisticsCard("State", commonComponents.StateAbbreviationToName(pageParam.Patient.State), "Primary residence")
+			@commonComponents.StatisticsCard("State", stateNameDisplayComponents.StateAbbreviationToName(pageParam.Patient.State), "Primary residence")
 			@commonComponents.StatisticsCard("Phone", pageParam.Patient.Phone, "Primary contact")
 		</section>
 		<section class="card mx-4 bg-base-100 shadow">
@@ -70,7 +71,7 @@ templ patientDetail(ctx context.Context, pageParam PatientDetailPageParam) {
 					<div>
 						<div class="text-xs uppercase opacity-60">State</div>
 						<div class="text-base font-semibold">
-							@commonComponents.StateNameDisplay(pageParam.Patient.State)
+							@stateNameDisplayComponents.StateNameDisplay(pageParam.Patient.State)
 						</div>
 					</div>
 					<div>

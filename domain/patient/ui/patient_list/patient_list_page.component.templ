@@ -5,6 +5,7 @@ import (
 	patientsmodel "pharmacy-modernization-project-model/domain/patient/contracts/model"
 	commonComponents "pharmacy-modernization-project-model/web/components/elements"
 	dataTableComponents "pharmacy-modernization-project-model/web/components/elements/data_table"
+	stateNameDisplayComponents "pharmacy-modernization-project-model/web/components/elements/state_name_display"
 	layouts "pharmacy-modernization-project-model/web/components/layouts"
 	"strings"
 )
@@ -121,7 +122,7 @@ templ patientTableRows(pats []patientsmodel.Patient, detailPath func(string) str
 			</td>
 			<td>{ pat.DOB.Format("Jan 2, 2006") }</td>
 			<td>
-				@commonComponents.StateNameDisplay(pat.State)
+				@stateNameDisplayComponents.StateNameDisplay(pat.State)
 			</td>
 		</tr>
 	}
