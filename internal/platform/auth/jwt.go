@@ -47,7 +47,11 @@ func InitJWTConfig(config JWTConfig) error {
 			tokenManager.RegisterIdentifier(identifier)
 
 		default:
-			return fmt.Errorf("unsupported token type: %s", string(tokenType))
+			identifier, err := token_identifiers.NewDefaultTokenIdentifier(tokenType, tokenConfig, config)
+			if err != nil {
+				return fmt.Errorf("failed to create default token identifier for token type %s: %w", string(tokenType), err)
+			}
+			tokenManager.RegisterIdentifier(identifier)
 		}
 	}
 
