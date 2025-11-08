@@ -6,7 +6,8 @@ This directory contains Podman/Compose configurations for local development.
 
 - **Podman** installed and running (or Docker as fallback)
 - **podman-compose** installed (`pip install podman-compose`)
-- Make utility installed
+- **macOS/Linux users**: Make utility installed
+- **Windows users**: PowerShell 5.1+ (included with Windows 10/11) or PowerShell Core
 
 ### Installing Podman
 
@@ -40,8 +41,14 @@ pip install podman-compose
 
 ### Start MongoDB
 
+**macOS/Linux:**
 ```bash
 make -f podman/Makefile podman-up
+```
+
+**Windows:**
+```powershell
+.\podman\make.ps1 podman-up
 ```
 
 This will start:
@@ -57,6 +64,7 @@ This will start:
 
 ## Available Commands
 
+**macOS/Linux:**
 ```bash
 make -f podman/Makefile help           # Show all available commands
 make -f podman/Makefile podman-up      # Start MongoDB container
@@ -69,13 +77,34 @@ make -f podman/Makefile mongo-shell    # Connect to MongoDB shell
 make -f podman/Makefile mongo-seed     # Seed MongoDB with sample patient data
 ```
 
+**Windows:**
+```powershell
+.\podman\make.ps1 help           # Show all available commands
+.\podman\make.ps1 podman-up      # Start MongoDB container
+.\podman\make.ps1 podman-down    # Stop MongoDB container
+.\podman\make.ps1 podman-restart # Restart MongoDB container
+.\podman\make.ps1 podman-logs    # View MongoDB logs
+.\podman\make.ps1 podman-clean   # Stop container and remove all data
+.\podman\make.ps1 mongo-logs     # Show MongoDB logs
+.\podman\make.ps1 mongo-shell    # Connect to MongoDB shell
+.\podman\make.ps1 mongo-seed     # Seed MongoDB with sample patient data
+```
+
 ### Legacy Docker Commands
 
 For backwards compatibility, Docker command aliases are available:
 
+**macOS/Linux:**
 ```bash
 make -f podman/Makefile docker-up      # Alias for podman-up
 make -f podman/Makefile docker-down    # Alias for podman-down
+# ... (all docker-* commands map to podman-* commands)
+```
+
+**Windows:**
+```powershell
+.\podman\make.ps1 docker-up      # Alias for podman-up
+.\podman\make.ps1 docker-down    # Alias for podman-down
 # ... (all docker-* commands map to podman-* commands)
 ```
 
@@ -92,8 +121,14 @@ make -f podman/Makefile docker-down    # Alias for podman-down
 
 After starting MongoDB, seed it with sample patient data:
 
+**macOS/Linux:**
 ```bash
 make -f podman/Makefile mongo-seed
+```
+
+**Windows:**
+```powershell
+.\podman\make.ps1 mongo-seed
 ```
 
 This will populate the database with:
@@ -108,17 +143,35 @@ You can view the data in your application at http://localhost:8080
 This setup works with both Podman and Docker:
 
 ### Using Podman (Recommended)
+
+**macOS/Linux:**
 ```bash
 # The Makefile automatically detects and uses podman-compose
 make -f podman/Makefile podman-up
 ```
 
+**Windows:**
+```powershell
+# PowerShell script uses podman compose
+.\podman\make.ps1 podman-up
+```
+
 ### Using Docker (Fallback)
+
+**macOS/Linux:**
 ```bash
 # If podman-compose is not installed, it falls back to docker compose
 make -f podman/Makefile podman-up  # Works with Docker too
 # OR use the legacy aliases
 make -f podman/Makefile docker-up
+```
+
+**Windows:**
+```powershell
+# PowerShell script works with Docker too
+.\podman\make.ps1 podman-up  # Works with Docker too
+# OR use the legacy aliases
+.\podman\make.ps1 docker-up
 ```
 
 ## Podman-specific Notes
@@ -205,9 +258,20 @@ podman exec -it mongodb bash
 ```
 
 ### Reset Everything
+
+**macOS/Linux:**
 ```bash
 # Stop and remove everything
 make -f podman/Makefile podman-clean
+
+# Remove all volumes manually
+podman volume prune
+```
+
+**Windows:**
+```powershell
+# Stop and remove everything
+.\podman\make.ps1 podman-clean
 
 # Remove all volumes manually
 podman volume prune
