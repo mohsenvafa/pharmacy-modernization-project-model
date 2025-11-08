@@ -1,8 +1,8 @@
 package patient_list
 
-import commonComponents "pharmacy-modernization-project-model/web/components/elements"
+import dataTableComponents "pharmacy-modernization-project-model/web/components/elements/data_table"
 
-var patientTableColumns = []commonComponents.DataTableColumn{
+var patientTableColumns = []dataTableComponents.DataTableColumn{
 	{Title: "", Class: "w-0"},
 	{Title: "Patient"},
 	{Title: "Birthdate"},

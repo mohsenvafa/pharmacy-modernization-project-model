@@ -4,7 +4,7 @@
  */
 
 import { registerComponent } from '@web/registry'
-import { DataTableComponent } from '@components/elements/data_table.component'
+import { DataTableComponent } from '@components/elements/data_table/data_table.component'
 
 // Register web components
 export function registerWebComponents() {

@@ -4,6 +4,7 @@ import (
 	"net/url"
 	patientsmodel "pharmacy-modernization-project-model/domain/patient/contracts/model"
 	commonComponents "pharmacy-modernization-project-model/web/components/elements"
+	dataTableComponents "pharmacy-modernization-project-model/web/components/elements/data_table"
 	layouts "pharmacy-modernization-project-model/web/components/layouts"
 	"strings"
 )
@@ -93,7 +94,7 @@ templ patientList(pageParam PatientListPageParam) {
 					</h2>
 				</div>
 			</div>
-			@commonComponents.DataTable(patientTableColumns, patientTableRows(pageParam.Patients, pageParam.DetailPath))
+			@dataTableComponents.DataTable(patientTableColumns, patientTableRows(pageParam.Patients, pageParam.DetailPath))
 			@commonComponents.Pagination(commonComponents.PaginationParams{
 				CurrentPage: pageParam.CurrentPage,
 				TotalPages:  pageParam.TotalPages,
