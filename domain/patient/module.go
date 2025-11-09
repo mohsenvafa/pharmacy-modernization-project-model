@@ -7,6 +7,7 @@ import (
 
 	patientapi "pharmacy-modernization-project-model/domain/patient/api"
 	patientbuilder "pharmacy-modernization-project-model/domain/patient/builder"
+	microui "pharmacy-modernization-project-model/domain/patient/micro_ui"
 	patientproviders "pharmacy-modernization-project-model/domain/patient/providers"
 	patientservice "pharmacy-modernization-project-model/domain/patient/service"
 	uipatient "pharmacy-modernization-project-model/domain/patient/ui"
@@ -47,6 +48,11 @@ func Module(r chi.Router, deps *ModuleDependencies) ModuleExport {
 		PrescriptionProvider: deps.PrescriptionProvider,
 		InvoiceProvider:      deps.InvoiceProvider,
 		Log:                  deps.Logger,
+	})
+
+	microui.Mount(r, &microui.Dependencies{
+		PatientSvc: patSvc,
+		Log:        deps.Logger,
 	})
 
 	return ModuleExport{PatientService: patSvc, AddressService: addrSvc}

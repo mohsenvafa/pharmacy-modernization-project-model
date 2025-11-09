@@ -1,0 +1,51 @@
+package prescriptioninfo
+
+import (
+	"fmt"
+	"time"
+
+	prescriptionmodel "pharmacy-modernization-project-model/domain/prescription/contracts/model"
+)
+
+type PrescriptionInfoParams struct {
+	Prescription prescriptionmodel.Prescription
+}
+
+templ PrescriptionInfoFragment(params PrescriptionInfoParams) {
+	<section class="rx-prescription-info">
+		<header class="rx-prescription-info__header">
+			<h2>Prescription { params.Prescription.ID }</h2>
+		</header>
+		<dl class="rx-prescription-info__details">
+			<div>
+				<dt>Patient</dt>
+				<dd>{ params.Prescription.PatientID }</dd>
+			</div>
+			<div>
+				<dt>Drug</dt>
+				<dd>{ params.Prescription.Drug }</dd>
+			</div>
+			<div>
+				<dt>Dose</dt>
+				<dd>{ params.Prescription.Dose }</dd>
+			</div>
+			<div>
+				<dt>Status</dt>
+				<dd>{ string(params.Prescription.Status) }</dd>
+			</div>
+			<div>
+				<dt>Created</dt>
+				<dd>{ params.Prescription.CreatedAt.Format(time.RFC1123) }</dd>
+			</div>
+		</dl>
+	</section>
+}
+
+templ PrescriptionInfoError(message string) {
+	<section class="rx-prescription-info rx-prescription-info--error">
+		<header class="rx-prescription-info__header">
+			<h2>Prescription Unavailable</h2>
+		</header>
+		<p>{ fmt.Sprintf("Unable to render prescription info: %s", message) }</p>
+	</section>
+}

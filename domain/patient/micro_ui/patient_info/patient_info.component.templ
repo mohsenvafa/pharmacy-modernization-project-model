@@ -1,0 +1,62 @@
+package patientinfo
+
+import (
+	"fmt"
+	"time"
+
+	patientmodel "pharmacy-modernization-project-model/domain/patient/contracts/model"
+)
+
+type PatientInfoParams struct {
+	Patient patientmodel.Patient
+}
+
+func formatDate(t time.Time) string {
+	if t.IsZero() {
+		return "Unknown"
+	}
+	return t.Format("January 2, 2006")
+}
+
+templ PatientInfoFragment(params PatientInfoParams) {
+	<section class="rx-patient-info">
+		<header class="rx-patient-info__header">
+			<h2>Patient { params.Patient.Name }</h2>
+			<span class="rx-patient-info__meta">ID: { params.Patient.ID }</span>
+		</header>
+		<dl class="rx-patient-info__details">
+			<div>
+				<dt>Date of Birth</dt>
+				<dd>{ formatDate(params.Patient.DOB) }</dd>
+			</div>
+			<div>
+				<dt>Phone</dt>
+				<dd>{ valueOrFallback(params.Patient.Phone, "Not provided") }</dd>
+			</div>
+			<div>
+				<dt>State</dt>
+				<dd>{ valueOrFallback(params.Patient.State, "Not provided") }</dd>
+			</div>
+			<div>
+				<dt>Created</dt>
+				<dd>{ formatDate(params.Patient.CreatedAt) }</dd>
+			</div>
+		</dl>
+	</section>
+}
+
+templ PatientInfoError(message string) {
+	<section class="rx-patient-info rx-patient-info--error">
+		<header class="rx-patient-info__header">
+			<h2>Patient Unavailable</h2>
+		</header>
+		<p>{ fmt.Sprintf("Unable to render patient info: %s", message) }</p>
+	</section>
+}
+
+func valueOrFallback(value string, fallback string) string {
+	if value == "" {
+		return fallback
+	}
+	return value
+}

@@ -7,6 +7,7 @@ import (
 
 	prescriptionapi "pharmacy-modernization-project-model/domain/prescription/api"
 	prescriptionbuilder "pharmacy-modernization-project-model/domain/prescription/builder"
+	microui "pharmacy-modernization-project-model/domain/prescription/micro_ui"
 	prescriptionservice "pharmacy-modernization-project-model/domain/prescription/service"
 	uiprescription "pharmacy-modernization-project-model/domain/prescription/ui"
 	irisbilling "pharmacy-modernization-project-model/internal/integrations/iris_billing"
@@ -41,6 +42,7 @@ func Module(r chi.Router, deps *ModuleDependencies) ModuleExport {
 
 	prescriptionapi.MountAPI(r, &prescriptionapi.Dependencies{Service: svc, Logger: deps.Logger})
 	uiprescription.MountUI(r, &uiprescription.PrescriptionDependencies{PrescriptionSvc: svc, Log: deps.Logger})
+	microui.Mount(r, &microui.Dependencies{PrescriptionSvc: svc, Log: deps.Logger})
 
 	return ModuleExport{PrescriptionService: svc}
 }
