@@ -101,10 +101,8 @@ const styles: Record<string, React.CSSProperties> = {
   container: {
     fontFamily: `system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`,
     padding: '0 2rem 2rem',
-    marginTop: '2rem',
     maxWidth: '720px',
-    marginLeft: 'auto',
-    marginRight: 'auto',
+    margin: '0 auto',
     display: 'grid',
     gap: '1.5rem'
   },

@@ -64,7 +64,7 @@ import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core'
       }
       .container {
         max-width: 720px;
-        margin: 2rem auto 0;
+        margin: 0 auto;
         display: grid;
         gap: 1.5rem;
         padding: 0 0 2rem;
