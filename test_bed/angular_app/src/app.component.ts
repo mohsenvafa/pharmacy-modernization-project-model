@@ -59,19 +59,26 @@ import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core'
     `
       :host {
         font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-        padding: 2rem;
+        padding: 0 2rem 2rem;
         display: block;
       }
       .container {
         max-width: 720px;
-        margin: 0 auto;
+        margin: 2rem auto 0;
         display: grid;
         gap: 1.5rem;
+        padding: 0 0 2rem;
       }
       .page-header {
+        position: sticky;
+        top: 0;
+        z-index: 10;
         display: flex;
         align-items: center;
         gap: 1rem;
+        padding: 1rem 0;
+        background: #ffffff;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
       }
       .page-header img {
         display: block;

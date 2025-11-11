@@ -100,16 +100,24 @@ export default function App() {
 const styles: Record<string, React.CSSProperties> = {
   container: {
     fontFamily: `system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`,
-    padding: '2rem',
+    padding: '0 2rem 2rem',
+    marginTop: '2rem',
     maxWidth: '720px',
-    margin: '0 auto',
+    marginLeft: 'auto',
+    marginRight: 'auto',
     display: 'grid',
     gap: '1.5rem'
   },
   header: {
+    position: 'sticky',
+    top: 0,
+    zIndex: 10,
     display: 'flex',
     alignItems: 'center',
-    gap: '1rem'
+    gap: '1rem',
+    padding: '1rem 0',
+    background: '#ffffff',
+    borderBottom: '1px solid rgba(0, 0, 0, 0.05)'
   },
   logo: {
     display: 'block'
